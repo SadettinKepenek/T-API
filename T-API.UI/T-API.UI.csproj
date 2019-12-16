@@ -3,7 +3,6 @@
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
     <RootNamespace>T_API.UI</RootNamespace>
-    <AssemblyName>T-API.UI</AssemblyName>
   </PropertyGroup>
 
   <ItemGroup>

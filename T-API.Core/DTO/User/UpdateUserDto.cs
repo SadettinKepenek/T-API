@@ -4,7 +4,7 @@ namespace T_API.Core.DTO.User
 {
     public class UpdateUserDto
     {
-        public Guid UserId { get; set; }
+        public int UserId { get; set; }
         public string Firstname { get; set; }
         public string Lastname { get; set; }
         public string PhoneNumber { get; set; }

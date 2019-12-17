@@ -4,6 +4,6 @@ namespace T_API.Core.DTO.User
 {
     public class DeleteUserDto
     {
-        public Guid UserId { get; set; }
+        public int UserId { get; set; }
     }
 }

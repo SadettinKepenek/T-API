@@ -4,8 +4,21 @@ namespace T_API.Entity.Concrete
 {
     public class DatabaseEntity
     {
-        public Guid DatabaseId { get; set; }
-        public Guid UserId { get; set; }
+        private int databaseId;
+
+        public int DatabaseId
+        {
+            get { return databaseId; }
+            set { databaseId = value; }
+        }
+
+        private int userId;
+
+        public int UserId
+        {
+            get { return userId; }
+            set { userId = value; }
+        }
         public string Server { get; set; }
         public string Username { get; set; }
         public string Password { get; set; }

@@ -5,7 +5,7 @@ namespace T_API.Core.DTO.Database
 {
     public class AddDatabaseDto
     {
-        public Guid UserId { get; set; }
+        public int UserId { get; set; }
         public string Server { get; set; }
         public string Username { get; set; }
         public string Password { get; set; }

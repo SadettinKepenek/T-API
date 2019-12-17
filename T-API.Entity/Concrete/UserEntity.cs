@@ -5,7 +5,14 @@ namespace T_API.Entity.Concrete
 {
     public class UserEntity
     {
-        public Guid UserId { get; set; }
+        private int userId;
+
+        public int UserId
+        {
+            get { return userId; }
+            set { userId = value; }
+        }
+
         public string Firstname { get; set; }
         public string Lastname { get; set; }
         public string PhoneNumber { get; set; }

@@ -5,8 +5,8 @@ namespace T_API.Core.DTO.Database
 {
     public class ListDatabaseDto
     {
-        public Guid DatabaseId { get; set; }
-        public Guid UserId { get; set; }
+        public int DatabaseId { get; set; }
+        public int UserId { get; set; }
         public string UserFirstname { get; set; }
         public string UserLastname { get; set; }
         public string Server { get; set; }

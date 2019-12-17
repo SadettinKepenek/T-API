@@ -2,8 +2,9 @@
 using T_API.Core.DTO.Database;
 using T_API.Core.DTO.User;
 using T_API.Entity.Concrete;
+using T_API.UI.Models.Security;
 
-namespace T_API.Core.MappingProfiles
+namespace T_API.UI.MappingProfiles
 {
     public class MappingProfile: Profile
     {
@@ -16,6 +17,7 @@ namespace T_API.Core.MappingProfiles
             CreateMap<DetailDatabaseDto, DatabaseEntity>().ReverseMap();
 
             CreateMap<AddUserDto, UserEntity>();
+            CreateMap<RegisterViewModel, AddUserDto>();
             CreateMap<DeleteUserDto, UserEntity>();
             CreateMap<UpdateUserDto, UserEntity>();
             CreateMap<DetailUserDto, UserEntity>().ReverseMap();

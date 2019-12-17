@@ -11,6 +11,7 @@ namespace T_API.DAL.Abstract
         Task DeleteUser(UserEntity user);
         Task<List<UserEntity>> GetAll();
         Task<UserEntity> GetById(int userId);
+        Task<UserEntity> GetByUsername(string username);
 
 
     }

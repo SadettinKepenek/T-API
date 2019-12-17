@@ -5,5 +5,7 @@ namespace T_API.Core.DTO.User
     public class DeleteUserDto
     {
         public int UserId { get; set; }
+        public string Role { get; set; }
+
     }
 }

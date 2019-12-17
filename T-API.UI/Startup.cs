@@ -19,6 +19,8 @@ using T_API.BLL.Abstract;
 using T_API.BLL.Concrete;
 using T_API.Core.MappingProfiles;
 using T_API.Core.Settings;
+using T_API.DAL.Abstract;
+using T_API.DAL.Concrete;
 
 namespace T_API.UI
 {
@@ -39,6 +41,9 @@ namespace T_API.UI
 
             IMapper mapper = mappingConfig.CreateMapper();
             services.AddSingleton(mapper);
+
+            services.AddScoped<IAuthService, AuthManager>();
+            services.AddScoped<IUserRepository, UserRepository>();
 
             services.AddControllersWithViews().AddRazorRuntimeCompilation();
             var key = Encoding.ASCII.GetBytes(ConfigurationSettings.SecretKey);

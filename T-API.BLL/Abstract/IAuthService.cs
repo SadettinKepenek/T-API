@@ -1,7 +1,11 @@
-﻿namespace T_API.BLL.Abstract
+﻿using System.Threading.Tasks;
+using T_API.Core.DTO.User;
+
+namespace T_API.BLL.Abstract
 {
     public interface IAuthService
     {
-        string Login();
+        Task Register(AddUserDto addUserDto);
+        Task Login(LoginUserDto loginUser);
     }
 }

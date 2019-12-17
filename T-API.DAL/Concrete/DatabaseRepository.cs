@@ -22,7 +22,7 @@ namespace T_API.DAL.Concrete
 
         public async Task<int> AddDatabase(DatabaseEntity database)
         {
-            using var conn =await _dbConnectionFactory.CreateConnection(ConfigurationSettings.DbInformation);
+            using var conn = _dbConnectionFactory.CreateConnection(ConfigurationSettings.DbInformation);
             if (conn.State==ConnectionState.Broken||conn.State==ConnectionState.Closed) conn.Open();
             //bu arada benim vs yi güncellemem lazım yarın yapabilriim okulda
             return Int32.MaxValue;

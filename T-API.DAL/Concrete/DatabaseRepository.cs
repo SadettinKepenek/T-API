@@ -24,7 +24,7 @@ namespace T_API.DAL.Concrete
         {
             using var conn =await _dbConnectionFactory.CreateConnection(ConfigurationSettings.DbInformation);
             if (conn.State==ConnectionState.Broken||conn.State==ConnectionState.Closed) conn.Open();
-            //user repo yu da yazak madem
+            //bu arada benim vs yi güncellemem lazım yarın yapabilriim okulda
             return Int32.MaxValue;
         }
 

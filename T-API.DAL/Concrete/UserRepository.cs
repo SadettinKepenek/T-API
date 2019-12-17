@@ -22,13 +22,22 @@ namespace T_API.DAL.Concrete
         {
             using var conn =await _dbConnectionFactory.CreateConnection(ConfigurationSettings.DbInformation);
             if(conn.State == ConnectionState.Broken || conn.State == ConnectionState.Closed) conn.Open();
-            conn.BeginTransaction();
+            using var cmd=new SqlCommand("",conn as SqlConnection);
+            string sql =
+                "Insert into users (Firstname,Lastname,Email,PhoneNumber,Balance,Username,Password,IsActive ) Values (@Firstname , @Lastname , " +
+                "@Email , @PhoneNumber , @Balance , @Username , @Password , @IsActive)";
 
+            cmd.Parameters.AddWithValue("Firstname", user.Firstname);
+            cmd.Parameters.AddWithValue("Lastname", user.Lastname);
+            cmd.Parameters.AddWithValue("Email", user.Email);
+            cmd.Parameters.AddWithValue("PhoneNumber", user.PhoneNumber);
+            cmd.Parameters.AddWithValue("Balance", user.Balance);
+            cmd.Parameters.AddWithValue("Username", user.Username);
+            cmd.Parameters.AddWithValue("Password", user.Password);
+            cmd.Parameters.AddWithValue("IsActive", user.IsActive);
+            var id = (int)await cmd.ExecuteScalarAsync(); 
 
-
-            var cmd = new SqlCommand("", conn as SqlConnection);
-
-            throw new System.NotImplementedException();
+            return id;
         }
 
         public Task UpdateUser(UserEntity user)
@@ -48,6 +57,7 @@ namespace T_API.DAL.Concrete
 
         public Task<UserEntity> GetById(int userId)
         {
+
             throw new System.NotImplementedException();
         }
     }

@@ -6,7 +6,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="Concrete\" />
+    <ProjectReference Include="..\T-API.Core\T-API.Core.csproj" />
+    <ProjectReference Include="..\T-API.Entity\T-API.Entity.csproj" />
   </ItemGroup>
 
 </Project>

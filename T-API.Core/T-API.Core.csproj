@@ -10,4 +10,8 @@
     <PackageReference Include="System.Data.SqlClient" Version="4.8.0" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\T-API.Entity\T-API.Entity.csproj" />
+  </ItemGroup>
+
 </Project>

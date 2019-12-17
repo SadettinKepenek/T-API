@@ -13,7 +13,7 @@ namespace T_API.Core.DAL.Concrete
         public async Task<IDbConnection> CreateConnection(DbInformation information)
         {
             string connectionString;
-            if (information.Provider.Equals("MySql"))
+            if (information.Provider.Equals("SqlServer"))
             {
                 if (String.IsNullOrEmpty(information.Port))
                     information.Port = "3306";
@@ -23,14 +23,14 @@ namespace T_API.Core.DAL.Concrete
                                           $"Password={information.Password}" +
                                           $"Port={information.Port};";
             }
-            else if (information.Provider.Equals("SqlServer"))
+            else if (information.Provider.Equals("MySql"))
             {
                 if (String.IsNullOrEmpty(information.Port))
                     information.Port = "1443";
                 connectionString = $"Server={information.Server};" +
                                           $"Initial Catalog={information.Database};" +
                                           $"Uid={information.Username};" +
-                                          $"Pwd={information.Password};" +
+                                          $"Pwd={information.Password};" + 
                                           $"Port={information.Port};";
             }
             else

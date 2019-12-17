@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using AutoMapper;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
@@ -39,15 +40,24 @@ namespace T_API.UI
             IMapper mapper = mappingConfig.CreateMapper();
             services.AddSingleton(mapper);
 
-            services.AddControllersWithViews();
+            services.AddControllersWithViews().AddRazorRuntimeCompilation();
             var key = Encoding.ASCII.GetBytes(ConfigurationSettings.SecretKey);
-
-
-            services.AddAuthentication(x =>
-                {
-                    x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-                    x.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-                })
+            services.AddAuthentication()
+                .AddCookie(options =>
+                    {
+                        options.LoginPath = "/Security/Login";
+                        options.LogoutPath = "/Security/Logout";
+                        options.AccessDeniedPath = "/Store/Home";
+                        options.SlidingExpiration = true;
+                        options.Cookie = new CookieBuilder()
+                        {
+                            HttpOnly = true,
+                            Name = ".T-API.Security.Cookie",
+                            Path = "/",
+                            SameSite = SameSiteMode.Lax,
+                            SecurePolicy = CookieSecurePolicy.SameAsRequest
+                        };
+                    })
                 .AddJwtBearer(x =>
                 {
                     x.RequireHttpsMetadata = false;
@@ -62,31 +72,18 @@ namespace T_API.UI
 
                     };
                 });
-            services.ConfigureApplicationCookie(options =>
-            {
-                options.LoginPath = "/Security/Login";
-                options.LogoutPath = "/Security/Logout";
-                options.AccessDeniedPath = "/Store/Home";
-                options.SlidingExpiration = true;
-                options.Cookie = new CookieBuilder()
-                {
-                    HttpOnly = true,
-                    Name = ".AspNetCoreDemo.Security.Cookie",
-                    Path = "/",
-                    SameSite = SameSiteMode.Lax,
-                    SecurePolicy = CookieSecurePolicy.SameAsRequest
-                };
-            });
             services.AddAuthorization(options =>
             {
-                options.DefaultPolicy = new AuthorizationPolicyBuilder()
-                    .RequireAuthenticatedUser()
-                    .Build();
-            });
+                var defaultPoliceBuilder=new AuthorizationPolicyBuilder(CookieAuthenticationDefaults.AuthenticationScheme,JwtBearerDefaults.AuthenticationScheme);
+                defaultPoliceBuilder=defaultPoliceBuilder.RequireAuthenticatedUser();
+                options.DefaultPolicy = defaultPoliceBuilder.Build();
 
+
+            });
+            
             services.AddSession(opt =>
             {
-                opt.Cookie.Name = ".Commerce.Session";
+                opt.Cookie.Name = ".T_API.Session";
                 opt.Cookie.IsEssential = true;
             });
             services.AddDistributedMemoryCache();
@@ -97,7 +94,6 @@ namespace T_API.UI
 
         }
 
-        // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
             if (env.IsDevelopment())
@@ -107,7 +103,6 @@ namespace T_API.UI
             else
             {
                 app.UseExceptionHandler("/Home/Error");
-                // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
                 app.UseHsts();
             }
 

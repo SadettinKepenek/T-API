@@ -41,7 +41,8 @@ namespace T_API.DAL.Concrete
         }
 
         public Task UpdateUser(UserEntity user)
-        {
+        {    
+            
             throw new System.NotImplementedException();
         }
 

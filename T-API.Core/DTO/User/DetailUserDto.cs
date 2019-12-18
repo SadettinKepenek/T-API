@@ -16,5 +16,7 @@ namespace T_API.Core.DTO.User
         public decimal Balance { get; set; }
         public List<ListDatabaseDto> Databases { get; set; }
         public bool IsActive { get; set; }
+        public string Role { get; set; }
+
     }
 }

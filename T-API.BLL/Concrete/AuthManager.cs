@@ -5,34 +5,45 @@ using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using System.Threading.Tasks;
+using AutoMapper;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using T_API.BLL.Abstract;
+using T_API.BLL.Validators.User;
+using T_API.Core.DTO.User;
+using T_API.Core.Exception;
 using T_API.Core.Settings;
+using T_API.DAL.Abstract;
+using T_API.Entity.Concrete;
 
 namespace T_API.BLL.Concrete
 {
     public class AuthManager:IAuthService
     {
         private IHttpContextAccessor _httpContextAccessor;
+        private IUserRepository _userRepository;
+        private IMapper _mapper;
 
-        public AuthManager(IHttpContextAccessor httpContextAccessor)
+        public AuthManager(IHttpContextAccessor httpContextAccessor, IUserRepository userRepository, IMapper mapper)
         {
             _httpContextAccessor = httpContextAccessor;
+            _userRepository = userRepository;
+            _mapper = mapper;
         }
 
-        public string Login()
-        {
-            return GenerateToken();
-        }
-        private string GenerateToken()
+      
+        private string GenerateToken(UserEntity user)
         {
             var tokenHandler = new JwtSecurityTokenHandler();
             var key = Encoding.ASCII.GetBytes(ConfigurationSettings.SecretKey);
-            var claims = new List<Claim>();
 
-            claims.Add(new Claim(ClaimTypes.Name, "test"));
-            claims.Add(new Claim(ClaimTypes.Email, "berkay.yalcin20@hotmail.com"));
-            claims.Add(new Claim(ClaimTypes.Role, "Admin"));
-
+            var claims = new List<Claim>
+            {
+                new Claim(ClaimTypes.Name, user.Username),
+                new Claim(ClaimTypes.Email, user.Email),
+                new Claim(ClaimTypes.Role, user.Role),
+            };
 
 
             var signingCredentials =
@@ -50,5 +61,88 @@ namespace T_API.BLL.Concrete
             return tokenHandler.WriteToken(token);
         }
 
+        public async Task Register(AddUserDto addUserDto)
+        {
+            try
+            {
+                AddUserValidator addUserValidator=new AddUserValidator();
+                var result = addUserValidator.Validate(addUserDto);
+                if (result.IsValid)
+                {
+                    var mappedEntity = _mapper.Map<UserEntity>(addUserDto);
+                    int Id = await _userRepository.AddUser(mappedEntity);
+                    if (Id==-1)
+                    {
+                        throw new Exception("Kullanıcı kayıt işlemi başarısız");
+                    }
+                }
+                else
+                {
+                    throw new ValidationException(result.Errors.ToString());
+                }
+
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+        }
+
+        public async Task Login(LoginUserDto loginUser)
+        {
+            try
+            {
+                LoginUserValidator loginUserValidator=new LoginUserValidator();
+                var result = loginUserValidator.Validate(loginUser);
+                if (result.IsValid)
+                {
+                    var user = await _userRepository.GetByUsername(loginUser.Username);
+                    if (user==null)
+                    {
+                        throw new NullReferenceException($"{loginUser.Username} Kullancısının verisine ulaşılamadı");
+                    }
+
+                    if (user.Password.Equals(loginUser.Password))
+                    {
+                        await DoLogin(user);
+                    }
+
+                }
+                else
+                {
+                    throw new ValidationException(result.Errors.ToString());
+                }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                throw;
+            }
+            
+        }
+
+        private async Task DoLogin(UserEntity user)
+        {
+            var claims = new List<Claim>
+            {
+                new Claim(ClaimTypes.Name, user.Username),
+                new Claim(ClaimTypes.Email, user.Email),
+                new Claim(ClaimTypes.Role, user.Role),
+            };
+
+            var claimsIdentity = new ClaimsIdentity(
+                claims, CookieAuthenticationDefaults.AuthenticationScheme);
+
+            var authProperties = new AuthenticationProperties
+            {
+                AllowRefresh = true,
+                IsPersistent = true,
+            };
+
+            await _httpContextAccessor.HttpContext.SignInAsync(
+                CookieAuthenticationDefaults.AuthenticationScheme,
+                new ClaimsPrincipal(claimsIdentity),
+                authProperties);
+        }
     }
 }

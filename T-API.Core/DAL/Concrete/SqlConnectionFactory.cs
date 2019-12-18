@@ -1,7 +1,9 @@
 ﻿using System;
 using System.ComponentModel;
+using System.Data;
 using System.Data.SqlClient;
 using System.Threading.Tasks;
+using MySql.Data.MySqlClient;
 using T_API.Core.DAL.Abstract;
 using IDbConnection = System.Data.IDbConnection;
 
@@ -10,7 +12,7 @@ namespace T_API.Core.DAL.Concrete
     public class SqlConnectionFactory : IDbConnectionFactory
     {
 
-        public async Task<IDbConnection> CreateConnection(DbInformation information)
+        public  IDbConnection CreateConnection(DbInformation information)
         {
             string connectionString;
             if (information.Provider.Equals("SqlServer"))
@@ -20,34 +22,46 @@ namespace T_API.Core.DAL.Concrete
                 connectionString = $"Data Source={information.Server};" +
                                           $"Initial Catalog={information.Database};" +
                                           $"User id={information.Username};" +
-                                          $"Password={information.Password}" +
-                                          $"Port={information.Port};";
+                                          $"Password={information.Password}" ;
+                var conn = new SqlConnection(connectionString);
+                conn.Open();
+                return conn;
             }
-            else if (information.Provider.Equals("MySql"))
+
+            if (information.Provider.Equals("MySql"))
             {
                 if (String.IsNullOrEmpty(information.Port))
                     information.Port = "1443";
                 connectionString = $"Server={information.Server};" +
-                                          $"Initial Catalog={information.Database};" +
-                                          $"Uid={information.Username};" +
-                                          $"Pwd={information.Password};" + 
-                                          $"Port={information.Port};";
-            }
-            else
-            {
-                throw new InvalidEnumArgumentException("Sql Provider Is Not Selected");
+                                   $"Initial Catalog={information.Database};" +
+                                   $"Uid={information.Username};" +
+                                   $"Pwd={information.Password};";
+                var mySqlConnection = new MySqlConnection(connectionString);
+                mySqlConnection.Open();
+                return mySqlConnection;
             }
 
-            var conn = new SqlConnection(connectionString);
-            try
+            throw new InvalidEnumArgumentException("Sql Provider Is Not Selected");
+
+
+        }
+
+        public IDbCommand CreateCommandByProvider(string query, IDbConnection connection)
+        {
+            if (connection is MySqlConnection)
             {
-                await conn.OpenAsync();
-                return conn;
+                MySqlCommand cmd=new MySqlCommand(query,connection as MySqlConnection);
+                return cmd;
             }
-            catch (Exception e)
+
+            if (connection is SqlConnection)
             {
-                throw e;
+                SqlCommand cmd=new SqlCommand(query,connection as SqlConnection);
+                return cmd;
             }
+
+            throw new ArgumentOutOfRangeException("connection","Belirtilen connection türü desteklenmemektedir.");
+
         }
     }
 }

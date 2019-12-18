@@ -6,6 +6,7 @@ namespace T_API.Core.DAL.Abstract
 {
     public interface IDbConnectionFactory
     {
-        Task<IDbConnection> CreateConnection(DbInformation dbInformation);
+        IDbConnection CreateConnection(DbInformation dbInformation);
+        IDbCommand CreateCommandByProvider(string query, IDbConnection connection);
     }
 }

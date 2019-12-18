@@ -1,5 +1,6 @@
 ﻿using System;
 using System.ComponentModel;
+using System.Data;
 using System.Data.SqlClient;
 using System.Threading.Tasks;
 using MySql.Data.MySqlClient;
@@ -42,6 +43,24 @@ namespace T_API.Core.DAL.Concrete
 
             throw new InvalidEnumArgumentException("Sql Provider Is Not Selected");
 
+
+        }
+
+        public IDbCommand CreateCommandByProvider(string query, IDbConnection connection)
+        {
+            if (connection is MySqlConnection)
+            {
+                MySqlCommand cmd=new MySqlCommand(query,connection as MySqlConnection);
+                return cmd;
+            }
+
+            if (connection is SqlConnection)
+            {
+                SqlCommand cmd=new SqlCommand(query,connection as SqlConnection);
+                return cmd;
+            }
+
+            throw new ArgumentOutOfRangeException("connection","Belirtilen connection türü desteklenmemektedir.");
 
         }
     }

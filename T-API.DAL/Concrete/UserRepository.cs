@@ -26,11 +26,14 @@ namespace T_API.DAL.Concrete
             {
                 if (conn.State == ConnectionState.Broken || conn.State == ConnectionState.Closed) conn.Open();
 
+
+                string sql =
+                    "Insert into users (Firstname,Lastname,Email,PhoneNumber,Balance,Username,Password,IsActive ) Values (@Firstname , @Lastname , " +
+                    "@Email , @PhoneNumber , @Balance , @Username , @Password , @IsActive); SELECT LAST_INSERT_ID();";
+
                 using (var cmd = new MySqlCommand("", conn as MySqlConnection))
                 {
-                    string sql =
-                        "Insert into users (Firstname,Lastname,Email,PhoneNumber,Balance,Username,Password,IsActive ) Values (@Firstname , @Lastname , " +
-                        "@Email , @PhoneNumber , @Balance , @Username , @Password , @IsActive); SELECT LAST_INSERT_ID();";
+                    
                     cmd.CommandText = sql;
                     cmd.Connection = conn as MySqlConnection;
                     cmd.Parameters.AddWithValue("Firstname", user.Firstname);

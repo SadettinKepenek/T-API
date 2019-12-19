@@ -5,7 +5,7 @@ namespace T_API.Entity.Concrete
     public class Column
     {
         public string ColumnName { get; set; }
-        public ProviderColumnType DataType { get; set; }
+        public string DataType { get; set; }
         public int DataLength { get; set; }
         public bool NotNull { get; set; }
         public bool AutoInc { get; set; }
@@ -13,8 +13,9 @@ namespace T_API.Entity.Concrete
         public bool PrimaryKey { get; set; }
         public object DefaultValue { get; set; }
 
-        public Table Table { get; set; }
+        public bool HasLength { get; set; }
 
+        public Table Table { get; set; }
 
      
     }

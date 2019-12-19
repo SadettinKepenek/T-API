@@ -18,8 +18,12 @@ namespace T_API.SqlGenerator.Concrete
             foreach (Column column in table.Columns)
             {
                 string columnQuery = CreateColumn(column);
-                sb.AppendLine(columnQuery);
+                sb.Append(columnQuery);
+                if(table.Columns.IndexOf(column)!=table.Columns.Count-1)
+                    sb.Append(",\n");
             }
+            sb.AppendLine("\n);");
+
             Console.WriteLine(sb.ToString());
             return String.Empty;
         }
@@ -37,13 +41,10 @@ namespace T_API.SqlGenerator.Concrete
         public override string CreateColumn(Column column)
         {
             StringBuilder stringBuilder = new StringBuilder();
-            
             column.DataType = column.DataType.ToUpperInvariant();
-            if ((column.DataType.Equals("TEXT") || column.DataType.Equals("TINYTEXT") ||
-                 column.DataType.Equals("CHAR") || column.DataType.Equals("VARCHAR") ||
-                 column.DataType.Equals("LONGTEXT") || column.DataType.Equals("MEDIUMTEXT")))
+            if ((column.DataType.Equals("TEXT") || column.DataType.Equals("TINYTEXT") || column.DataType.Equals("CHAR") || column.DataType.Equals("VARCHAR") || column.DataType.Equals("LONGTEXT") || column.DataType.Equals("MEDIUMTEXT")))
             {
-                if ((!column.HasLength || column.DataLength == 0)) 
+                if ((!column.HasLength || column.DataLength == 0))
                 {
                     throw new ArgumentException("Metin tipindeki columnlar için geçerli bir size girilmedi");
                 }
@@ -54,10 +55,21 @@ namespace T_API.SqlGenerator.Concrete
                 if (column.PrimaryKey)
                     throw new ArgumentNullException("DefaultValue", "String Veri tipi Auto Inc olarak belirlenemez");
             }
-            else if ((column.DataType.Equals("INT") ||
-                    column.DataType.Equals("SMALLINT") || column.DataType.Equals("BIGINT") ||
-                    column.DataType.Equals("FLOAT") || column.DataType.Equals("DOUBLE")
-                    || column.DataType.Equals("DECIMAL")))
+            else if ((column.DataType.Equals("DATE") || column.DataType.Equals("TIME") || column.DataType.Equals("DATETIME") || column.DataType.Equals("YEAR") || column.DataType.Equals("TIMESTAMP")))
+            {
+                if ((column.HasLength || column.DataLength != 0))
+                {
+                    throw new ArgumentException("Tarih tipindeki columnlar için size girilemez.");
+                }
+                if (column.DefaultValue != null && (column.DefaultValue.GetType() != typeof(DateTime) ||
+                                                    column.DefaultValue.GetType() != typeof(TimeSpan)))
+                {
+                    throw new ArgumentNullException("DefaultValue", "Default value için geçerli bir tip verilmedi");
+                }
+                if (column.PrimaryKey || column.AutoInc || column.Unique)
+                    throw new ArgumentNullException("DefaultValue", "String Veri tipi Auto Inc olarak belirlenemez");
+            }
+            else if (column.DataType.Equals("INT") || column.DataType.Equals("SMALLINT") || column.DataType.Equals("BIGINT") || column.DataType.Equals("FLOAT") || column.DataType.Equals("DOUBLE") || column.DataType.Equals("DECIMAL"))
             {
                 if ((column.HasLength || column.DataLength != 0))
                 {
@@ -83,19 +95,23 @@ namespace T_API.SqlGenerator.Concrete
                 if (column.AutoInc || column.PrimaryKey || column.Unique)
                     throw new ArgumentNullException("DefaultValue", "BOOL Veri tipi Auto Inc,Unique veya Primary Key olarak belirlenemez");
             }
+            else
+            {
+                throw new ArgumentOutOfRangeException("DataType","Column için belirtilen column tipi hatalı.");
+            }
 
-
-            stringBuilder.Append($"\t{column.ColumnName} ");
+            stringBuilder.Append($"\t{column.ColumnName}\t");
             if (!String.IsNullOrEmpty(column.DataType)) stringBuilder.Append($"{column.DataType}");
             if (column.HasLength) stringBuilder.Append($"({column.DataLength})");
             else stringBuilder.Append(" ");
 
             if (column.DefaultValue != null)
-                stringBuilder.Append($"default {column.DefaultValue}");
+                stringBuilder.Append($"\tdefault {column.DefaultValue}");
 
 
 
             if (column.AutoInc)
+            {
                 if (column.DefaultValue == null)
                 {
                     stringBuilder.Append(" auto_increment");
@@ -104,13 +120,20 @@ namespace T_API.SqlGenerator.Concrete
                 {
                     throw new AmbiguousMatchException("Auto Increment mevcut iken Default value verilemez");
                 }
-            
-            if (!column.PrimaryKey && column.NotNull ) 
-                stringBuilder.Append(" not null");
-            if (column.PrimaryKey)
-                stringBuilder.Append(" primary key");
+            }
 
-            stringBuilder.Append(',');
+            if (column.PrimaryKey)
+            {
+                stringBuilder.Append("\tprimary key");
+            }
+            else
+            {
+                if (column.NotNull)
+                {
+                    stringBuilder.Append("\tnot null");
+                }
+            }
+
 
             return stringBuilder.ToString();
         }

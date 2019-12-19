@@ -1,4 +1,4 @@
-﻿namespace T_API.SqlGenerator.Concrete
+﻿namespace T_API.Entity.Abstract
 {
     public class ProviderColumnType
     {

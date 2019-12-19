@@ -3,7 +3,7 @@ using T_API.SqlGenerator.Abstract;
 
 namespace T_API.SqlGenerator.Concrete
 {
-    public class SqlServerCodeGenerator:SqlCodeGenerator
+    public class MySqlCodeGenerator:SqlCodeGenerator
     {
         public override string CreateTable(Table table)
         {

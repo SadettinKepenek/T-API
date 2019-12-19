@@ -1,10 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace T_API.SqlGenerator
+﻿namespace T_API.SqlGenerator.Concrete
 {
-   public class MysqlColumnType:IColumnType
+   public class MysqlProviderColumnType:ProviderColumnType
     {
         #region numerics
         public static readonly string INT = "int";

@@ -1,6 +1,6 @@
-﻿namespace T_API.SqlGenerator
+﻿namespace T_API.SqlGenerator.Concrete
 {
-    public class SqlServerColumnType:IColumnType
+    public class SqlServerProviderColumnType:ProviderColumnType
     {
 
         #region Exact Numerics

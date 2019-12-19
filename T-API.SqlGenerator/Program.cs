@@ -13,23 +13,12 @@ namespace T_API.SqlGenerator
                 ColumnName = "UserId",
                 NotNull = true,
                 AutoInc = true,
-                
+                PrimaryKey = true
+
             });
         }
 
-        string GenerateSql(OperationType operation,DataProvider provider)
-        {
-            if (provider==DataProvider.MySql)
-            {
-                return String.Empty;
-            }
-
-            if (provider==DataProvider.Sql)
-            {
-                return String.Empty;
-            }
-            return  String.Empty;
-        }
+    
     }
 
 

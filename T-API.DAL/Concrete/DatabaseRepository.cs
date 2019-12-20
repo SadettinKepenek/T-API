@@ -28,7 +28,7 @@ namespace T_API.DAL.Concrete
             if (conn.State==ConnectionState.Broken||conn.State==ConnectionState.Closed) conn.Open();
             
             string sql =
-                "Insert into databases(UserId,Server,Username,Password,Port,Provider,StartDate,EndDate,IsActive,IsStorageSupport,IsApiSupport)" + 
+                "Insert into `databases` (UserId,Server,Username,Password,Port,Provider,StartDate,EndDate,IsActive,IsStorageSupport,IsApiSupport)" + 
                 "Values(@UserId,@Server,@Username,@Password,@Port,@Provider,@StartDate,@EndDate,@IsActive,@IsStorageSupport,@IsApiSupport ) ";
             using var cmd=new MySqlCommand("sql",conn as MySqlConnection);
             cmd.CommandText = sql;
@@ -56,7 +56,7 @@ namespace T_API.DAL.Concrete
             if(conn.State == ConnectionState.Broken||conn.State == ConnectionState.Closed) conn.Open();
 
             string sql =
-                "Update databases Set UserId = @UserId,Server = @Server,Username = @Username,Password = @Password,Port = @Port,Provider = @Provider," +
+                "Update `databases` Set UserId = @UserId,Server = @Server,Username = @Username,Password = @Password,Port = @Port,Provider = @Provider," +
                 "StartDate = @StartDate,EndDate = @EndDate,IsActive = @IsActive,IsStorageSupport = @IsStorageSupport,IsApiSupport = @IsApiSupport where DatabaseId = @DatabaseId";
             using var cmd = new MySqlCommand("sql",conn as MySqlConnection);
             cmd.CommandText = sql;
@@ -83,7 +83,7 @@ namespace T_API.DAL.Concrete
             using var conn = _dbConnectionFactory.CreateConnection(ConfigurationSettings.DbInformation);
             if(conn.State == ConnectionState.Broken || conn.State == ConnectionState.Closed) conn.Open();
 
-            string sql = "Delete from databases where DatabaseId = @DatabaseId";
+            string sql = "Delete from `databases` where DatabaseId = @DatabaseId";
             using var cmd = new MySqlCommand("sql",conn as MySqlConnection);
             cmd.CommandText = sql;
             cmd.Parameters.AddWithValue("DatabaseId", database.DatabaseId);
@@ -95,7 +95,7 @@ namespace T_API.DAL.Concrete
             using var conn = _dbConnectionFactory.CreateConnection(ConfigurationSettings.DbInformation);
             if(conn.State == ConnectionState.Broken || conn.State == ConnectionState.Closed) conn.Open();
 
-            string sql = "Select from databases where UserId = @UserId";
+            string sql = "Select * from `databases` where UserId = @UserId";
             using var cmd = new MySqlCommand("sql",conn as MySqlConnection);
             cmd.CommandText = sql;
             cmd.Parameters.AddWithValue("UserId", userId);
@@ -111,14 +111,41 @@ namespace T_API.DAL.Concrete
             using var conn = _dbConnectionFactory.CreateConnection(ConfigurationSettings.DbInformation);
             if (conn.State == ConnectionState.Broken || conn.State == ConnectionState.Closed) conn.Open();
 
-            string sql = "Select from databases where Username = @Username";
+            string sql = "Select * from `databases` inner join users on databases.UserId = users.UserId Where users.Username = @Username";
             using var cmd = new MySqlCommand("sql", conn as MySqlConnection);
             cmd.CommandText = sql;
             cmd.Parameters.AddWithValue("Username", username);
 
-            var GetDatabaseByUser = (List<DatabaseEntity>)await cmd.ExecuteScalarAsync();
 
-            return GetDatabaseByUser;
+            var sqlReader = cmd.ExecuteReader();
+            if (!sqlReader.HasRows)
+            {
+                return null;
+            }
+
+            DataTable dt=new DataTable();
+            dt.Load(sqlReader);
+            List<DatabaseEntity> databases=new List<DatabaseEntity>();
+            for (int i = 0; i < dt.Rows.Count; i++)
+            {
+                databases.Add(new DatabaseEntity{
+                    Username = dt.Rows[i]["Username"] as string,
+                    Provider = dt.Rows[i]["Provider"] as string,
+                    Port = dt.Rows[i]["Port"] as string,
+                    Password = dt.Rows[i]["Password"] as string,
+                    StartDate = Convert.ToDateTime(dt.Rows[i]["StartDate"]),
+                    Database = dt.Rows[i]["Database"] as string,
+                    IsActive = Convert.ToBoolean(dt.Rows[i]["IsActive"]),
+                    IsApiSupport = Convert.ToBoolean(dt.Rows[i]["IsApiSupport"]),
+                    IsStorageSupport = Convert.ToBoolean(dt.Rows[i]["IsStorageSupport"]),
+                    EndDate = Convert.ToDateTime(dt.Rows[i]["EndDate"]),
+                    DatabaseId = Convert.ToInt32(dt.Rows[i]["DatabaseId"]),
+                    Server = dt.Rows[i]["Server"] as string,
+                    UserId = Convert.ToInt32(dt.Rows[i]["UserId"]),
+                });
+            }
+
+            return databases;
 
         }
 
@@ -127,7 +154,7 @@ namespace T_API.DAL.Concrete
             using var conn = _dbConnectionFactory.CreateConnection(ConfigurationSettings.DbInformation);
             if (conn.State == ConnectionState.Broken || conn.State == ConnectionState.Closed) conn.Open();
 
-            string sql = "Select from databases where DatabaseId = @DatabaseId";
+            string sql = "Select * from `databases` where DatabaseId = @DatabaseId";
             using var cmd = new MySqlCommand("sql",conn as MySqlConnection);
             cmd.CommandText = sql;
             cmd.Parameters.AddWithValue("DatabaseId", databaseId);
@@ -143,7 +170,7 @@ namespace T_API.DAL.Concrete
             using var conn = _dbConnectionFactory.CreateConnection(ConfigurationSettings.DbInformation);
             if (conn.State == ConnectionState.Broken || conn.State == ConnectionState.Closed) conn.Open();
 
-            string sql = "Select * from databases";
+            string sql = "Select * from `databases`";
             using var cmd = new MySqlCommand("sql",conn as MySqlConnection);
             cmd.CommandText = sql;
             var GetAllDatabase = (List<DatabaseEntity>) await cmd.ExecuteScalarAsync();

@@ -148,14 +148,15 @@ namespace T_API.BLL.Concrete
             var authProperties = new AuthenticationProperties
             {
                 AllowRefresh = true,
-                IsPersistent = false,
+                IsPersistent = true,
                 ExpiresUtc = DateTime.Now.AddYears(1),
+
             };
 
             await _httpContextAccessor.HttpContext.SignInAsync(
                 CookieAuthenticationDefaults.AuthenticationScheme,
                 new ClaimsPrincipal(claimsIdentity),
-                authProperties);
+                null);
         }
     }
 }

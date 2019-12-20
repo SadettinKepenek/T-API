@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using T_API.BLL.Abstract;
 using T_API.Core.DTO.Database;
@@ -10,6 +11,7 @@ using T_API.UI.Models.Database;
 
 namespace T_API.UI.Controllers
 {
+    [Authorize]
     public class DatabaseController : Controller
     {
         private IDatabaseService _databaseService;

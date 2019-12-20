@@ -33,7 +33,7 @@ namespace T_API.DAL.Concrete
 
                 using (var cmd = new MySqlCommand("", conn as MySqlConnection))
                 {
-                    
+
                     cmd.CommandText = sql;
                     cmd.Connection = conn as MySqlConnection;
                     cmd.Parameters.AddWithValue("Firstname", user.Firstname);
@@ -55,8 +55,8 @@ namespace T_API.DAL.Concrete
         }
 
         public Task UpdateUser(UserEntity user)
-        {    
-            
+        {
+
             throw new System.NotImplementedException();
         }
 
@@ -65,9 +65,45 @@ namespace T_API.DAL.Concrete
             throw new System.NotImplementedException();
         }
 
-        public Task<List<UserEntity>> GetAll()
+        public async Task<List<UserEntity>> GetAll()
         {
-            throw new System.NotImplementedException();
+            using (var conneciton = _dbConnectionFactory.CreateConnection(ConfigurationSettings.DbInformation))
+            {
+                if (conneciton.State == ConnectionState.Broken || conneciton.State == ConnectionState.Closed) conneciton.Open();
+                string sql = "Select * from users";
+                using (var command = new MySqlCommand(sql, conneciton as MySqlConnection))
+                {
+                    using var sqlReader = command.ExecuteReader();
+                    if (!sqlReader.HasRows)
+                    {
+                        throw new NullReferenceException(" kullanıcısının verilerine ulaşılamadı");
+                    }
+                    DataTable dt = new DataTable();
+                    dt.Load(sqlReader);
+                    if (dt.Rows.Count != 0)
+                    {
+                        List<UserEntity> users = new List<UserEntity>();
+                        foreach (DataRow row in dt.Rows)
+                        {
+                            UserEntity user = new UserEntity();
+                            user.UserId = (int)row["UserId"];
+                            user.Password = row["Password"] as string;
+                            user.Firstname = row["Firstname"] as string;
+                            user.Lastname = row["Lastname"] as string;
+                            user.Role = row["Role"] as string;
+                            user.Email = row["Email"] as string;
+                            user.PhoneNumber = row["PhoneNumber"] as string;
+                            user.Balance = Convert.ToDecimal(row["Balance"]);
+                            user.IsActive = Convert.ToBoolean(row["IsActive"]);
+
+                            users.Add(user);
+                        }
+                        return users;
+                    }
+
+                }
+            }
+            return null;
         }
 
         public Task<UserEntity> GetById(int userId)
@@ -86,12 +122,12 @@ namespace T_API.DAL.Concrete
                 using (var cmd = new MySqlCommand(sql, conn as MySqlConnection))
                 {
                     cmd.Parameters.AddWithValue("Username", username);
-                    using var sqlReader =  cmd.ExecuteReader();
+                    using var sqlReader = cmd.ExecuteReader();
                     if (!sqlReader.HasRows)
                     {
                         throw new NullReferenceException($"{username} kullanıcısının verilerine ulaşılamadı");
                     }
-                
+
                     //sqlReader.Read();
                     DataTable dt = new DataTable();
                     dt.Load(sqlReader);
@@ -104,7 +140,7 @@ namespace T_API.DAL.Concrete
                     string role = dr["Role"] as string;
                     string email = dr["Email"] as string;
                     string phoneNumber = dr["PhoneNumber"] as string;
-                    decimal balance =Convert.ToDecimal(dr["Balance"]);
+                    decimal balance = Convert.ToDecimal(dr["Balance"]);
                     bool isActive = Convert.ToBoolean(dr["IsActive"]);
 
                     return new UserEntity
@@ -121,7 +157,7 @@ namespace T_API.DAL.Concrete
                         UserId = userId
                     };
                 }
-               
+
             }
         }
     }

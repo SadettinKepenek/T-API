@@ -78,7 +78,7 @@ namespace T_API.SqlGenerator
 
             });
             SqlCodeGenerator sqlCodeGenerator=new MySqlCodeGenerator();
-            sqlCodeGenerator.CreateTable(table);
+            sqlCodeGenerator.AlterTable(table);
         }
 
     

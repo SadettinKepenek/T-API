@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Reflection;
 using System.Text;
+using T_API.BLL.Abstract;
 using T_API.Entity.Concrete;
-using T_API.SqlGenerator.Abstract;
 using Index = T_API.Entity.Concrete.Index;
 
 namespace T_API.SqlGenerator.Concrete

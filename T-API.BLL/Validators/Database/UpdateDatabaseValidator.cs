@@ -3,10 +3,11 @@ using T_API.Core.DTO.Database;
 
 namespace T_API.BLL.Validators.Database
 {
-    public class AddDatabaseValidator:AbstractValidator<AddDatabaseDto>
+    public class UpdateDatabaseValidator:AbstractValidator<UpdateDatabaseDto>
     {
-        public AddDatabaseValidator()
+        public UpdateDatabaseValidator()
         {
+            RuleFor(x => x.DatabaseId).NotNull().NotEmpty();
             RuleFor(x => x.Database).NotNull().NotEmpty();
             RuleFor(x => x.EndDate).NotNull().NotEmpty();
             RuleFor(x => x.StartDate).NotNull().NotEmpty();

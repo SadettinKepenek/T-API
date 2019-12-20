@@ -2,6 +2,7 @@
 using T_API.Entity.Concrete;
 using T_API.SqlGenerator.Abstract;
 using T_API.SqlGenerator.Concrete;
+using Index = T_API.Entity.Concrete.Index;
 
 namespace T_API.SqlGenerator
 {
@@ -9,62 +10,78 @@ namespace T_API.SqlGenerator
     {
         static void Main(string[] args)
         {
-            //Table table=new Table();
-            //table.TableName = "Users";
-            //table.Columns.Add(new Column()
-            //{
-            //    ColumnName = "UserId",
-            //    NotNull = true,
-            //    AutoInc = true,
-            //    PrimaryKey = false,
-            //    DataType = MysqlProviderColumnType.INT,
-
-            //});
-            //table.Columns.Add(new Column()
-            //{
-            //    ColumnName = "Firstname",
-            //    NotNull = false,
-            //    AutoInc = false,
-            //    PrimaryKey = false,
-
-            //    DataType = MysqlProviderColumnType.VARCHAR,
-            //    HasLength = true,
-            //    DataLength = 100
-
-            //});
-            //SqlCodeGenerator sqlCodeGenerator=new MySqlCodeGenerator();
-            //sqlCodeGenerator.CreateTable(table);
-            createTableMssql();
-        }
-
-        public static void createTableMssql()
-        {
-            Table table = new Table();
+            Table table=new Table();
             table.TableName = "Users";
             table.Columns.Add(new Column()
             {
                 ColumnName = "UserId",
-                NotNull = false,
-                AutoInc = false,        
+                NotNull = true,
+                AutoInc = true,
                 PrimaryKey = true,
-                DataType = SqlServerProviderColumnType.INT,
+                DataType = MysqlProviderColumnType.INT,
 
             });
-            
             table.Columns.Add(new Column()
             {
-                ColumnName = "FirstName",
+                ColumnName = "Firstname",
                 NotNull = false,
                 AutoInc = false,
-                PrimaryKey = true,
-                DataType = SqlServerProviderColumnType.NVARCHAR,
-                DataLength = 50,
-                HasLength = true
+                PrimaryKey = false,
+                
+                DataType = MysqlProviderColumnType.VARCHAR,
+                HasLength = true,
+                DataLength = 100
 
             });
-            SqlCodeGenerator sqlCodeGenerator = new SqlServerCodeGenerator();
-            sqlCodeGenerator.CreateTable(table);
+            table.ForeignKeys.Add(new ForeignKey
+            {
+                ForeignKeyName = "FK_Databases_Users",
+                TargetColumn = "UserId",
+                SourceColumn = "UserId",
+                TargetTable = "Users",
+                SourceTable = "Databases",
+                OnDeleteAction = "NULL",
+                OnUpdateAction = "NULL"
+            });
+            table.ForeignKeys.Add(new ForeignKey
+            {
+                ForeignKeyName = "FK_Databases_Connections",
+                TargetColumn = "DatabaseId",
+                SourceColumn = "DatabaseId",
+                TargetTable = "Connections",
+                SourceTable = "Databases",
+                OnDeleteAction = "NULL",
+                OnUpdateAction = "NULL"
+            });
+            table.Indices.Add(new Index
+            {
+                IndexColumn = "Username",
+                IndexName = "UK_Username",
+                IsUnique = true,
+                TableName = "Users",
+                IndexOrder = "ASC",
+                
+            });
+            table.Keys.Add(new Key
+            {
+               IsPrimary = false,
+               KeyColumn = "Username",
+               KeyName = "IX_Username"
+            });
+            table.Indices.Add(new Index
+            {
+                IndexColumn = "PhoneNumber",
+                IndexName = "UK_Username",
+                IsUnique = false,
+                TableName = "Users",
+                IndexOrder = "ASC",
+
+            });
+            MySqlCodeGenerator sqlCodeGenerator =new MySqlCodeGenerator();
+            sqlCodeGenerator.AlterTable(table);
         }
+
+    
     }
 
 

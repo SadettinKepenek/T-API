@@ -7,6 +7,9 @@
         public string IndexOrder { get; set; }
         public bool IsUnique { get; set; }
 
+        public string TableName { get; set; }
+
         public Column Column { get; set; }
+
     }
 }

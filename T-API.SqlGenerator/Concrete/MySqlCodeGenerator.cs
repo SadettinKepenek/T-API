@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Reflection;
 using System.Text;
 using T_API.Entity.Abstract;
@@ -22,7 +23,60 @@ namespace T_API.SqlGenerator.Concrete
                 if(table.Columns.IndexOf(column)!=table.Columns.Count-1)
                     sb.Append(",\n");
             }
+
+            if (table.ForeignKeys != null && table.ForeignKeys.Count != 0)
+            {
+                sb.AppendLine(",");
+                foreach (ForeignKey foreignKey in table.ForeignKeys)
+                {
+                    string foreignKeyQuery = CreateRelation(foreignKey);
+                    sb.Append(foreignKeyQuery);
+                    if (table.ForeignKeys.IndexOf(foreignKey) != table.ForeignKeys.Count - 1)
+                        sb.Append(",\n");
+                }
+            }
+            if(table.Indices!=null && table.Indices.Where(x => x.IsUnique).ToList().Count != 0)
+            {
+                sb.AppendLine(",");
+                foreach (Index index in table.Indices.Where(x=>x.IsUnique))
+                {
+                    string indexQuery = CreateIndex(index);
+                    sb.Append(indexQuery);
+                    if (table.Indices.IndexOf(index) != table.Indices.Where(x=>x.IsUnique).ToList().Count - 1)
+                        sb.Append(",\n");
+                }
+            }
+
+            if (table.Keys != null && table.Keys.Count != 0)
+            {
+                if (table.Keys.Any(x => x.IsPrimary) && table.Columns.Any(x=>x.PrimaryKey))
+                {
+                    throw new AmbiguousMatchException($"Bir tablo sadece bir adet primary key içerebilir");
+                }
+
+                sb.AppendLine(",");
+                foreach (Key key in table.Keys)
+                {
+                    string keyQuery = CreateKey(key);
+                    sb.Append(keyQuery);
+                    if (table.Keys.IndexOf(key) != table.Keys.Count - 1)
+                        sb.Append(",\n");
+                }
+            }
+
+           
             sb.AppendLine("\n);");
+            if (table.Indices != null && table.Indices.Where(x => x.IsUnique == false).ToList().Count != 0)
+            {
+                foreach (Index index in table.Indices.Where(x => x.IsUnique == false))
+                {
+                    string indexQuery = CreateIndex(index);
+                    sb.Append(indexQuery);
+                    if (table.Indices.IndexOf(index) != table.Indices.Count - 1)
+                        sb.Append("\n");
+                }
+            }
+
 
             Console.WriteLine(sb.ToString());
             return String.Empty;
@@ -132,6 +186,10 @@ namespace T_API.SqlGenerator.Concrete
                 {
                     stringBuilder.Append("\tnot null");
                 }
+                else
+                {
+                    stringBuilder.Append("\t null");
+                }
             }
 
 
@@ -150,7 +208,10 @@ namespace T_API.SqlGenerator.Concrete
 
         public override string CreateRelation(ForeignKey foreignKey)
         {
-            throw new System.NotImplementedException();
+            StringBuilder sb=new StringBuilder();
+            sb.Append($"\tconstraint {foreignKey.ForeignKeyName} foreign key ({foreignKey.SourceColumn}) " +
+                      $"references {foreignKey.TargetTable} ({foreignKey.TargetColumn})");
+            return sb.ToString();
         }
 
         public override string DropRelation(ForeignKey foreignKey)
@@ -165,7 +226,10 @@ namespace T_API.SqlGenerator.Concrete
 
         public override string CreateKey(Key key)
         {
-            throw new System.NotImplementedException();
+            StringBuilder sb = new StringBuilder();
+            if(!key.IsPrimary)
+                sb.Append($"\tconstraint {key.KeyName} unique ({key.KeyColumn})");
+            return sb.ToString();
         }
 
         public override string DropKey(Key key)
@@ -180,7 +244,19 @@ namespace T_API.SqlGenerator.Concrete
 
         public override string CreateIndex(Index index)
         {
-            throw new System.NotImplementedException();
+            StringBuilder sb = new StringBuilder();
+
+            if (index.IsUnique)
+            {
+                sb.Append($"\tconstraint {index.IndexName} unique ({index.IndexColumn})");
+            }
+
+            else
+            {
+                sb.Append($"\tcreate index {index.IndexName} on {index.TableName} ({index.IndexColumn});");
+            }
+
+            return sb.ToString();
         }
 
         public override string DropIndex(Index index)

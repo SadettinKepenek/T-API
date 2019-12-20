@@ -14,6 +14,9 @@ namespace T_API.Entity.Concrete
         public static readonly string MONEY = "money";
         public static readonly string SMALLMONEY = "smallmoney";
         public static readonly string NUMERIC = "numeric";
+        public static readonly string BOOL = "bool";
+        public static readonly string BOOLEAN = "boolean";
+        public static readonly string BIT = "bit";
         #endregion
 
         #region Approximate Numerics

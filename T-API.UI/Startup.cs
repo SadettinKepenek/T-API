@@ -47,6 +47,7 @@ namespace T_API.UI
             services.AddScoped<IAuthService, AuthManager>();
             services.AddScoped<IDbConnectionFactory, SqlConnectionFactory>();
             services.AddScoped<IUserRepository, UserRepository>();
+            services.AddSingleton<SqlCodeGenerator, MySqlCodeGenerator>();
 
             services.AddControllersWithViews().AddRazorRuntimeCompilation();
             var key = Encoding.ASCII.GetBytes(ConfigurationSettings.SecretKey);

@@ -1,0 +1,27 @@
+﻿@model T_API.UI.Models.Security.LoginViewModel
+@{
+    ViewData["Title"] = "Register";
+}
+
+<div class="container" style="padding: 10px">
+
+    <form asp-controller="Security" asp-action="Login" asp-antiforgery="true" method="post">
+       
+       
+        
+        <div class="form-group">
+            <label asp-for="Username">Username</label>
+            <input type="text" class="form-control" asp-for="Username" placeholder="Username">
+            <span asp-validation-for="Username" class="text-danger"></span>
+        </div>
+        <div class="form-group">
+            <label asp-for="Password">Password</label>
+            <input type="password" class="form-control" asp-for="Password" placeholder="Password">
+            <span asp-validation-for="Password" class="text-danger"></span>
+        </div>
+       
+        <button type="submit" class="btn btn-primary">Login</button>
+
+    </form>
+</div>
+

@@ -78,44 +78,51 @@ namespace T_API.DAL.Concrete
 
         public async Task<UserEntity> GetByUsername(string username)
         {
-            using var conn = _dbConnectionFactory.CreateConnection(ConfigurationSettings.DbInformation);
-            if (conn.State == ConnectionState.Broken || conn.State == ConnectionState.Closed) conn.Open();
-            string sql = "Select * from users where Username=@Username";
-            using var cmd = new SqlCommand(sql, conn as SqlConnection);
-            cmd.Parameters.AddWithValue("Username", username);
-            using var sqlReader = await cmd.ExecuteReaderAsync();
-            if (!sqlReader.HasRows)
+            using (var conn = _dbConnectionFactory.CreateConnection(ConfigurationSettings.DbInformation))
             {
-                throw new NullReferenceException($"{username} kullanıcısının verilerine ulaşılamadı");
+
+                if (conn.State == ConnectionState.Broken || conn.State == ConnectionState.Closed) conn.Open();
+                string sql = "Select * from users where Username=@Username";
+                using (var cmd = new MySqlCommand(sql, conn as MySqlConnection))
+                {
+                    cmd.Parameters.AddWithValue("Username", username);
+                    using var sqlReader =  cmd.ExecuteReader();
+                    if (!sqlReader.HasRows)
+                    {
+                        throw new NullReferenceException($"{username} kullanıcısının verilerine ulaşılamadı");
+                    }
+                
+                    //sqlReader.Read();
+                    DataTable dt = new DataTable();
+                    dt.Load(sqlReader);
+
+                    DataRow dr = dt.Rows[0];
+                    int userId = (int)dr["UserId"];
+                    string password = dr["Password"] as string;
+                    string firstname = dr["Firstname"] as string;
+                    string lastname = dr["Lastname"] as string;
+                    string role = dr["Role"] as string;
+                    string email = dr["Email"] as string;
+                    string phoneNumber = dr["PhoneNumber"] as string;
+                    decimal balance =Convert.ToDecimal(dr["Balance"]);
+                    bool isActive = Convert.ToBoolean(dr["IsActive"]);
+
+                    return new UserEntity
+                    {
+                        Email = email,
+                        PhoneNumber = phoneNumber,
+                        Username = username,
+                        IsActive = isActive,
+                        Balance = balance,
+                        Lastname = lastname,
+                        Password = password,
+                        Firstname = firstname,
+                        Role = role,
+                        UserId = userId
+                    };
+                }
+               
             }
-
-            await sqlReader.ReadAsync();
-            DataTable dt = new DataTable();
-            dt.Load(sqlReader);
-            DataRow dr = dt.Rows[0];
-            int userId = (int)dr["UserId"];
-            string password = dr["Password"] as string;
-            string firstname = dr["Firstname"] as string;
-            string lastname = dr["Lastname"] as string;
-            string role = dr["Role"] as string;
-            string email = dr["Email"] as string;
-            string phoneNumber = dr["PhoneNumber"] as string;
-            decimal balance = (decimal)dr["Balance"];
-            bool isActive = (bool)dr["IsActive"];
-
-            return new UserEntity
-            {
-                Email = email,
-                PhoneNumber = phoneNumber,
-                Username = username,
-                IsActive = isActive,
-                Balance = balance,
-                Lastname = lastname,
-                Password = password,
-                Firstname = firstname,
-                Role = role,
-                UserId = userId
-            };
         }
     }
 }

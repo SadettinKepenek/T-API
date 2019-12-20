@@ -22,9 +22,34 @@ namespace T_API.UI.Controllers
             _mapper = mapper;
         }
 
-        public IActionResult Login()
+        [HttpGet]
+        public async Task<IActionResult> Login()
         {
             return View();
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Login(LoginViewModel model)
+        {
+            try
+            {
+                if (ModelState.IsValid)
+                {
+                    var mapped = _mapper.Map<LoginUserDto>(model);
+                    await _authService.Login(mapped);
+                    return RedirectToAction("Index", "Home");
+                }
+                else
+                {
+                    return View(model);
+                }
+            }
+            catch (Exception e)
+            {
+                
+            }
+            return View(model);
         }
 
         [HttpGet]

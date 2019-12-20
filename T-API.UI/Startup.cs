@@ -45,6 +45,8 @@ namespace T_API.UI
             services.AddSingleton(mapper);
 
             services.AddScoped<IAuthService, AuthManager>();
+            services.AddScoped<IDatabaseService, DatabaseManager>();
+            services.AddScoped<IDatabaseRepository, DatabaseRepository>();
             services.AddScoped<IDbConnectionFactory, SqlConnectionFactory>();
             services.AddScoped<IUserRepository, UserRepository>();
             services.AddSingleton<SqlCodeGenerator, MySqlCodeGenerator>();

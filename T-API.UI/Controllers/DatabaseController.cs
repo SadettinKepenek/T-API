@@ -5,6 +5,8 @@ using System.Threading.Tasks;
 using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using T_API.BLL.Abstract;
+using T_API.Core.DTO.Database;
+using T_API.UI.Models.Database;
 
 namespace T_API.UI.Controllers
 {
@@ -20,11 +22,18 @@ namespace T_API.UI.Controllers
         }
 
 
-        [HttpGet("MyDatabases")]
-        public IActionResult MyDatabases()
+        public async Task<IActionResult> Index()
         {
-
-            return View();
+            var username = HttpContext.User.Identity.Name;
+            var databases =await _databaseService.GetByUser(username);
+            if (databases==null)
+            {
+                return View(new MyDatabasesViewModel{Databases = new List<ListDatabaseDto>()});
+            }
+            return View(new MyDatabasesViewModel
+            {
+                Databases = databases
+            });
         }
     }
 }

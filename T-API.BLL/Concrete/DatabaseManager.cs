@@ -41,6 +41,24 @@ namespace T_API.BLL.Concrete
             return mappedEntities;
         }
 
+        public async Task<List<ListDatabaseDto>> GetByUser(string username)
+        {
+            if (String.IsNullOrEmpty(username))
+            {
+                throw new ArgumentNullException("username", "Kullanıcı adı boş olamaz");
+            }
+
+            var databases = await _databaseRepository.GetByUser(username);
+            if (databases == null)
+            {
+                throw new NullReferenceException("İstenilen kullanıcıya ulaşılamadı");
+            }
+
+            var mappedEntities = _mapper.Map<List<ListDatabaseDto>>(databases);
+            return mappedEntities;
+        }
+
+
         public async Task<DetailDatabaseDto> GetById(int databaseId)
         {
             if (databaseId == 0)

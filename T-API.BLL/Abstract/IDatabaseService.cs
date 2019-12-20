@@ -8,6 +8,7 @@ namespace T_API.BLL.Abstract
     {
         Task<List<ListDatabaseDto>> GetAll();
         Task<List<ListDatabaseDto>> GetByUser(int userId);
+        Task<List<ListDatabaseDto>> GetByUser(string username);
         Task<DetailDatabaseDto> GetById(int databaseId);
         Task<int> AddDatabase(AddDatabaseDto dto);
         Task UpdateDatabase(UpdateDatabaseDto dto);

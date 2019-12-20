@@ -121,6 +121,18 @@ namespace T_API.BLL.Concrete
             
         }
 
+        public async Task Logout()
+        {
+            try
+            {
+                await _httpContextAccessor.HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+        }
+
         private async Task DoLogin(UserEntity user)
         {
             var claims = new List<Claim>
@@ -136,7 +148,8 @@ namespace T_API.BLL.Concrete
             var authProperties = new AuthenticationProperties
             {
                 AllowRefresh = true,
-                IsPersistent = true,
+                IsPersistent = false,
+                ExpiresUtc = DateTime.Now.AddYears(1),
             };
 
             await _httpContextAccessor.HttpContext.SignInAsync(

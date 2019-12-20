@@ -106,6 +106,22 @@ namespace T_API.DAL.Concrete
 
         }
 
+        public async Task<List<DatabaseEntity>> GetByUser(string username)
+        {
+            using var conn = _dbConnectionFactory.CreateConnection(ConfigurationSettings.DbInformation);
+            if (conn.State == ConnectionState.Broken || conn.State == ConnectionState.Closed) conn.Open();
+
+            string sql = "Select from databases where Username = @Username";
+            using var cmd = new MySqlCommand("sql", conn as MySqlConnection);
+            cmd.CommandText = sql;
+            cmd.Parameters.AddWithValue("Username", username);
+
+            var GetDatabaseByUser = (List<DatabaseEntity>)await cmd.ExecuteScalarAsync();
+
+            return GetDatabaseByUser;
+
+        }
+
         public async Task<DatabaseEntity> GetById(int databaseId)
         {
             using var conn = _dbConnectionFactory.CreateConnection(ConfigurationSettings.DbInformation);

@@ -51,27 +51,36 @@ namespace T_API.UI
 
             services.AddControllersWithViews().AddRazorRuntimeCompilation();
             var key = Encoding.ASCII.GetBytes(ConfigurationSettings.SecretKey);
-            services.AddAuthentication()
+            services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+
                 .AddCookie(options =>
-                    {
-                        options.LoginPath = "/Security/Login";
-                        options.LogoutPath = "/Security/Logout";
-                        options.AccessDeniedPath = "/Store/Home";
-                        options.SlidingExpiration = true;
-                        options.Cookie = new CookieBuilder()
+                {
+                    options.ForwardDefaultSelector = ctx =>
                         {
-                            HttpOnly = true,
-                            Name = ".T-API.Security.Cookie",
-                            Path = "/",
-                            SameSite = SameSiteMode.Lax,
-                            SecurePolicy = CookieSecurePolicy.SameAsRequest
+                            return ctx.Request.Path.StartsWithSegments("/api")
+                                ? JwtBearerDefaults.AuthenticationScheme
+                                : null;
                         };
-                    })
+                    
+                    options.LoginPath = "/Security/Login";
+                    options.LogoutPath = "/Security/Logout";
+                    options.AccessDeniedPath = "/Store/Home";
+                    options.SlidingExpiration = true;
+                    options.Cookie = new CookieBuilder()
+                    {
+                        HttpOnly = true,
+                        Name = ".T-API.Security.Cookie",
+                        Path = "/",
+                        SameSite = SameSiteMode.Lax,
+                        SecurePolicy = CookieSecurePolicy.SameAsRequest
+                    };
+                })
                 .AddJwtBearer(x =>
                 {
                     x.RequireHttpsMetadata = false;
                     x.SaveToken = true;
                     x.RefreshOnIssuerKeyNotFound = true;
+
                     x.TokenValidationParameters = new TokenValidationParameters
                     {
                         ValidateIssuerSigningKey = true,
@@ -83,13 +92,23 @@ namespace T_API.UI
                 });
             services.AddAuthorization(options =>
             {
-                var defaultPoliceBuilder=new AuthorizationPolicyBuilder(CookieAuthenticationDefaults.AuthenticationScheme,JwtBearerDefaults.AuthenticationScheme);
-                defaultPoliceBuilder=defaultPoliceBuilder.RequireAuthenticatedUser();
+                var defaultPoliceBuilder = new AuthorizationPolicyBuilder(CookieAuthenticationDefaults.AuthenticationScheme);
+                defaultPoliceBuilder = defaultPoliceBuilder.RequireAuthenticatedUser();
                 options.DefaultPolicy = defaultPoliceBuilder.Build();
+
+                //options.AddPolicy("AdminOnly", authorizationPolicyBuilder =>
+                //{
+                //    authorizationPolicyBuilder.AuthenticationSchemes.Add(JwtBearerDefaults.AuthenticationScheme);
+                //    authorizationPolicyBuilder.AuthenticationSchemes.Add(CookieAuthenticationDefaults.AuthenticationScheme);
+                //    authorizationPolicyBuilder.RequireRole("Admin");
+                //    authorizationPolicyBuilder.RequireAuthenticatedUser();
+                //    authorizationPolicyBuilder.Build();
+                //});
+
 
 
             });
-            
+
             services.AddSession(opt =>
             {
                 opt.Cookie.Name = ".T_API.Session";
@@ -120,6 +139,7 @@ namespace T_API.UI
             app.UseSession();
 
             app.UseAuthentication();
+
             app.UseRouting();
 
             app.UseAuthorization();

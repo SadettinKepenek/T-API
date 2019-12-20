@@ -77,7 +77,7 @@ namespace T_API.SqlGenerator
                 IndexOrder = "ASC",
 
             });
-            SqlCodeGenerator sqlCodeGenerator=new MySqlCodeGenerator();
+            MySqlCodeGenerator sqlCodeGenerator =new MySqlCodeGenerator();
             sqlCodeGenerator.AlterTable(table);
         }
 

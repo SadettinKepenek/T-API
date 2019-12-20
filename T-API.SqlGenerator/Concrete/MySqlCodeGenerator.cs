@@ -20,7 +20,7 @@ namespace T_API.SqlGenerator.Concrete
             {
                 string columnQuery = CreateColumn(column);
                 sb.Append(columnQuery);
-                if(table.Columns.IndexOf(column)!=table.Columns.Count-1)
+                if (table.Columns.IndexOf(column) != table.Columns.Count - 1)
                     sb.Append(",\n");
             }
 
@@ -35,21 +35,21 @@ namespace T_API.SqlGenerator.Concrete
                         sb.Append(",\n");
                 }
             }
-            if(table.Indices!=null && table.Indices.Where(x => x.IsUnique).ToList().Count != 0)
+            if (table.Indices != null && table.Indices.Where(x => x.IsUnique).ToList().Count != 0)
             {
                 sb.AppendLine(",");
-                foreach (Index index in table.Indices.Where(x=>x.IsUnique))
+                foreach (Index index in table.Indices.Where(x => x.IsUnique))
                 {
                     string indexQuery = CreateIndex(index);
                     sb.Append(indexQuery);
-                    if (table.Indices.IndexOf(index) != table.Indices.Where(x=>x.IsUnique).ToList().Count - 1)
+                    if (table.Indices.IndexOf(index) != table.Indices.Where(x => x.IsUnique).ToList().Count - 1)
                         sb.Append(",\n");
                 }
             }
 
             if (table.Keys != null && table.Keys.Count != 0)
             {
-                if (table.Keys.Any(x => x.IsPrimary) && table.Columns.Any(x=>x.PrimaryKey))
+                if (table.Keys.Any(x => x.IsPrimary) && table.Columns.Any(x => x.PrimaryKey))
                 {
                     throw new AmbiguousMatchException($"Bir tablo sadece bir adet primary key içerebilir");
                 }
@@ -83,8 +83,8 @@ namespace T_API.SqlGenerator.Concrete
 
         public override string DropTable(Table table)
         {
-            StringBuilder sb=new StringBuilder();
-            sb.AppendLine($"drop table {table.TableName}");
+            StringBuilder sb = new StringBuilder();
+            sb.AppendLine($"drop table if exists {table.TableName} cascade;");
             return sb.ToString();
         }
 
@@ -288,8 +288,15 @@ namespace T_API.SqlGenerator.Concrete
             }
         }
 
+        [Obsolete("To Be Added.")]
         public override string DropColumn(Column column)
         {
+            if (column.PrimaryKey)
+            {
+                throw new ArgumentException("Primary Key Column Drop edilemez");
+            }
+
+
             throw new System.NotImplementedException();
         }
 
@@ -342,15 +349,17 @@ namespace T_API.SqlGenerator.Concrete
 
         public override string CreateRelation(ForeignKey foreignKey)
         {
-            StringBuilder sb=new StringBuilder();
+            StringBuilder sb = new StringBuilder();
             sb.Append($"\tconstraint {foreignKey.ForeignKeyName} foreign key ({foreignKey.SourceColumn}) " +
                       $"references {foreignKey.TargetTable} ({foreignKey.TargetColumn})");
             return sb.ToString();
         }
 
-        public override string DropRelation(ForeignKey foreignKey)
+        public override string DropRelation(ForeignKey foreignKey)  
         {
-            throw new System.NotImplementedException();
+            StringBuilder sb = new StringBuilder();
+            sb.Append($"\t alter table {foreignKey.SourceTable} drop foreign key {foreignKey.ForeignKeyName};");
+            return sb.ToString();
         }
 
         public override string AlterRelation(ForeignKey foreignKey)
@@ -364,14 +373,21 @@ namespace T_API.SqlGenerator.Concrete
         public override string CreateKey(Key key)
         {
             StringBuilder sb = new StringBuilder();
-            if(!key.IsPrimary)
+            if (!key.IsPrimary)
                 sb.Append($"\tconstraint {key.KeyName} unique ({key.KeyColumn})");
             return sb.ToString();
         }
 
         public override string DropKey(Key key)
         {
-            throw new System.NotImplementedException();
+            StringBuilder sb = new StringBuilder();
+            if (!key.IsPrimary)
+                sb.Append($"\t alter table {key.TableName} drop key {key.KeyName};");
+            else
+            {
+                sb.Append($"\t alter table {key.TableName} drop primary key");
+            }
+            return sb.ToString();
         }
 
         public override string AlterKey(Key key)
@@ -401,7 +417,11 @@ namespace T_API.SqlGenerator.Concrete
 
         public override string DropIndex(Index index)
         {
-            throw new System.NotImplementedException();
+            StringBuilder sb = new StringBuilder();
+
+            sb.Append($"\t drop index {index.IndexName} on {index.TableName};");
+
+            return sb.ToString();
         }
 
         public override string AlterIndex(Index index)

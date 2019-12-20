@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
 using System.Threading.Tasks;
+using MySql.Data.MySqlClient;
 using T_API.Core.DAL.Abstract;
 using T_API.Core.DAL.Concrete;
 using T_API.Core.Settings;
@@ -29,8 +30,8 @@ namespace T_API.DAL.Concrete
             string sql =
                 "Insert into databases(UserId,Server,Username,Password,Port,Provider,StartDate,EndDate,IsActive,IsStorageSupport,IsApiSupport)" + 
                 "Values(@UserId,@Server,@Username,@Password,@Port,@Provider,@StartDate,@EndDate,@IsActive,@IsStorageSupport,@IsApiSupport ) ";
-            using var cmd=new SqlCommand("sql",conn as SqlConnection);
-
+            using var cmd=new MySqlCommand("sql",conn as MySqlConnection);
+            cmd.CommandText = sql;
             cmd.Parameters.AddWithValue("UserId", database.UserId);
             cmd.Parameters.AddWithValue("Server", database.Server);
             cmd.Parameters.AddWithValue("Username", database.Username);
@@ -57,8 +58,8 @@ namespace T_API.DAL.Concrete
             string sql =
                 "Update databases Set UserId = @UserId,Server = @Server,Username = @Username,Password = @Password,Port = @Port,Provider = @Provider," +
                 "StartDate = @StartDate,EndDate = @EndDate,IsActive = @IsActive,IsStorageSupport = @IsStorageSupport,IsApiSupport = @IsApiSupport where DatabaseId = @DatabaseId";
-            using var cmd = new SqlCommand("sql",conn as SqlConnection);
-
+            using var cmd = new MySqlCommand("sql",conn as MySqlConnection);
+            cmd.CommandText = sql;
             
             cmd.Parameters.AddWithValue("UserId", database.UserId);
             cmd.Parameters.AddWithValue("Server", database.Server);
@@ -83,8 +84,8 @@ namespace T_API.DAL.Concrete
             if(conn.State == ConnectionState.Broken || conn.State == ConnectionState.Closed) conn.Open();
 
             string sql = "Delete from databases where DatabaseId = @DatabaseId";
-            using var cmd = new SqlCommand("sql",conn as SqlConnection);
-
+            using var cmd = new MySqlCommand("sql",conn as MySqlConnection);
+            cmd.CommandText = sql;
             cmd.Parameters.AddWithValue("DatabaseId", database.DatabaseId);
 
         }
@@ -95,8 +96,8 @@ namespace T_API.DAL.Concrete
             if(conn.State == ConnectionState.Broken || conn.State == ConnectionState.Closed) conn.Open();
 
             string sql = "Select from databases where UserId = @UserId";
-            using var cmd = new SqlCommand("sql",conn as SqlConnection);
-
+            using var cmd = new MySqlCommand("sql",conn as MySqlConnection);
+            cmd.CommandText = sql;
             cmd.Parameters.AddWithValue("UserId", userId);
 
             var GetDatabaseByUser = (List<DatabaseEntity>) await cmd.ExecuteScalarAsync();
@@ -111,8 +112,8 @@ namespace T_API.DAL.Concrete
             if (conn.State == ConnectionState.Broken || conn.State == ConnectionState.Closed) conn.Open();
 
             string sql = "Select from databases where DatabaseId = @DatabaseId";
-            using var cmd = new SqlCommand("sql",conn as SqlConnection);
-
+            using var cmd = new MySqlCommand("sql",conn as MySqlConnection);
+            cmd.CommandText = sql;
             cmd.Parameters.AddWithValue("DatabaseId", databaseId);
 
             var GetDatabaseById = (DatabaseEntity) await cmd.ExecuteScalarAsync();
@@ -127,8 +128,8 @@ namespace T_API.DAL.Concrete
             if (conn.State == ConnectionState.Broken || conn.State == ConnectionState.Closed) conn.Open();
 
             string sql = "Select * from databases";
-            using var cmd = new SqlCommand("sql",conn as SqlConnection);
-
+            using var cmd = new MySqlCommand("sql",conn as MySqlConnection);
+            cmd.CommandText = sql;
             var GetAllDatabase = (List<DatabaseEntity>) await cmd.ExecuteScalarAsync();
 
             return GetAllDatabase;

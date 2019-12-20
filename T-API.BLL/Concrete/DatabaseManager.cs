@@ -41,9 +41,21 @@ namespace T_API.BLL.Concrete
             return mappedEntities;
         }
 
-        public Task<DetailDatabaseDto> GetById(int databaseId)
+        public async Task<DetailDatabaseDto> GetById(int databaseId)
         {
-            throw new NotImplementedException();
+            if (databaseId == 0)
+            {
+                throw new ArgumentNullException("databaseId", "Database Idsi boş olamaz");
+            }
+
+            var databaseEntity = await _databaseRepository.GetById(databaseId);
+            if (databaseEntity == null)
+            {
+                throw new NullReferenceException("İstenilen database verisine ulaşılamadı");
+            }
+
+            var mappedEntities = _mapper.Map<DetailDatabaseDto>(databaseEntity);
+            return mappedEntities;
         }
 
         public Task<int> AddDatabase(AddDatabaseDto dto)

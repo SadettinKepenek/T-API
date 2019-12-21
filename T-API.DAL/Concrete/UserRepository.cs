@@ -74,7 +74,7 @@ namespace T_API.DAL.Concrete
                 string sql = "Update users set Username = @username, Password = @password,Firstname = @firstname,Lastname = @lastname,Role = @role,PhoneNumber = @phonenumber,Balance = @balance," +
                              "IsActive = @isActive where UserId = @userId";
                 
-                using var cmd = new SqlCommand("sql", conn as SqlConnection);
+                using var cmd = new MySqlCommand(sql, conn as MySqlConnection);
 
                 cmd.Parameters.AddWithValue("userId", user.UserId);
                 cmd.Parameters.AddWithValue("username", user.Username);
@@ -102,7 +102,7 @@ namespace T_API.DAL.Concrete
                 if (conn.State == ConnectionState.Broken || conn.State == ConnectionState.Closed) conn.Open();
 
                 string sql = "Delete from users where UserId = @UserId";
-                using var cmd = new SqlCommand("sql", conn as SqlConnection);
+                using var cmd = new MySqlCommand(sql, conn as MySqlConnection);
 
                 cmd.Parameters.AddWithValue("UserId", user.UserId);
                 cmd.ExecuteNonQuery();

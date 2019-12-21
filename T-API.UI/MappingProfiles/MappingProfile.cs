@@ -9,6 +9,7 @@ namespace T_API.UI.MappingProfiles
 {
     public class MappingProfile: Profile
     {
+        
         public MappingProfile()
         {
             CreateMap<AddDatabaseDto, DatabaseEntity>();
@@ -26,6 +27,8 @@ namespace T_API.UI.MappingProfiles
             CreateMap<UpdateUserDto, UserEntity>();
             CreateMap<DetailUserDto, UserEntity>().ReverseMap();
             CreateMap<ListUserDto, UserEntity>().ReverseMap();
+
+            
         }
     }
 }

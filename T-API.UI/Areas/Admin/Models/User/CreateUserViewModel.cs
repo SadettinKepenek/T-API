@@ -9,6 +9,14 @@ namespace T_API.UI.Areas.Admin.Models.User
         [Required]
         public string Lastname { get; set; }
         [Required]
+        public string Username { get; set; }
+        [Required]
+
+        public string Role { get; set; }
+        [Required]
+
+        public string Password { get; set; }
+        [Required]
         [DataType(DataType.EmailAddress)]
         public string Email { get; set; }
 

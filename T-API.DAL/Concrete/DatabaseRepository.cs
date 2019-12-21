@@ -253,9 +253,8 @@ namespace T_API.DAL.Concrete
                 if (conn.State == ConnectionState.Broken || conn.State == ConnectionState.Closed) conn.Open();
 
                 string sql = "Select * from `databases`";
-                using var cmd = new MySqlCommand("sql", conn as MySqlConnection);
-                cmd.CommandText = sql;
-                var GetAllDatabase = (List<DatabaseEntity>)await cmd.ExecuteScalarAsync();
+                using var cmd = new MySqlCommand(sql, conn as MySqlConnection);
+              //  var GetAllDatabase = (List<DatabaseEntity>)await cmd.ExecuteScalarAsync();
 
                 var sqlReader = cmd.ExecuteReader();
                 if (!sqlReader.HasRows)

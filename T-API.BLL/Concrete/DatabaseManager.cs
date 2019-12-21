@@ -22,9 +22,23 @@ namespace T_API.BLL.Concrete
         }
 
 
-        public Task<List<ListDatabaseDto>> GetAll()
+        public async Task<List<ListDatabaseDto>> GetAll()
         {
-            throw new NotImplementedException();
+            try
+            {
+                var databases = await _databaseRepository.GetAll();
+                if (databases == null)
+                {
+                    throw new NullReferenceException("Database Bulunamadı");
+                }
+                var mappedData = _mapper.Map<List<ListDatabaseDto>>(databases);
+                return mappedData;
+            }
+            catch (Exception e)
+            {
+
+                throw ExceptionHandler.HandleException(e);
+            }
         }
 
         public async Task<List<ListDatabaseDto>> GetByUser(int userId)
@@ -131,14 +145,41 @@ namespace T_API.BLL.Concrete
 
         }
 
-        public Task UpdateDatabase(UpdateDatabaseDto dto)
+        public async Task UpdateDatabase(UpdateDatabaseDto dto)
         {
-            throw new NotImplementedException();
+            try
+            {
+                if (dto == null)
+                {
+                    throw new NullReferenceException("Bilgiler boş geldi");
+                }
+                var mappedData = _mapper.Map<DatabaseEntity>(dto);
+                await _databaseRepository.UpdateDatabase(mappedData);
+            }
+            catch (Exception e)
+            {
+
+                throw ExceptionHandler.HandleException(e);
+            }
         }
 
-        public Task DeleteDatabase(DeleteDatabaseDto dto)
+        public async Task DeleteDatabase(DeleteDatabaseDto dto)
         {
-            throw new NotImplementedException();
+            try
+            {
+                if (dto == null)
+                {
+                    throw new NullReferenceException("Bilgiler boş geldi");
+
+                }
+                var mappedData = _mapper.Map<DatabaseEntity>(dto);
+                await _databaseRepository.DeleteDatabase(mappedData);
+            }
+            catch (Exception e)
+            {
+
+                throw ExceptionHandler.HandleException(e);
+            }
         }
     }
 }

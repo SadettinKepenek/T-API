@@ -1,0 +1,43 @@
+﻿@{
+    ViewData["Title"] = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+
+@using T_API.Core.DTO.Database
+@model List<ListDatabaseDto>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th scope="col">Firstname</th>
+            <th scope="col">Lastname</th>
+            <th scope="col">Server</th>
+            <th scope="col">Provider</th>
+            <th scope="col">StartDate</th>
+            <th scope="col">DatabaseId</th>
+            <th scope="col">IsActive</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var database in Model)
+        {
+            <tr>
+                <td>@database.UserFirstname</td>
+                <td>@database.UserLastname</td>
+                <td>@database.Server</td>
+                <td>@database.Provider</td>
+                <td>@database.StartDate</td>
+                <td>@database.DatabaseId</td>
+                <td>@database.IsActive</td>
+                <td>
+                    <button class="btn btn-danger" asp-action="DeleteDatabase" asp-controller="Database">Delete</button>
+                    <button class="btn btn-primary" asp-action="UpdateDatabase" asp-controller="Database">Update</button>
+                </td>
+            </tr>
+        }
+
+    </tbody>
+</table>
+
+

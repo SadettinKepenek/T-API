@@ -9,7 +9,8 @@ using T_API.UI.Areas.Admin.Models.User;
 
 namespace T_API.UI.Areas.Admin.Controllers
 {
-    [Authorize(Roles = "Admin")]
+    [Authorize(Roles = "Client")]
+    [Area("Admin")]
     public class UserController : Controller
     {
         private IMapper _mapper;
@@ -22,7 +23,7 @@ namespace T_API.UI.Areas.Admin.Controllers
         public IActionResult Index()
         {
             // TODO User Listeleme
-            return View();
+            return Ok();
         }
         [HttpGet]
         public async Task<IActionResult> CreateUser()

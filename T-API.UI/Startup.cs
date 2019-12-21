@@ -53,7 +53,11 @@ namespace T_API.UI
 
             services.AddControllersWithViews().AddRazorRuntimeCompilation();
             var key = Encoding.ASCII.GetBytes(ConfigurationSettings.SecretKey);
-            services.AddAuthentication()
+            services.AddAuthentication(o =>
+                {
+                    o.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+                    
+                })
 
                 .AddCookie(options =>
                 {

@@ -28,8 +28,8 @@ namespace T_API.DAL.Concrete
             if (conn.State==ConnectionState.Broken||conn.State==ConnectionState.Closed) conn.Open();
             
             string sql =
-                "Insert into `databases` (UserId,Server,Username,Password,Port,Provider,StartDate,EndDate,IsActive,IsStorageSupport,IsApiSupport,Database)" + 
-                "Values(@UserId,@Server,@Username,@Password,@Port,@Provider,@StartDate,@EndDate,@IsActive,@IsStorageSupport,@IsApiSupport,@Database );" +
+                "Insert into `databases` (UserId,Server,Username,Password,Port,Provider,StartDate,EndDate,IsActive,IsStorageSupport,IsApiSupport,`Database`) " + 
+                "Values (@UserId,@Server,@Username,@Password,@Port,@Provider,@StartDate,@EndDate,@IsActive,@IsStorageSupport,@IsApiSupport,@Database); " +
                 "SELECT LAST_INSERT_ID();";
             using var cmd=new MySqlCommand("sql",conn as MySqlConnection);
             cmd.CommandText = sql;
@@ -57,7 +57,7 @@ namespace T_API.DAL.Concrete
 
             string sql =
                 "Update `databases` Set UserId = @UserId,Server = @Server,Username = @Username,Password = @Password,Port = @Port,Provider = @Provider," +
-                "StartDate = @StartDate,EndDate = @EndDate,IsActive = @IsActive,IsStorageSupport = @IsStorageSupport,IsApiSupport = @IsApiSupport ,Database=@Database where DatabaseId = @DatabaseId";
+                "StartDate = @StartDate,EndDate = @EndDate,IsActive = @IsActive,IsStorageSupport = @IsStorageSupport,IsApiSupport = @IsApiSupport ,`Database`=@Database where DatabaseId = @DatabaseId";
             using var cmd = new MySqlCommand("sql",conn as MySqlConnection);
             cmd.CommandText = sql;
             

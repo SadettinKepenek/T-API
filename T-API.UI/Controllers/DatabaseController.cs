@@ -88,7 +88,38 @@ namespace T_API.UI.Controllers
                 TempData["Message"] = "Database Oluşturulurken hata oluştu";
                 return RedirectToAction("Index", "Database");
             }
+        }
 
+        [HttpGet]
+        public async Task<IActionResult> EditService()
+        {
+            CreateServiceViewModel model = new CreateServiceViewModel();
+            model.UserId = Convert.ToInt32(HttpContext.User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value);
+
+            return View(model);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> EditService(CreateServiceViewModel model)
+        {
+            if (!ModelState.IsValid)
+            {
+                return View(model);
+            }
+
+            try
+            {
+                var mappedModel = _mapper.Map<UpdateDatabaseDto>(model);
+                await _databaseService.UpdateDatabase(mappedModel);
+                TempData["Message"] = "Database Başarıyla güncellendi";
+                return RedirectToAction("Index", "Database");
+            }
+            catch (Exception e)
+            {
+                TempData["Message"] = "Database Güncellenirken hata oluştu";
+                return RedirectToAction("Index", "Database");
+            }
         }
     }
 }

@@ -10,8 +10,6 @@
 <table class="table table-striped">
     <thead>
         <tr>
-            <th scope="col">Firstname</th>
-            <th scope="col">Lastname</th>
             <th scope="col">Server</th>
             <th scope="col">Provider</th>
             <th scope="col">StartDate</th>
@@ -23,8 +21,7 @@
         @foreach (var database in Model)
         {
             <tr>
-                <td>@database.UserFirstname</td>
-                <td>@database.UserLastname</td>
+
                 <td>@database.Server</td>
                 <td>@database.Provider</td>
                 <td>@database.StartDate</td>

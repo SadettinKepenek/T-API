@@ -2,10 +2,12 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using T_API.BLL.Abstract;
 using T_API.Core.DTO.Database;
+using T_API.Core.Exception;
 using T_API.DAL.Abstract;
 using T_API.UI.Areas.Admin.Models.Database;
 
@@ -31,6 +33,7 @@ namespace T_API.UI.Areas.Admin.Controllers
             return RedirectToAction("Index","Home");
 
         }
+        [HttpGet]
         public async Task<IActionResult> UpdateDatabase(int id)
         {
             if (id != 0)
@@ -56,11 +59,12 @@ namespace T_API.UI.Areas.Admin.Controllers
             }
             return View();
         }
+        [HttpPost]
         public async Task<IActionResult> UpdateDatabase(UpdateDatabaseViewModel updateDatabaseViewModel)
         {
             if (!ModelState.IsValid)
             {
-                return View(updateDatabaseViewModel);
+                return View(updateDatabaseViewModel); 
             }
             UpdateDatabaseDto updateDatabaseDto = new UpdateDatabaseDto();
             updateDatabaseDto.Database = updateDatabaseViewModel.Database;
@@ -78,6 +82,24 @@ namespace T_API.UI.Areas.Admin.Controllers
             await _databaseService.UpdateDatabase(updateDatabaseDto);
             return RedirectToAction("GetAllDatabases","Database");
 
+        }
+
+        public async Task<IActionResult> CreateDatabase(CreateDatabaseViewModel createDatabaseViewModel)
+        {
+            try
+            {
+                if (!ModelState.IsValid)
+                {
+                    return View(createDatabaseViewModel);
+                }
+                var mappedData = 
+            }
+            catch (Exception e)
+            {
+
+                throw ExceptionHandler.HandleException(e);
+            }
+           
         }
     }
 }

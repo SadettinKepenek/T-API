@@ -15,11 +15,11 @@
             <label asp-for="Username">Username</label>
             <input type="text" class="form-control" placeholder="@Model.Username" asp-for="Username">
             <span class="text-danger" asp-validation-for="Username"></span>
-        </div>
+        </div> //
         <div class="form-group">
             <label asp-for="Password">Password</label>
-            <input type="password" class="form-control" placeholder="@Model.Username" asp-for="Username">
-            <span class="text-danger" asp-validation-for="Username"></span>
+            <input type="password" class="form-control" placeholder="@Model.Password" asp-for="Password">
+            <span class="text-danger" asp-validation-for="Password"></span>
         </div>
         <div class="form-group">
             <label asp-for="Port">Port</label>
@@ -28,12 +28,12 @@
         </div>
         <div class="form-group">
             <label asp-for="Provider">Provider</label>
-            <input type="password" class="form-control" placeholder="@Model.Provider" asp-for="Provider">
+            <input type="text" class="form-control" placeholder="@Model.Provider" asp-for="Provider">
             <span class="text-danger" asp-validation-for="Provider"></span>
         </div>
         <div class="form-group">
             <label asp-for="Database">Database</label>
-            <input type="password" class="form-control" placeholder="@Model.Database" asp-for="Database">
+            <input type="text" class="form-control" placeholder="@Model.Database" asp-for="Database">
             <span class="text-danger" asp-validation-for="Database"></span>
         </div>
 

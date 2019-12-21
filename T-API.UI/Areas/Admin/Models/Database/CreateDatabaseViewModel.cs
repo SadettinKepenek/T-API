@@ -1,18 +1,27 @@
 ﻿using System;
-using T_API.Core.DAL.Concrete;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.Linq;
+using System.Threading.Tasks;
 
-namespace T_API.Core.DTO.Database
+namespace T_API.UI.Areas.Admin.Models.Database
 {
-    public class UpdateDatabaseDto
+    public class CreateDatabaseViewModel
     {
-        public int DatabaseId { get; set; } 
         public int UserId { get; set; }
+        [Required]
         public string Server { get; set; }
+        [Required]
         public string Username { get; set; }
+        [Required]
         public string Password { get; set; }
+        [Required]
         public string Database { get; set; }
+        [Required]
         public string Port { get; set; }
+        [Required]
         public string Provider { get; set; }
+        [Required]
         public DateTime StartDate { get; set; }
         public DateTime EndDate { get; set; }
         public bool IsActive { get; set; }

@@ -12,6 +12,7 @@ namespace T_API.DAL.Abstract
         Task UpdateDatabase(DatabaseEntity database);
         Task DeleteDatabase(DatabaseEntity database);
         Task<List<DatabaseEntity>> GetByUser(int userId);
+        Task<List<DatabaseEntity>> GetByUser(string username);
         Task<DatabaseEntity> GetById(int databaseId);
         Task<List<DatabaseEntity>> GetAll();
         Task SuspendDatabase(int databaseId);

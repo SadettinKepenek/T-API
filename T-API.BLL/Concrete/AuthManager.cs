@@ -121,6 +121,18 @@ namespace T_API.BLL.Concrete
             
         }
 
+        public async Task Logout()
+        {
+            try
+            {
+                await _httpContextAccessor.HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+        }
+
         private async Task DoLogin(UserEntity user)
         {
             var claims = new List<Claim>
@@ -129,6 +141,7 @@ namespace T_API.BLL.Concrete
                 new Claim(ClaimTypes.Email, user.Email),
                 new Claim(ClaimTypes.Role, user.Role),
             };
+            claims.Add(new Claim(ClaimTypes.NameIdentifier,user.UserId.ToString()));
 
             var claimsIdentity = new ClaimsIdentity(
                 claims, CookieAuthenticationDefaults.AuthenticationScheme);
@@ -137,12 +150,14 @@ namespace T_API.BLL.Concrete
             {
                 AllowRefresh = true,
                 IsPersistent = true,
+                ExpiresUtc = DateTime.Now.AddYears(1),
+
             };
 
             await _httpContextAccessor.HttpContext.SignInAsync(
                 CookieAuthenticationDefaults.AuthenticationScheme,
                 new ClaimsPrincipal(claimsIdentity),
-                authProperties);
+                null);
         }
     }
 }

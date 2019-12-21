@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using T_API.BLL.Abstract;
 using T_API.BLL.Validators.User;
@@ -22,12 +23,21 @@ namespace T_API.UI.Controllers
             _mapper = mapper;
         }
 
+        [Authorize]
+        [HttpGet]
+        public async Task<IActionResult> Logout()
+        {
+            await _authService.Logout();
+            return RedirectToAction("Index", "Home");
+        }
+
         [HttpGet]
         public async Task<IActionResult> Login()
         {
             return View();
         }
 
+        [AllowAnonymous]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Login(LoginViewModel model)
@@ -52,13 +62,14 @@ namespace T_API.UI.Controllers
             return View(model);
         }
 
+        [AllowAnonymous]
         [HttpGet]
         public async Task<IActionResult> Register()
         {
 
             return View();
         }
-
+        [AllowAnonymous]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Register(RegisterViewModel registerViewModel)

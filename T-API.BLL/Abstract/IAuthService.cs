@@ -7,5 +7,7 @@ namespace T_API.BLL.Abstract
     {
         Task Register(AddUserDto addUserDto);
         Task Login(LoginUserDto loginUser);
+
+        Task Logout();
     }
 }

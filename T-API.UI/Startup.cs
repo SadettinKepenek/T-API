@@ -35,7 +35,6 @@ namespace T_API.UI
 
         public IConfiguration Configuration { get; }
 
-        // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
 
@@ -45,13 +44,19 @@ namespace T_API.UI
             services.AddSingleton(mapper);
 
             services.AddScoped<IAuthService, AuthManager>();
+            services.AddScoped<IDatabaseService, DatabaseManager>();
+            services.AddScoped<IDatabaseRepository, DatabaseRepository>();
             services.AddScoped<IDbConnectionFactory, SqlConnectionFactory>();
             services.AddScoped<IUserRepository, UserRepository>();
             services.AddSingleton<SqlCodeGenerator, MySqlCodeGenerator>();
 
             services.AddControllersWithViews().AddRazorRuntimeCompilation();
             var key = Encoding.ASCII.GetBytes(ConfigurationSettings.SecretKey);
-            services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+            services.AddAuthentication(o =>
+                {
+                    o.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+                    
+                })
 
                 .AddCookie(options =>
                 {
@@ -64,7 +69,7 @@ namespace T_API.UI
                     
                     options.LoginPath = "/Security/Login";
                     options.LogoutPath = "/Security/Logout";
-                    options.AccessDeniedPath = "/Store/Home";
+                    options.AccessDeniedPath = "/Security/Login";
                     options.SlidingExpiration = true;
                     options.Cookie = new CookieBuilder()
                     {

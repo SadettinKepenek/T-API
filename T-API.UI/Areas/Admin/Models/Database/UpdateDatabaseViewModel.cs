@@ -13,19 +13,14 @@ namespace T_API.UI.Areas.Admin.Models.Database
         [Required]
         public string Server { get; set; }
         [Required]
-
         public string Username { get; set; }
         [Required]
-
         public string Password { get; set; }
         [Required]
-
         public string Database { get; set; }
         [Required]
-
         public string Port { get; set; }
         [Required]
-
         public string Provider { get; set; }
         public DateTime StartDate { get; set; }
         public DateTime EndDate { get; set; }

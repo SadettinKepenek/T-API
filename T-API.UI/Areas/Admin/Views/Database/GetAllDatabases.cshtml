@@ -31,7 +31,7 @@
                 <td>@database.DatabaseId</td>
                 <td>@database.IsActive</td>
                 <td>
-                    <button class="btn btn-danger" asp-action="DeleteDatabase" asp-controller="Database">Delete</button>
+                    <button class="btn btn-danger" asp-action="DeleteDatabase" asp-controller="Database" asp-route-id="@database.DatabaseId">Delete</button>
                     <button class="btn btn-primary" asp-action="UpdateDatabase" asp-controller="Database">Update</button>
                 </td>
             </tr>

@@ -46,16 +46,8 @@ namespace T_API.UI.Areas.Admin.Controllers
             {
                 return View(viewModel);
             }
-
-            AddUserDto user = new AddUserDto();
-            user.Firstname = viewModel.Firstname;
-            user.Lastname = viewModel.Lastname;
-            user.Email = viewModel.Email;
-            user.Password = viewModel.Password;
-            user.Username = viewModel.Username;
-            user.Role = viewModel.Role;
-            user.PhoneNumber = " ";
-            await _userService.CreateUser(user);
+            var mappedData = _mapper.Map<AddUserDto>(viewModel);
+            await _userService.CreateUser(mappedData);
             return RedirectToAction("Index", "User");
         }
 
@@ -75,18 +67,8 @@ namespace T_API.UI.Areas.Admin.Controllers
             if (id != 0)
             {
                 var user = await _userService.GetById(id);
-                return View(new UpdateUserViewModel {
-                    Username = user.Username,
-                    Firstname = user.Firstname,
-                    Lastname = user.Lastname,
-                    Email = user.Email,
-                    Role = user.Role,
-                    UserId = user.UserId,
-                    PhoneNumber = user.PhoneNumber,
-                    Balance = user.Balance,
-                    IsActive = user.IsActive,
-                    Password = user.Password
-                });
+                var mappedData = _mapper.Map<UpdateUserViewModel>(user);
+               return View(mappedData);
             }
             return View();
         }
@@ -97,18 +79,8 @@ namespace T_API.UI.Areas.Admin.Controllers
             {
                 return View(updateUserViewModel);
             }
-            UpdateUserDto updateUserDto = new UpdateUserDto();
-            updateUserDto.Firstname = updateUserViewModel.Firstname;
-            updateUserDto.Lastname = updateUserViewModel.Lastname;
-            updateUserDto.Username = updateUserViewModel.Username;
-            updateUserDto.Role = updateUserViewModel.Role;
-            updateUserDto.UserId = updateUserViewModel.UserId;
-            updateUserDto.IsActive = updateUserViewModel.IsActive;
-            updateUserDto.PhoneNumber = updateUserViewModel.PhoneNumber;
-            updateUserDto.Password = updateUserViewModel.Password;
-            updateUserDto.Balance = updateUserViewModel.Balance;
-            updateUserDto.Email = updateUserViewModel.Email;
-            await _userService.UpdateUser(updateUserDto);
+            var mappedData = _mapper.Map<UpdateUserDto>(updateUserViewModel);
+            await _userService.UpdateUser(mappedData);
             return RedirectToAction("Index","User");
         }
 

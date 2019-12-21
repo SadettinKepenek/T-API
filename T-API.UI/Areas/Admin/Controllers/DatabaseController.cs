@@ -92,7 +92,7 @@ namespace T_API.UI.Areas.Admin.Controllers
                 {
                     return View(createDatabaseViewModel);
                 }
-                var mappedData = 
+                return View();
             }
             catch (Exception e)
             {

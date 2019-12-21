@@ -3,6 +3,7 @@ using T_API.Core.DTO.Database;
 using T_API.Core.DTO.User;
 using T_API.Entity.Concrete;
 using T_API.UI.Areas.Admin.Models.Database;
+using T_API.UI.Models.Account;
 using T_API.UI.Models.Database;
 using T_API.UI.Models.Security;
 
@@ -28,6 +29,8 @@ namespace T_API.UI.MappingProfiles
             CreateMap<DeleteUserDto, UserEntity>();
             CreateMap<UpdateUserDto, UserEntity>();
             CreateMap<DetailUserDto, UserEntity>().ReverseMap();
+            CreateMap<ProfileViewModel, UpdateUserDto>().ReverseMap();
+            CreateMap<DetailUserDto, ProfileViewModel>().ReverseMap();
             CreateMap<ListUserDto, UserEntity>().ReverseMap();
 
             

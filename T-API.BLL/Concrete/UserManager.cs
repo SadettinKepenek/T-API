@@ -120,7 +120,7 @@ namespace T_API.BLL.Concrete
                 var result = validator.Validate(updateUserDto);
                 if (!result.IsValid)
                 {
-                    throw new ValidationException(result.Errors.ToString());
+                    throw new ValidationException(result.ToString());
                 }
                 var mappedData = _mapper.Map<UserEntity>(updateUserDto);
                 await _userRepository.UpdateUser(mappedData);

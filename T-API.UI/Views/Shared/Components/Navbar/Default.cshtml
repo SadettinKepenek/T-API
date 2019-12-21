@@ -14,7 +14,7 @@
         <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">System Settings</a>
     </li>
     <li class="nav-item">
-        <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Logout</a>
+        <a class="nav-link text-dark" asp-area="" asp-controller="Security" asp-action="Logout">Logout</a>
     </li>
 }
 else if (Model.User.IsInRole("Client"))
@@ -23,13 +23,13 @@ else if (Model.User.IsInRole("Client"))
         <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
     </li>
     <li class="nav-item">
-        <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">My Databases</a>
+        <a class="nav-link text-dark" asp-area="" asp-controller="Database" asp-action="Index">My Databases</a>
     </li>
     <li class="nav-item">
         <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Profile</a>
     </li>
     <li class="nav-item">
-        <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Logout</a>
+        <a class="nav-link text-dark" asp-area="" asp-controller="Security" asp-action="Logout">Logout</a>
     </li>
 }
 else
@@ -41,6 +41,6 @@ else
         <a class="nav-link text-dark" asp-area="" asp-controller="Security" asp-action="Register">Register</a>
     </li>
     <li class="nav-item">
-        <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Log In</a>
+        <a class="nav-link text-dark" asp-area="" asp-controller="Security" asp-action="Login">Log In</a>
     </li>
 }

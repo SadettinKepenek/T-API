@@ -28,8 +28,9 @@ namespace T_API.DAL.Concrete
             if (conn.State==ConnectionState.Broken||conn.State==ConnectionState.Closed) conn.Open();
             
             string sql =
-                "Insert into `databases` (UserId,Server,Username,Password,Port,Provider,StartDate,EndDate,IsActive,IsStorageSupport,IsApiSupport)" + 
-                "Values(@UserId,@Server,@Username,@Password,@Port,@Provider,@StartDate,@EndDate,@IsActive,@IsStorageSupport,@IsApiSupport ) ";
+                "Insert into `databases` (UserId,Server,Username,Password,Port,Provider,StartDate,EndDate,IsActive,IsStorageSupport,IsApiSupport,Database)" + 
+                "Values(@UserId,@Server,@Username,@Password,@Port,@Provider,@StartDate,@EndDate,@IsActive,@IsStorageSupport,@IsApiSupport,@Database );" +
+                "SELECT LAST_INSERT_ID();";
             using var cmd=new MySqlCommand("sql",conn as MySqlConnection);
             cmd.CommandText = sql;
             cmd.Parameters.AddWithValue("UserId", database.UserId);
@@ -43,10 +44,9 @@ namespace T_API.DAL.Concrete
             cmd.Parameters.AddWithValue("IsActive", database.IsActive);
             cmd.Parameters.AddWithValue("IsStorageSupport", database.IsStorageSupport);
             cmd.Parameters.AddWithValue("IsApiSupport", database.IsApiSupport);
+            cmd.Parameters.AddWithValue("Database", database.Database);
 
-            var id = (int)await cmd.ExecuteScalarAsync(); 
-            
-
+            var id = Convert.ToInt32(await cmd.ExecuteScalarAsync()); 
             return id;
         }
 
@@ -57,7 +57,7 @@ namespace T_API.DAL.Concrete
 
             string sql =
                 "Update `databases` Set UserId = @UserId,Server = @Server,Username = @Username,Password = @Password,Port = @Port,Provider = @Provider," +
-                "StartDate = @StartDate,EndDate = @EndDate,IsActive = @IsActive,IsStorageSupport = @IsStorageSupport,IsApiSupport = @IsApiSupport where DatabaseId = @DatabaseId";
+                "StartDate = @StartDate,EndDate = @EndDate,IsActive = @IsActive,IsStorageSupport = @IsStorageSupport,IsApiSupport = @IsApiSupport ,Database=@Database where DatabaseId = @DatabaseId";
             using var cmd = new MySqlCommand("sql",conn as MySqlConnection);
             cmd.CommandText = sql;
             
@@ -73,6 +73,7 @@ namespace T_API.DAL.Concrete
             cmd.Parameters.AddWithValue("IsStorageSupport", database.IsStorageSupport);
             cmd.Parameters.AddWithValue("IsApiSupport", database.IsApiSupport);
             cmd.Parameters.AddWithValue("DatabaseId", database.DatabaseId);
+            cmd.Parameters.AddWithValue("Database", database.Database);
 
 
         }
@@ -100,9 +101,23 @@ namespace T_API.DAL.Concrete
             cmd.CommandText = sql;
             cmd.Parameters.AddWithValue("UserId", userId);
 
-            var GetDatabaseByUser = (List<DatabaseEntity>) await cmd.ExecuteScalarAsync();
+            var sqlReader = cmd.ExecuteReader();
+            if (!sqlReader.HasRows)
+            {
+                return null;
+            }
 
-            return GetDatabaseByUser;
+            DataTable dt = new DataTable();
+            dt.Load(sqlReader);
+            List<DatabaseEntity> databases = new List<DatabaseEntity>();
+            for (int i = 0; i < dt.Rows.Count; i++)
+            {
+                var dataRow = dt.Rows[i];
+                var databaseEntity = ProcessDatabaseEntity(dataRow);
+                databases.Add(databaseEntity);
+            }
+
+            return databases;
 
         }
 
@@ -128,25 +143,34 @@ namespace T_API.DAL.Concrete
             List<DatabaseEntity> databases=new List<DatabaseEntity>();
             for (int i = 0; i < dt.Rows.Count; i++)
             {
-                databases.Add(new DatabaseEntity{
-                    Username = dt.Rows[i]["Username"] as string,
-                    Provider = dt.Rows[i]["Provider"] as string,
-                    Port = dt.Rows[i]["Port"] as string,
-                    Password = dt.Rows[i]["Password"] as string,
-                    StartDate = Convert.ToDateTime(dt.Rows[i]["StartDate"]),
-                    Database = dt.Rows[i]["Database"] as string,
-                    IsActive = Convert.ToBoolean(dt.Rows[i]["IsActive"]),
-                    IsApiSupport = Convert.ToBoolean(dt.Rows[i]["IsApiSupport"]),
-                    IsStorageSupport = Convert.ToBoolean(dt.Rows[i]["IsStorageSupport"]),
-                    EndDate = Convert.ToDateTime(dt.Rows[i]["EndDate"]),
-                    DatabaseId = Convert.ToInt32(dt.Rows[i]["DatabaseId"]),
-                    Server = dt.Rows[i]["Server"] as string,
-                    UserId = Convert.ToInt32(dt.Rows[i]["UserId"]),
-                });
+                var dataRow = dt.Rows[i];
+                var databaseEntity = ProcessDatabaseEntity(dataRow);
+                databases.Add(databaseEntity);
             }
 
             return databases;
 
+        }
+
+        private static DatabaseEntity ProcessDatabaseEntity(DataRow dataRow)
+        {
+            var databaseEntity = new DatabaseEntity
+            {
+                Username = dataRow["Username"] as string,
+                Provider = dataRow["Provider"] as string,
+                Port = dataRow["Port"] as string,
+                Password = dataRow["Password"] as string,
+                StartDate = Convert.ToDateTime(dataRow["StartDate"]),
+                Database = dataRow["Database"] as string,
+                IsActive = Convert.ToBoolean(dataRow["IsActive"]),
+                IsApiSupport = Convert.ToBoolean(dataRow["IsApiSupport"]),
+                IsStorageSupport = Convert.ToBoolean(dataRow["IsStorageSupport"]),
+                EndDate = Convert.ToDateTime(dataRow["EndDate"]),
+                DatabaseId = Convert.ToInt32(dataRow["DatabaseId"]),
+                Server = dataRow["Server"] as string,
+                UserId = Convert.ToInt32(dataRow["UserId"]),
+            };
+            return databaseEntity;
         }
 
         public async Task<DatabaseEntity> GetById(int databaseId)
@@ -159,9 +183,19 @@ namespace T_API.DAL.Concrete
             cmd.CommandText = sql;
             cmd.Parameters.AddWithValue("DatabaseId", databaseId);
 
-            var GetDatabaseById = (DatabaseEntity) await cmd.ExecuteScalarAsync();
+            var sqlReader = cmd.ExecuteReader();
+            if (!sqlReader.HasRows)
+            {
+                return null;
+            }
 
-            return GetDatabaseById;
+            DataTable dt = new DataTable();
+            dt.Load(sqlReader);
+            var databaseEntity = new DatabaseEntity();
+
+            var dataRow = dt.Rows[0];
+            databaseEntity = ProcessDatabaseEntity(dataRow);
+            return databaseEntity;
 
         }
 
@@ -175,7 +209,23 @@ namespace T_API.DAL.Concrete
             cmd.CommandText = sql;
             var GetAllDatabase = (List<DatabaseEntity>) await cmd.ExecuteScalarAsync();
 
-            return GetAllDatabase;
+            var sqlReader = cmd.ExecuteReader();
+            if (!sqlReader.HasRows)
+            {
+                return null;
+            }
+
+            DataTable dt = new DataTable();
+            dt.Load(sqlReader);
+            List<DatabaseEntity> databases = new List<DatabaseEntity>();
+            for (int i = 0; i < dt.Rows.Count; i++)
+            {
+                var dataRow = dt.Rows[i];
+                var databaseEntity = ProcessDatabaseEntity(dataRow);
+                databases.Add(databaseEntity);
+            }
+
+            return databases;
 
         }
 

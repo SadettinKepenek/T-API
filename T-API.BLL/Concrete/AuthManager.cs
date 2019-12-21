@@ -141,6 +141,7 @@ namespace T_API.BLL.Concrete
                 new Claim(ClaimTypes.Email, user.Email),
                 new Claim(ClaimTypes.Role, user.Role),
             };
+            claims.Add(new Claim(ClaimTypes.NameIdentifier,user.UserId.ToString()));
 
             var claimsIdentity = new ClaimsIdentity(
                 claims, CookieAuthenticationDefaults.AuthenticationScheme);

@@ -3,12 +3,15 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using AutoMapper;
 using T_API.BLL.Abstract;
+using T_API.BLL.Validators.Database;
 using T_API.Core.DTO.Database;
+using T_API.Core.Exception;
 using T_API.DAL.Abstract;
+using T_API.Entity.Concrete;
 
 namespace T_API.BLL.Concrete
 {
-    public class DatabaseManager:IDatabaseService
+    public class DatabaseManager : IDatabaseService
     {
         private IDatabaseRepository _databaseRepository;
         private IMapper _mapper;
@@ -31,8 +34,8 @@ namespace T_API.BLL.Concrete
                 throw new ArgumentNullException("userId", "Kullanıcı Idsi boş olamaz");
             }
 
-            var databases =await  _databaseRepository.GetByUser(userId);
-            if (databases==null)
+            var databases = await _databaseRepository.GetByUser(userId);
+            if (databases == null)
             {
                 throw new NullReferenceException("İstenilen kullanıcıya ulaşılamadı");
             }
@@ -76,9 +79,35 @@ namespace T_API.BLL.Concrete
             return mappedEntities;
         }
 
-        public Task<int> AddDatabase(AddDatabaseDto dto)
+        public async Task<int> AddDatabase(AddDatabaseDto dto)
         {
-            throw new NotImplementedException();
+            try
+            {
+                dto.StartDate = DateTime.Now;
+                dto.EndDate = DateTime.Now.AddMonths(1);
+                dto.Port = "3306";
+                dto.Provider = "MySql";
+                dto.Server = "localhost";
+                dto.IsActive = false;
+                dto.IsApiSupport = true;
+                dto.IsStorageSupport = false;
+                
+                AddDatabaseValidator validator = new AddDatabaseValidator();
+                var result = validator.Validate(dto);
+                if (!result.IsValid)
+                {
+                    throw new ValidationException(result.Errors.ToString());
+                }
+
+                var mappedEntity = _mapper.Map<DatabaseEntity>(dto);
+                return await _databaseRepository.AddDatabase(mappedEntity);
+
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+
         }
 
         public Task UpdateDatabase(UpdateDatabaseDto dto)

@@ -9,7 +9,7 @@ using T_API.UI.Areas.Admin.Models.User;
 
 namespace T_API.UI.Areas.Admin.Controllers
 {
-    [Authorize(Roles = "Client")]
+    [Authorize(Roles = "Admin")]
     [Area("Admin")]
     public class UserController : Controller
     {

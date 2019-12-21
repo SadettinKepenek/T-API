@@ -25,7 +25,7 @@ namespace T_API.UI.Controllers
             _mapper = mapper;
         }
 
-        [HttpGet("[controller]/Profile")]
+        [HttpGet("[controller]/Settings")]
         public async Task<IActionResult> Index()
         {
             var id = Convert.ToInt32(HttpContext.User.Claims.FirstOrDefault(x=>x.Type==ClaimTypes.NameIdentifier)?.Value);
@@ -35,13 +35,13 @@ namespace T_API.UI.Controllers
                 return RedirectToAction("Index", "Home");
             }
 
-            var mappedEntity = _mapper.Map<ProfileViewModel>(userProfile);
+            var mappedEntity = _mapper.Map<SettingsViewModel>(userProfile);
             return View(mappedEntity);
         }
 
-        [HttpPost("[controller]/Profile")]
+        [HttpPost("[controller]/Settings")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Index(ProfileViewModel viewModel)
+        public async Task<IActionResult> Index(SettingsViewModel viewModel)
         {
             if (!ModelState.IsValid)
             {

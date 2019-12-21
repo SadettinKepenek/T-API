@@ -29,8 +29,8 @@ namespace T_API.UI.MappingProfiles
             CreateMap<DeleteUserDto, UserEntity>();
             CreateMap<UpdateUserDto, UserEntity>();
             CreateMap<DetailUserDto, UserEntity>().ReverseMap();
-            CreateMap<ProfileViewModel, UpdateUserDto>().ReverseMap();
-            CreateMap<DetailUserDto, ProfileViewModel>().ReverseMap();
+            CreateMap<SettingsViewModel, UpdateUserDto>().ReverseMap();
+            CreateMap<DetailUserDto, SettingsViewModel>().ReverseMap();
             CreateMap<ListUserDto, UserEntity>().ReverseMap();
 
             

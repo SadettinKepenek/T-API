@@ -3,7 +3,7 @@ using T_API.Core.DTO.User;
 
 namespace T_API.UI.Models.Account
 {
-    public class ProfileViewModel
+    public class SettingsViewModel
     {
         [Required]
         public string Firstname { get; set; }

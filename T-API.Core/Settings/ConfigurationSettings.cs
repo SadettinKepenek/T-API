@@ -16,6 +16,16 @@ namespace T_API.Core.Settings
             Database = "u8206796_dbTAPI",
             Server = "94.73.170.109"
         };
+
+        public static DbInformation ServerDbInformation { get; } = new DbInformation
+        {
+            Provider = "MySql",
+            Port = "3306",
+            Password = "Berkay.0535",
+            Username = "root",
+            Database = "",
+            Server = "localhost"
+        };
         public static string SecretKey { get; } =
             "THIS IS USED TO SIGN AND VERIFY JWT TOKENS, REPLACE IT WITH YOUR OWN SECRET, IT CAN BE ANY STRING";
 

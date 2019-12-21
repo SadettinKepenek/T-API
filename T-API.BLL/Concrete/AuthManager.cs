@@ -84,7 +84,7 @@ namespace T_API.BLL.Concrete
             }
             catch (Exception e)
             {
-                throw e;
+                throw ExceptionHandler.HandleException(e);
             }
         }
 
@@ -115,10 +115,10 @@ namespace T_API.BLL.Concrete
             }
             catch (Exception e)
             {
-                Console.WriteLine(e);
-                throw;
+                throw ExceptionHandler.HandleException(e);
+
             }
-            
+
         }
 
         public async Task Logout()
@@ -129,35 +129,42 @@ namespace T_API.BLL.Concrete
             }
             catch (Exception e)
             {
-                throw e;
+                throw ExceptionHandler.HandleException(e);
             }
         }
 
         private async Task DoLogin(UserEntity user)
         {
-            var claims = new List<Claim>
+            try
             {
-                new Claim(ClaimTypes.Name, user.Username),
-                new Claim(ClaimTypes.Email, user.Email),
-                new Claim(ClaimTypes.Role, user.Role),
-            };
-            claims.Add(new Claim(ClaimTypes.NameIdentifier,user.UserId.ToString()));
+                var claims = new List<Claim>
+                {
+                    new Claim(ClaimTypes.Name, user.Username),
+                    new Claim(ClaimTypes.Email, user.Email),
+                    new Claim(ClaimTypes.Role, user.Role),
+                };
+                claims.Add(new Claim(ClaimTypes.NameIdentifier,user.UserId.ToString()));
 
-            var claimsIdentity = new ClaimsIdentity(
-                claims, CookieAuthenticationDefaults.AuthenticationScheme);
+                var claimsIdentity = new ClaimsIdentity(
+                    claims, CookieAuthenticationDefaults.AuthenticationScheme);
 
-            var authProperties = new AuthenticationProperties
+                var authProperties = new AuthenticationProperties
+                {
+                    AllowRefresh = true,
+                    IsPersistent = true,
+                    ExpiresUtc = DateTime.Now.AddYears(1),
+
+                };
+
+                await _httpContextAccessor.HttpContext.SignInAsync(
+                    CookieAuthenticationDefaults.AuthenticationScheme,
+                    new ClaimsPrincipal(claimsIdentity),
+                    null);
+            }
+            catch (Exception e)
             {
-                AllowRefresh = true,
-                IsPersistent = true,
-                ExpiresUtc = DateTime.Now.AddYears(1),
-
-            };
-
-            await _httpContextAccessor.HttpContext.SignInAsync(
-                CookieAuthenticationDefaults.AuthenticationScheme,
-                new ClaimsPrincipal(claimsIdentity),
-                null);
+                throw ExceptionHandler.HandleException(e);
+            }
         }
     }
 }

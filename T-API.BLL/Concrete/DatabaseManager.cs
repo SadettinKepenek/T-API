@@ -29,54 +29,75 @@ namespace T_API.BLL.Concrete
 
         public async Task<List<ListDatabaseDto>> GetByUser(int userId)
         {
-            if (userId == 0)
+            try
             {
-                throw new ArgumentNullException("userId", "Kullanıcı Idsi boş olamaz");
-            }
+                if (userId == 0)
+                {
+                    throw new ArgumentNullException("userId", "Kullanıcı Idsi boş olamaz");
+                }
 
-            var databases = await _databaseRepository.GetByUser(userId);
-            if (databases == null)
+                var databases = await _databaseRepository.GetByUser(userId);
+                if (databases == null)
+                {
+                    throw new NullReferenceException("İstenilen kullanıcıya ulaşılamadı");
+                }
+
+                var mappedEntities = _mapper.Map<List<ListDatabaseDto>>(databases);
+                return mappedEntities;
+            }
+            catch (Exception e)
             {
-                throw new NullReferenceException("İstenilen kullanıcıya ulaşılamadı");
+                throw ExceptionHandler.HandleException(e);
             }
-
-            var mappedEntities = _mapper.Map<List<ListDatabaseDto>>(databases);
-            return mappedEntities;
         }
 
         public async Task<List<ListDatabaseDto>> GetByUser(string username)
         {
-            if (String.IsNullOrEmpty(username))
+            try
             {
-                throw new ArgumentNullException("username", "Kullanıcı adı boş olamaz");
-            }
+                if (String.IsNullOrEmpty(username))
+                {
+                    throw new ArgumentNullException("username", "Kullanıcı adı boş olamaz");
+                }
 
-            var databases = await _databaseRepository.GetByUser(username);
-            if (databases == null)
+                var databases = await _databaseRepository.GetByUser(username);
+                if (databases == null)
+                {
+                    throw new NullReferenceException("İstenilen kullanıcıya ulaşılamadı");
+                }
+
+                var mappedEntities = _mapper.Map<List<ListDatabaseDto>>(databases);
+                return mappedEntities;
+            }
+            catch (Exception e)
             {
-                throw new NullReferenceException("İstenilen kullanıcıya ulaşılamadı");
+                throw ExceptionHandler.HandleException(e);
             }
-
-            var mappedEntities = _mapper.Map<List<ListDatabaseDto>>(databases);
-            return mappedEntities;
         }
 
 
         public async Task<DetailDatabaseDto> GetById(int databaseId)
         {
-            if (databaseId == 0)
+            try
             {
-                throw new ArgumentNullException("databaseId", "Database Idsi boş olamaz");
-            }
+                if (databaseId == 0)
+                {
+                    throw new ArgumentNullException("databaseId", "Database Idsi boş olamaz");
+                }
 
-            var databaseEntity = await _databaseRepository.GetById(databaseId);
-            if (databaseEntity == null)
+                var databaseEntity = await _databaseRepository.GetById(databaseId);
+                if (databaseEntity == null)
+                {
+                    throw new NullReferenceException("İstenilen database verisine ulaşılamadı");
+                }
+
+                var mappedEntities = _mapper.Map<DetailDatabaseDto>(databaseEntity);
+                return mappedEntities;
+            }
+            catch (Exception e)
             {
-                throw new NullReferenceException("İstenilen database verisine ulaşılamadı");
+                throw ExceptionHandler.HandleException(e);
             }
-
-            var mappedEntities = _mapper.Map<DetailDatabaseDto>(databaseEntity);
-            return mappedEntities;
         }
 
         public async Task<int> AddDatabase(AddDatabaseDto dto)
@@ -105,7 +126,7 @@ namespace T_API.BLL.Concrete
             }
             catch (Exception e)
             {
-                throw e;
+                throw ExceptionHandler.HandleException(e);
             }
 
         }

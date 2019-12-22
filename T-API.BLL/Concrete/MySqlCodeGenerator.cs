@@ -10,6 +10,15 @@ namespace T_API.BLL.Concrete
 {
     public class MySqlCodeGenerator : ISqlCodeGenerator
     {
+        public string CreateDatabase(DatabaseEntity database)
+        {
+            string s = $"CREATE DATABASE {database.Database};" +
+            $"USE {database.Database};" +
+            $"CREATE USER '{database.Username}'@'localhost' IDENTIFIED BY '{database.Password}';" +
+            $"GRANT ALL PRIVILEGES ON {database.Database}.* to '{database.Username}'@'localhost';";
+            return s;
+        }
+
         public string CreateTable(Table table)
         {
             StringBuilder sb = new StringBuilder();
@@ -438,6 +447,10 @@ namespace T_API.BLL.Concrete
             }
 
             return sb.ToString();
+        }
+
+        public void Dispose()
+        {
         }
     }
 }

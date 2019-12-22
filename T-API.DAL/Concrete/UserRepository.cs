@@ -14,6 +14,8 @@ namespace T_API.DAL.Concrete
 {
     public class UserRepository : IUserRepository
     {
+        // TODO CreateConnection dynamic tipte bir connection döndürüyor bunun kontrol edilmesi gerekli
+
         private IDbConnectionFactory _dbConnectionFactory;
 
         public UserRepository(IDbConnectionFactory dbConnectionFactory)

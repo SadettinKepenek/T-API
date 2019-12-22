@@ -9,7 +9,7 @@ using IDbConnection = System.Data.IDbConnection;
 
 namespace T_API.Core.DAL.Concrete
 {
-    public class SqlConnectionFactory : IDbConnectionFactory
+    public class DbConnectionFactory : IDbConnectionFactory
     {
 
         public  IDbConnection CreateConnection(DbInformation information)

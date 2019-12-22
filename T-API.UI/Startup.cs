@@ -46,10 +46,12 @@ namespace T_API.UI
             services.AddScoped<IAuthService, AuthManager>();
             services.AddScoped<IDatabaseService, DatabaseManager>();
             services.AddScoped<IDatabaseRepository, DatabaseRepository>();
-            services.AddScoped<IDbConnectionFactory, SqlConnectionFactory>();
+            services.AddTransient<IDbConnectionFactory, DbConnectionFactory>();
             services.AddScoped<IUserService, UserManager>();
             services.AddScoped<IUserRepository, UserRepository>();
-            services.AddSingleton<SqlCodeGenerator, MySqlCodeGenerator>();
+            services.AddSingleton<ISqlCodeGeneratorFactory, SqlCodeGeneratorFactory>();
+            services.AddTransient<IRealDbFactory, RealDbFactory>();
+
 
             services.AddControllersWithViews().AddRazorRuntimeCompilation();
             var key = Encoding.ASCII.GetBytes(ConfigurationSettings.SecretKey);

@@ -9,6 +9,12 @@ namespace T_API.BLL.Concrete
 {
     public class SqlServerCodeGenerator : ISqlCodeGenerator
     {
+        [Obsolete("To be added")]
+        public string CreateDatabase(DatabaseEntity database)
+        {
+            throw new NotImplementedException();
+        }
+
         public string CreateTable(Table table)
         {
             StringBuilder sb = new StringBuilder();
@@ -223,5 +229,8 @@ namespace T_API.BLL.Concrete
         }
 
 
+        public void Dispose()
+        {
+        }
     }
 }

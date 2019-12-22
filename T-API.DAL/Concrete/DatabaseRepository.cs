@@ -12,6 +12,7 @@ using T_API.Entity.Concrete;
 
 namespace T_API.DAL.Concrete
 {
+    // TODO CreateConnection dynamic tipte bir connection döndürüyor bunun kontrol edilmesi gerekli
     public class DatabaseRepository : IDatabaseRepository
     {
         private IDbConnectionFactory _dbConnectionFactory;

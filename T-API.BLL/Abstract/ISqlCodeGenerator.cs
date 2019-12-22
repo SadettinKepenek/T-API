@@ -1,9 +1,12 @@
-﻿using T_API.Entity.Concrete;
+﻿using System;
+using T_API.Entity.Concrete;
+using Index = T_API.Entity.Concrete.Index;
 
 namespace T_API.BLL.Abstract
 {
-    public interface  ISqlCodeGenerator
+    public interface  ISqlCodeGenerator : IDisposable
     {
+        string CreateDatabase(DatabaseEntity database);
          string CreateTable(Table table);
          string DropTable(Table table);
         string AlterTable(Table table);

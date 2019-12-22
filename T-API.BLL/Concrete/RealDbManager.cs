@@ -2,13 +2,15 @@
 using System.Threading.Tasks;
 using T_API.BLL.Abstract;
 using T_API.Core.Exception;
+using T_API.DAL.Abstract;
 using T_API.Entity.Concrete;
 
 namespace T_API.BLL.Concrete
 {
-    public class RealDbManager:IRealDbService
+    public class RealDbManager : IRealDbService
     {
         private ISqlCodeGeneratorFactory _codeGeneratorFactory;
+
         //Factory Design Pattern
 
         public RealDbManager(ISqlCodeGeneratorFactory codeGeneratorFactory)
@@ -22,7 +24,7 @@ namespace T_API.BLL.Concrete
             {
                 if (database.DatabaseEntity.Provider.Equals("MySql"))
                 {
-                    var generator = _codeGeneratorFactory.CreateGenerator(database.DatabaseEntity.Provider);
+                    using MySqlCodeGenerator generator = _codeGeneratorFactory.CreateGenerator(database.DatabaseEntity.Provider) as MySqlCodeGenerator;
                     
                 }
             }

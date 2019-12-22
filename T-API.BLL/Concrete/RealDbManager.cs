@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Reflection;
 using System.Threading.Tasks;
 using AutoMapper;
 using T_API.BLL.Abstract;
@@ -65,6 +66,10 @@ namespace T_API.BLL.Concrete
                     {
                         throw new NullReferenceException("Code Generator Referansına Ulaşlamadı");
                     }
+                }
+                else
+                {
+                    throw new AmbiguousMatchException("Desteklenen Provider Verilmedi.");
                 }
             }
             catch (Exception e)

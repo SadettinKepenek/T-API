@@ -20,20 +20,18 @@ namespace T_API.DAL.Concrete
             _dbConnectionFactory = dbConnectionFactory;
         }
 
+
         public async Task CreateDatabaseOnRemote(string query)
         {
             try
             {
                 using (var conn=_dbConnectionFactory.CreateConnection(ConfigurationSettings.ServerDbInformation))
                 {
-                    if (conn.State==ConnectionState.Broken || conn.State==ConnectionState.Closed)
-                    {
-                        conn.Open();
-                    }
+                    if (conn.State==ConnectionState.Broken || conn.State==ConnectionState.Closed) conn.Open();
 
-                    using (var cmd=new MySqlCommand(query,conn as MySqlConnection))
+                    await using (var cmd=new MySqlCommand(query,conn as MySqlConnection))
                     {
-                        
+                        await cmd.ExecuteNonQueryAsync();
                     }
 
                 }

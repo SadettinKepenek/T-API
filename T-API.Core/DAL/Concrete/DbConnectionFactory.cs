@@ -24,6 +24,7 @@ namespace T_API.Core.DAL.Concrete
                                           $"User id={information.Username};" +
                                           $"Password={information.Password}" ;
                 var conn = new SqlConnection(connectionString);
+                
                 conn.Open();
                 return conn;
             }
@@ -46,22 +47,5 @@ namespace T_API.Core.DAL.Concrete
 
         }
 
-        public IDbCommand CreateCommandByProvider(string query, IDbConnection connection)
-        {
-            if (connection is MySqlConnection)
-            {
-                MySqlCommand cmd=new MySqlCommand(query,connection as MySqlConnection);
-                return cmd;
-            }
-
-            if (connection is SqlConnection)
-            {
-                SqlCommand cmd=new SqlCommand(query,connection as SqlConnection);
-                return cmd;
-            }
-
-            throw new ArgumentOutOfRangeException("connection","Belirtilen connection türü desteklenmemektedir.");
-
-        }
     }
 }

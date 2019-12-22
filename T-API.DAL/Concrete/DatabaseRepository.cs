@@ -5,6 +5,7 @@ using System.Data.SqlClient;
 using System.Threading.Tasks;
 using MySql.Data.MySqlClient;
 using T_API.Core.DAL.Abstract;
+using T_API.Core.DAL.Concrete;
 using T_API.Core.Exception;
 using T_API.Core.Settings;
 using T_API.DAL.Abstract;
@@ -16,6 +17,7 @@ namespace T_API.DAL.Concrete
     public class DatabaseRepository : IDatabaseRepository
     {
         private IDbConnectionFactory _dbConnectionFactory;
+
 
         public DatabaseRepository(IDbConnectionFactory dbConnectionFactory)
         {
@@ -30,27 +32,37 @@ namespace T_API.DAL.Concrete
                 using var conn = _dbConnectionFactory.CreateConnection(ConfigurationSettings.DbInformation);
                 if (conn.State == ConnectionState.Broken || conn.State == ConnectionState.Closed) conn.Open();
 
+
                 string sql =
                     "Insert into `databases` (UserId,Server,Username,Password,Port,Provider,StartDate,EndDate,IsActive,IsStorageSupport,IsApiSupport,`Database`) " +
                     "Values (@UserId,@Server,@Username,@Password,@Port,@Provider,@StartDate,@EndDate,@IsActive,@IsStorageSupport,@IsApiSupport,@Database); " +
                     "SELECT LAST_INSERT_ID();";
-                using var cmd = new MySqlCommand("sql", conn as MySqlConnection);
-                cmd.CommandText = sql;
-                cmd.Parameters.AddWithValue("UserId", database.UserId);
-                cmd.Parameters.AddWithValue("Server", database.Server);
-                cmd.Parameters.AddWithValue("Username", database.Username);
-                cmd.Parameters.AddWithValue("Password", database.Password);
-                cmd.Parameters.AddWithValue("Port", database.Port);
-                cmd.Parameters.AddWithValue("Provider", database.Provider);
-                cmd.Parameters.AddWithValue("StartDate", database.StartDate);
-                cmd.Parameters.AddWithValue("EndDate", database.EndDate);
-                cmd.Parameters.AddWithValue("IsActive", database.IsActive);
-                cmd.Parameters.AddWithValue("IsStorageSupport", database.IsStorageSupport);
-                cmd.Parameters.AddWithValue("IsApiSupport", database.IsApiSupport);
-                cmd.Parameters.AddWithValue("Database", database.Database);
 
-                var id = Convert.ToInt32(await cmd.ExecuteScalarAsync());
-                return id;
+
+                var cmd = conn.CreateCommand(sql);
+                using (cmd)
+                {
+
+                    cmd.AddParameter("UserId", database.UserId);
+                    cmd.AddParameter("Server", database.Server);
+                    cmd.AddParameter("Username", database.Username);
+                    cmd.AddParameter("Password", database.Password);
+                    cmd.AddParameter("Port", database.Port);
+                    cmd.AddParameter("Provider", database.Provider);
+                    cmd.AddParameter("StartDate", database.StartDate);
+                    cmd.AddParameter("EndDate", database.EndDate);
+                    cmd.AddParameter("IsActive", database.IsActive);
+                    cmd.AddParameter("IsStorageSupport", database.IsStorageSupport);
+                    cmd.AddParameter("IsApiSupport", database.IsApiSupport);
+                    cmd.AddParameter("Database", database.Database);
+
+                    var id = Convert.ToInt32(cmd.ExecuteScalar());
+                    return id;
+                }
+
+
+
+
             }
             catch (Exception e)
             {
@@ -255,7 +267,7 @@ namespace T_API.DAL.Concrete
 
                 string sql = "Select * from `databases`";
                 using var cmd = new MySqlCommand(sql, conn as MySqlConnection);
-              //  var GetAllDatabase = (List<DatabaseEntity>)await cmd.ExecuteScalarAsync();
+                //  var GetAllDatabase = (List<DatabaseEntity>)await cmd.ExecuteScalarAsync();
 
                 var sqlReader = cmd.ExecuteReader();
                 if (!sqlReader.HasRows)

@@ -14,11 +14,13 @@ namespace T_API.BLL.Concrete
     public class DatabaseManager : IDatabaseService
     {
         private IDatabaseRepository _databaseRepository;
+        private IRealDbRepositoryFactory _dbRepositoryFactory;
         private IMapper _mapper;
-        public DatabaseManager(IDatabaseRepository databaseRepository, IMapper mapper)
+        public DatabaseManager(IDatabaseRepository databaseRepository, IMapper mapper, IRealDbRepositoryFactory dbRepositoryFactory)
         {
             _databaseRepository = databaseRepository;
             _mapper = mapper;
+            _dbRepositoryFactory = dbRepositoryFactory;
         }
 
 
@@ -129,17 +131,23 @@ namespace T_API.BLL.Concrete
                 
                 AddDatabaseValidator validator = new AddDatabaseValidator();
                 var result = validator.Validate(dto);
-                if (!result.IsValid)
+                if (result.IsValid)
                 {
-                    throw new ValidationException(result.Errors.ToString());
+
+
+
+                    var mappedEntity = _mapper.Map<DatabaseEntity>(dto);
+                    var addDatabase = await _databaseRepository.AddDatabase(mappedEntity);
+
+                    return addDatabase;
                 }
 
-                var mappedEntity = _mapper.Map<DatabaseEntity>(dto);
-                return await _databaseRepository.AddDatabase(mappedEntity);
+                throw new ValidationException(result.Errors.ToString());
 
             }
             catch (Exception e)
             {
+
                 throw ExceptionHandler.HandleException(e);
             }
 

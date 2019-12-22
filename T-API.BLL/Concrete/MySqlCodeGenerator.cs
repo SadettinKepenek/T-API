@@ -8,9 +8,9 @@ using Index = T_API.Entity.Concrete.Index;
 
 namespace T_API.BLL.Concrete
 {
-    public class MySqlCodeGenerator : SqlCodeGenerator
+    public class MySqlCodeGenerator : ISqlCodeGenerator
     {
-        public override string CreateTable(Table table)
+        public string CreateTable(Table table)
         {
             StringBuilder sb = new StringBuilder();
             sb.AppendLine($"Create Table '{table.TableName}'");
@@ -80,14 +80,14 @@ namespace T_API.BLL.Concrete
             return String.Empty;
         }
 
-        public override string DropTable(Table table)
+        public string DropTable(Table table)
         {
             StringBuilder sb = new StringBuilder();
             sb.AppendLine($"drop table if exists {table.TableName} cascade;");
             return sb.ToString();
         }
 
-        public override string AlterTable(Table table)
+        public string AlterTable(Table table)
         {
 
             StringBuilder sb = new StringBuilder();
@@ -165,7 +165,7 @@ namespace T_API.BLL.Concrete
             return sb.ToString();
         }
 
-        public override string CreateColumn(Column column)
+        public string CreateColumn(Column column)
         {
             StringBuilder stringBuilder = new StringBuilder();
             column.DataType = column.DataType.ToUpperInvariant();
@@ -288,7 +288,7 @@ namespace T_API.BLL.Concrete
         }
 
         [Obsolete("To Be Added.")]
-        public override string DropColumn(Column column)
+        public string DropColumn(Column column)
         {
             if (column.PrimaryKey)
             {
@@ -299,7 +299,7 @@ namespace T_API.BLL.Concrete
             throw new System.NotImplementedException();
         }
 
-        public override string AlterColumn(Column column)
+        public string AlterColumn(Column column)
         {
             StringBuilder stringBuilder = new StringBuilder();
             column.DataType = column.DataType.ToUpperInvariant();
@@ -346,7 +346,7 @@ namespace T_API.BLL.Concrete
             return stringBuilder.ToString();
         }
 
-        public override string CreateRelation(ForeignKey foreignKey)
+        public string CreateRelation(ForeignKey foreignKey)
         {
             StringBuilder sb = new StringBuilder();
             sb.Append($"\tconstraint {foreignKey.ForeignKeyName} foreign key ({foreignKey.SourceColumn}) " +
@@ -354,14 +354,14 @@ namespace T_API.BLL.Concrete
             return sb.ToString();
         }
 
-        public override string DropRelation(ForeignKey foreignKey)  
+        public string DropRelation(ForeignKey foreignKey)
         {
             StringBuilder sb = new StringBuilder();
             sb.Append($"\t alter table {foreignKey.SourceTable} drop foreign key {foreignKey.ForeignKeyName};");
             return sb.ToString();
         }
 
-        public override string AlterRelation(ForeignKey foreignKey)
+        public string AlterRelation(ForeignKey foreignKey)
         {
             StringBuilder sb = new StringBuilder();
             sb.Append($"\t add constraint {foreignKey.ForeignKeyName} foreign key ({foreignKey.SourceColumn}) " +
@@ -369,7 +369,7 @@ namespace T_API.BLL.Concrete
             return sb.ToString();
         }
 
-        public override string CreateKey(Key key)
+        public string CreateKey(Key key)
         {
             StringBuilder sb = new StringBuilder();
             if (!key.IsPrimary)
@@ -377,7 +377,7 @@ namespace T_API.BLL.Concrete
             return sb.ToString();
         }
 
-        public override string DropKey(Key key)
+        public string DropKey(Key key)
         {
             StringBuilder sb = new StringBuilder();
             if (!key.IsPrimary)
@@ -389,7 +389,7 @@ namespace T_API.BLL.Concrete
             return sb.ToString();
         }
 
-        public override string AlterKey(Key key)
+        public string AlterKey(Key key)
         {
             StringBuilder sb = new StringBuilder();
             if (!key.IsPrimary)
@@ -397,7 +397,7 @@ namespace T_API.BLL.Concrete
             return sb.ToString();
         }
 
-        public override string CreateIndex(Index index)
+        public string CreateIndex(Index index)
         {
             StringBuilder sb = new StringBuilder();
 
@@ -414,7 +414,7 @@ namespace T_API.BLL.Concrete
             return sb.ToString();
         }
 
-        public override string DropIndex(Index index)
+        public string DropIndex(Index index)
         {
             StringBuilder sb = new StringBuilder();
 
@@ -423,7 +423,7 @@ namespace T_API.BLL.Concrete
             return sb.ToString();
         }
 
-        public override string AlterIndex(Index index)
+        public string AlterIndex(Index index)
         {
             StringBuilder sb = new StringBuilder();
 

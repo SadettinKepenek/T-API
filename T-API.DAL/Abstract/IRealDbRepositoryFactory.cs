@@ -1,6 +1,6 @@
 ﻿namespace T_API.DAL.Abstract
 {
-    public interface IRealDbFactory
+    public interface IRealDbRepositoryFactory
     {
         IRealDbRepository CreateRepository(string provider);
     }

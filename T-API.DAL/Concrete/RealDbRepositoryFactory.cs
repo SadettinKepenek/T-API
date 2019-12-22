@@ -5,7 +5,7 @@ using T_API.DAL.Abstract;
 
 namespace T_API.DAL.Concrete
 {
-    public class RealDbFactory : IRealDbFactory
+    public class RealDbRepositoryFactory : IRealDbRepositoryFactory
     {
         // TODO CreateConnection dynamic tipte bir connection döndürüyor bunun kontrol edilmesi gerekli
 
@@ -48,7 +48,7 @@ namespace T_API.DAL.Concrete
 
         private IServiceProvider _serviceProvider;
 
-        public RealDbFactory(IServiceProvider serviceProvider)
+        public RealDbRepositoryFactory(IServiceProvider serviceProvider)
         {
             _serviceProvider = serviceProvider;
         }

@@ -50,7 +50,7 @@ namespace T_API.UI
             services.AddScoped<IUserService, UserManager>();
             services.AddScoped<IUserRepository, UserRepository>();
             services.AddSingleton<ISqlCodeGeneratorFactory, SqlCodeGeneratorFactory>();
-            services.AddTransient<IRealDbFactory, RealDbFactory>();
+            services.AddTransient<IRealDbRepositoryFactory, RealDbRepositoryFactory>();
 
 
             services.AddControllersWithViews().AddRazorRuntimeCompilation();

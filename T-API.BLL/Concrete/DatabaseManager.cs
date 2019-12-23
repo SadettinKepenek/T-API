@@ -78,7 +78,7 @@ namespace T_API.BLL.Concrete
                 {
                     throw new ArgumentNullException("username", "Kullanıcı adı boş olamaz");
                 }
-
+                using var uow = UnitOfWorkFactory.Create(ConfigurationSettings.DbInformation);
                 var databases = await _databaseRepository.GetByUser(username);
                 if (databases == null)
                 {
@@ -86,6 +86,7 @@ namespace T_API.BLL.Concrete
                 }
 
                 var mappedEntities = _mapper.Map<List<ListDatabaseDto>>(databases);
+                uow.SaveChanges();
                 return mappedEntities;
             }
             catch (Exception e)

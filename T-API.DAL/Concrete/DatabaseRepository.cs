@@ -145,7 +145,7 @@ namespace T_API.DAL.Concrete
                 if (conn.State == ConnectionState.Broken || conn.State == ConnectionState.Closed) conn.Open();
 
                 string sql = "Select * from `databases` where UserId = @UserId";
-                var cmd = _unitOfWork.CreateCommand(sql);
+                var cmd = UnitOfWorkFactory.GetInstance().CreateCommand(sql);
 
                 using (cmd)
                 {
@@ -185,7 +185,7 @@ namespace T_API.DAL.Concrete
                 if (conn.State == ConnectionState.Broken || conn.State == ConnectionState.Closed) conn.Open();
 
                 string sql = "Select * from `databases` inner join users on databases.UserId = users.UserId Where users.Username = @Username";
-                var cmd = _unitOfWork.CreateCommand(sql);
+                var cmd = UnitOfWorkFactory.GetInstance().CreateCommand(sql);
                 using (cmd)
                 {
 

@@ -153,6 +153,14 @@ namespace T_API.BLL.Concrete
                 {
                     throw new NullReferenceException("Bilgiler boş geldi");
                 }
+
+                UpdateDatabaseValidator validator=new UpdateDatabaseValidator();
+                var validation = validator.Validate(dto);
+                if (!validation.IsValid)
+                {
+                    throw new ValidationException(validation.Errors.ToString());
+                }
+
                 var mappedData = _mapper.Map<DatabaseEntity>(dto);
                 await _databaseRepository.UpdateDatabase(mappedData);
             }
@@ -172,6 +180,15 @@ namespace T_API.BLL.Concrete
                     throw new NullReferenceException("Bilgiler boş geldi");
 
                 }
+
+                DeleteDatabaseValidator validator=new DeleteDatabaseValidator();
+                var validation = validator.Validate(dto);
+                if (!validation.IsValid)
+                {
+                    throw new ValidationException(validation.Errors.ToString());
+                }
+
+
                 var mappedData = _mapper.Map<DatabaseEntity>(dto);
                 await _databaseRepository.DeleteDatabase(mappedData);
             }

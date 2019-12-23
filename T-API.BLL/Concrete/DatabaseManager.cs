@@ -137,13 +137,11 @@ namespace T_API.BLL.Concrete
                 {
 
                     var mappedEntity = _mapper.Map<DatabaseEntity>(dto);
-                    using (TransactionScope scope = new TransactionScope())
-                    {
-                        var addDatabase = await _databaseRepository.AddDatabase(mappedEntity);
-                        scope.Complete();
-                        return addDatabase;
 
-                    }
+                    using TransactionScope scope = new TransactionScope();
+                    var addDatabase = await _databaseRepository.AddDatabase(mappedEntity);
+                    scope.Complete();
+                    return addDatabase;
                 }
 
                 throw new ValidationException(result.Errors.ToString());
@@ -176,8 +174,10 @@ namespace T_API.BLL.Concrete
                     throw new ValidationException(validation.Errors.ToString());
                 }
 
+                using TransactionScope scope = new TransactionScope();
                 var mappedData = _mapper.Map<DatabaseEntity>(dto);
                 await _databaseRepository.UpdateDatabase(mappedData);
+                scope.Complete();
             }
             catch (Exception e)
             {
@@ -203,9 +203,10 @@ namespace T_API.BLL.Concrete
                     throw new ValidationException(validation.Errors.ToString());
                 }
 
-
+                using TransactionScope scope=new TransactionScope();
                 var mappedData = _mapper.Map<DatabaseEntity>(dto);
                 await _databaseRepository.DeleteDatabase(mappedData);
+                scope.Complete();
             }
             catch (Exception e)
             {

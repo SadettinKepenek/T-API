@@ -7,6 +7,15 @@
 @using T_API.Core.DTO.Database
 @model List<ListDatabaseDto>
 
+@if (TempData["Message"] != null)
+{
+    <div class="alert alert-info alert-dismissible fade show" role="alert">
+        @TempData["Message"].ToString()
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+}
 <table class="table table-striped">
     <thead>
         <tr>
@@ -28,13 +37,14 @@
                 <td>@database.DatabaseId</td>
                 <td>@database.IsActive</td>
                 <td>
-                    <button class="btn btn-danger" asp-action="DeleteDatabase" asp-controller="Database" asp-route-id="@database.DatabaseId">Delete</button>
-                    <button class="btn btn-primary" asp-action="UpdateDatabase" asp-controller="Database">Update</button>
+                    <a class="btn btn-danger" asp-action="DeleteDatabase" asp-controller="Database" asp-route-id="@database.DatabaseId">Delete</a>
+                    <a class="btn btn-primary" asp-action="UpdateDatabase" asp-controller="Database" asp-route-id="@database.DatabaseId">Update</a>
                 </td>
             </tr>
         }
 
     </tbody>
 </table>
+<a class="btn btn-secondary" asp-action="CreateDatabase" asp-controller="Database">Create Database</a>
 
 

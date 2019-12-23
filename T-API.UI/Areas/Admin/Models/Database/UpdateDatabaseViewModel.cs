@@ -8,6 +8,7 @@ namespace T_API.UI.Areas.Admin.Models.Database
 {
     public class UpdateDatabaseViewModel
     {
+        [Required]
         public int DatabaseId { get; set; }
         public int UserId { get; set; }
         [Required]

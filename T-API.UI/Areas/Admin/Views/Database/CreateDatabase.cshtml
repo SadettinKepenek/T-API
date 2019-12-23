@@ -1,0 +1,53 @@
+﻿
+@{
+    ViewData["Title"] = "CreateDatabase";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+
+}
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+@model T_API.UI.Areas.Admin.Models.Database.CreateDatabaseViewModel
+
+    <form asp-action="CreateDatabase" asp-controller="Database" asp-antiforgery="true" method="post">
+        <div class="form-group">
+            <label asp-for="Database">Database</label>
+            <input type="text" class="form-control" placeholder="Enter Database" asp-for="Database">
+            <span class="text-danger" asp-validation-for="Database"></span>
+        </div>
+        <div class="form-group">
+            <label asp-for="Server">Server</label>
+            <input type="text" class="form-control" placeholder="Enter Server" asp-for="Server">
+            <span class="text-danger" asp-validation-for="Server"></span>
+        </div>
+        <div class="form-group">
+            <label asp-for="Provider">Provider</label>
+            <input type="text" class="form-control" placeholder="Enter Provider" asp-for="Provider">
+            <span class="text-danger" asp-validation-for="Provider"></span>
+        </div>
+        <div class="form-group">
+            <label asp-for="Port">Port</label>
+            <input type="text" class="form-control" placeholder="Enter Port" asp-for="Port">
+            <span class="text-danger" asp-validation-for="Port"></span>
+        </div>
+
+        <div class="form-group">
+            <label asp-for="Username">Username</label>
+            <input type="text" class="form-control" placeholder="Enter Role" asp-for="Username">
+            <span class="text-danger" asp-validation-for="Username"></span>
+        </div>
+        <div class="form-group">
+            <label asp-for="Password">Password</label>
+            <input type="password" class="form-control" placeholder="Enter Password" asp-for="Password">
+            <span class="text-danger" asp-validation-for="Password"></span>
+        </div>
+        <div class="form-group">
+            <label asp-for="StartDate">StartDate</label>
+            <input type="text" class="form-control" placeholder="Enter StartDate" asp-for="StartDate">
+            <span class="text-danger" asp-validation-for="StartDate"></span>
+        </div>
+        <input asp-for="UserId" hidden="hidden" />
+
+        <button type="reset" class="btn btn-danger">Discard</button>
+        <button type="submit" class="btn btn-success">Submit</button>
+    </form>
+
+

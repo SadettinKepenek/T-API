@@ -7,6 +7,16 @@
 @using T_API.Core.DTO.User
 @model List<ListUserDto>
 
+@if (TempData["Message"] != null)
+{
+    <div class="alert alert-info alert-dismissible fade show" role="alert">
+        @TempData["Message"].ToString()
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+}
+
 <table class="table table-striped">
     <thead>
         <tr>
@@ -21,20 +31,21 @@
     <tbody>
         @foreach (var user in Model)
         {
-        <tr>
-            <td>@user.Firstname</td>
-            <td>@user.Lastname</td>
-            <td>@user.PhoneNumber</td>
-            <td>@user.Email</td>
-            <td>@user.Role</td>
-            <td>
-                <button class="btn btn-danger" asp-action="DeleteUser" asp-controller="User">Delete</button>
-                <button class="btn btn-primary" asp-action="UpdateUser" asp-controller="User">Update</button>
-            </td>
-        </tr>
+            <tr>
+                <td>@user.Firstname</td>
+                <td>@user.Lastname</td>
+                <td>@user.PhoneNumber</td>
+                <td>@user.Email</td>
+                <td>@user.Role</td>
+                <td>
+                    <a class="btn btn-danger" asp-action="DeleteUser" asp-controller="User" asp-route-id="@user.UserId">Delete</a>
+                    <a class="btn btn-primary" asp-action="UpdateUser" asp-controller="User" asp-route-id="@user.UserId">Update</a>
+                </td>
+            </tr>
         }
 
     </tbody>
 </table>
+<a class="btn btn-secondary" asp-action="CreateUser" asp-controller="User">Create User</a>
 
 

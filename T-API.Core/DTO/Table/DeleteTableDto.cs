@@ -2,6 +2,6 @@
 {
     public class DeleteTableDto
     {
-        
+        public string TableName { get; set; }
     }
 }

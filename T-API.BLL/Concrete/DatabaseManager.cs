@@ -141,7 +141,7 @@ namespace T_API.BLL.Concrete
 
                     var mappedEntity = _mapper.Map<DatabaseEntity>(dto);
 
-                    using var uow = UnitOfWorkFactory.Create(DbConnectionFactory.CreateConnection(ConfigurationSettings.ServerDbInformation));
+                    using var uow = UnitOfWorkFactory.Create(ConfigurationSettings.DbInformation);
                     var addDatabase = await _databaseRepository.AddDatabase(mappedEntity);
                     uow.SaveChanges();
                     return addDatabase;

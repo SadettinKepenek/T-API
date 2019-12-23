@@ -17,11 +17,12 @@ namespace T_API.DAL.Concrete
     public class DatabaseRepository : IDatabaseRepository
     {
         private IUnitOfWork _unitOfWork;
+        //TODO Değiştirilecek.
 
 
-        public DatabaseRepository(IUnitOfWork unitOfWork)
+        public DatabaseRepository()
         {
-            _unitOfWork = unitOfWork;
+
         }
 
 
@@ -29,8 +30,7 @@ namespace T_API.DAL.Concrete
         {
             try
             {
-                using var conn = DbConnectionFactory.CreateConnection(ConfigurationSettings.DbInformation);
-                if (conn.State == ConnectionState.Broken || conn.State == ConnectionState.Closed) conn.Open();
+               
 
 
                 string sql =
@@ -39,7 +39,7 @@ namespace T_API.DAL.Concrete
                     "SELECT LAST_INSERT_ID();";
 
 
-                var cmd = _unitOfWork.CreateCommand(sql);
+                var cmd = UnitOfWorkFactory.GetInstance().CreateCommand(sql);
                 using (cmd)
                 {
 

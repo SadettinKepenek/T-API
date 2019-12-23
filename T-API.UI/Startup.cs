@@ -50,7 +50,6 @@ namespace T_API.UI
             services.AddScoped<IUserRepository, UserRepository>();
             services.AddTransient<IRealDbRepositoryFactory, RealDbRepositoryFactory>();
             services.AddTransient<IRealDbService, RealDbManager>();
-            services.AddTransient<IUnitOfWork, AdoNetUnitOfWork>();
 
 
             services.AddControllersWithViews().AddRazorRuntimeCompilation();

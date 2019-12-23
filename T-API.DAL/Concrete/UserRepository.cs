@@ -19,9 +19,8 @@ namespace T_API.DAL.Concrete
 
         private IUnitOfWork _unitOfWork;
 
-        public UserRepository(IUnitOfWork unitOfWork)
+        public UserRepository()
         {
-            _unitOfWork = unitOfWork;
         }
 
         public async Task<int> AddUser(UserEntity user)

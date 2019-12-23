@@ -3,11 +3,25 @@ using T_API.Core.DAL.Abstract;
 
 namespace T_API.Core.DAL.Concrete
 {
-    public static class UnitOfWorkFactory
+    public class UnitOfWorkFactory
     {
-        public static IUnitOfWork Create(IDbConnection connection)
+        private static AdoNetUnitOfWork Instance { get; set; }
+
+        private UnitOfWorkFactory()
         {
-            return new AdoNetUnitOfWork(connection,true);
+
         }
+        public static IUnitOfWork Create(DbInformation information)
+        {
+            var adoNetUnitOfWork = new AdoNetUnitOfWork(information, true);
+            Instance = adoNetUnitOfWork;
+            return adoNetUnitOfWork;
+        }
+
+        public static IUnitOfWork GetInstance()
+        {
+            return Instance;
+        }
+
     }
 }

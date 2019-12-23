@@ -9,9 +9,10 @@ namespace T_API.Core.DAL.Concrete
         private IDbConnection _connection;
         private bool _ownsConnection;
         private IDbTransaction _transaction;
-        public AdoNetUnitOfWork(IDbConnection connection, bool ownsConnection)
+        
+        public AdoNetUnitOfWork(DbInformation information, bool ownsConnection)
         {
-            _connection = connection;
+            _connection = DbConnectionFactory.CreateConnection(information);
             _ownsConnection = ownsConnection;
             _transaction = _connection.BeginTransaction();
         }

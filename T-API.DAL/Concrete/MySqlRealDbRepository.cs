@@ -16,9 +16,8 @@ namespace T_API.DAL.Concrete
 
         private IUnitOfWork _unitOfWork;
 
-        public MySqlRealDbRepository( IUnitOfWork unitOfWork)
+        public MySqlRealDbRepository( )
         {
-            _unitOfWork = unitOfWork;
         }
 
 

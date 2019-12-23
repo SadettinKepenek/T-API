@@ -121,5 +121,18 @@ namespace T_API.UI.Controllers
                 return RedirectToAction("Index", "Database");
             }
         }
+
+
+        [HttpGet("{provider}",Name = "GetDataTypes")]
+        public async Task<IActionResult> GetDataTypes(string provider)
+        {
+            var dataTypes = await _databaseService.GetDataTypes(provider: provider);
+            if (dataTypes!=null && dataTypes.Count!=0)
+            {
+                return Ok(dataTypes);
+            }
+            return NoContent();
+        }
+
     }
 }

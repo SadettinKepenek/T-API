@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Reflection;
 using System.Threading.Tasks;
 using System.Transactions;
 using AutoMapper;
@@ -116,6 +117,31 @@ namespace T_API.BLL.Concrete
             {
                 throw ExceptionHandler.HandleException(e);
             }
+        }
+
+        public async Task<List<string>> GetDataTypes(string provider)
+        {
+            List<string> dataTypes=new List<string>();
+            if (provider.Equals("MySql"))
+            {
+                foreach (FieldInfo field in typeof(MysqlProviderColumnType).GetFields())
+                {
+                    dataTypes.Add(field.GetValue(null) as string);
+                }
+            }
+            else if (provider.Equals("MsSql"))
+            {
+                foreach (FieldInfo field in typeof(SqlServerProviderColumnType).GetFields())
+                {
+                    dataTypes.Add(field.GetValue(null) as string);
+                }
+            }
+            else
+            {
+                throw new AmbiguousMatchException("Provider türü için support bulunamadı");
+            }
+
+            return dataTypes;
         }
 
         public async Task<int> AddDatabase(AddDatabaseDto dto)

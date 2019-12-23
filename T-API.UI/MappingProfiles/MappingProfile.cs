@@ -45,10 +45,40 @@ namespace T_API.UI.MappingProfiles
 
 
             CreateMap<AddColumnDto, Column>().ReverseMap();
+            CreateMap<UpdateColumnDto, Column>().ReverseMap();
+            CreateMap<DeleteColumnDto, Column>().ReverseMap();
+            CreateMap<Column, ListColumnDto>().ReverseMap();
+            CreateMap<Column, DetailUserDto>().ReverseMap();
+
+
+
+
             CreateMap<AddKeyDto, Key>().ReverseMap();
+            CreateMap<UpdateKeyDto, Key>().ReverseMap();
+            CreateMap<DeleteKeyDto, Key>().ReverseMap();
+            CreateMap<Key, DetailKeyDto>().ReverseMap();
+            CreateMap<Key, ListKeyDto>().ReverseMap();
+
+
             CreateMap<AddTableDto, Table>().ReverseMap();
+            CreateMap<UpdateDatabaseDto, Table>().ReverseMap();
+            CreateMap<DeleteTableDto, Table>().ReverseMap();
+            CreateMap<DetailTableDto, Table>().ReverseMap();
+            CreateMap<ListTableDto, Table>().ReverseMap();
+
+
             CreateMap<AddIndexDto, Index>().ReverseMap();
+            CreateMap<UpdateIndexDto, Index>().ReverseMap();
+            CreateMap<DeleteIndexDto, Index>().ReverseMap();
+            CreateMap<DetailIndexDto, Index>().ReverseMap();
+            CreateMap<ListIndexDto, Index>().ReverseMap();
+
+
             CreateMap<AddForeignKeyDto, ForeignKey>().ReverseMap();
+            CreateMap<UpdateForeignKeyDto, ForeignKey>().ReverseMap();
+            CreateMap<DeleteForeignKeyDto, ForeignKey>().ReverseMap();
+            CreateMap<DetailForeignKeyDto, ForeignKey>().ReverseMap();
+            CreateMap<ListForeignKeyDto, ForeignKey>().ReverseMap();
 
         }
     }

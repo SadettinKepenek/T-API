@@ -38,7 +38,7 @@ namespace T_API.BLL.Concrete
                         var result = addDatabaseValidator.Validate(database);
                         if (result.IsValid)
                         {
-                            var mappedEntity = _mapper.Map<DatabaseEntity>(database);
+                            var mappedEntity = _mapper.Map<Database>(database);
                             string createDatabaseCommand = generator.CreateDatabase(mappedEntity);
                             if (!String.IsNullOrEmpty(createDatabaseCommand))
                             {

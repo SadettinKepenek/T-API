@@ -24,7 +24,7 @@ namespace T_API.DAL.Concrete
         }
 
 
-        public async Task<int> AddDatabase(DatabaseEntity database)
+        public async Task<int> AddDatabase(Database database)
         {
             try
             {
@@ -53,7 +53,7 @@ namespace T_API.DAL.Concrete
                     cmd.AddParameter("IsActive", database.IsActive);
                     cmd.AddParameter("IsStorageSupport", database.IsStorageSupport);
                     cmd.AddParameter("IsApiSupport", database.IsApiSupport);
-                    cmd.AddParameter("Database", database.Database);
+                    cmd.AddParameter("Database", database.DatabaseName);
 
                     var id = Convert.ToInt32(cmd.ExecuteScalar());
                     return id;
@@ -70,7 +70,7 @@ namespace T_API.DAL.Concrete
         }
 
 
-        public async Task UpdateDatabase(DatabaseEntity database)
+        public async Task UpdateDatabase(Database database)
         {
             try
             {
@@ -96,7 +96,7 @@ namespace T_API.DAL.Concrete
                     cmd.AddParameter("IsStorageSupport", database.IsStorageSupport);
                     cmd.AddParameter("IsApiSupport", database.IsApiSupport);
                     cmd.AddParameter("DatabaseId", database.DatabaseId);
-                    cmd.AddParameter("Database", database.Database);
+                    cmd.AddParameter("Database", database.DatabaseName);
                 }
             }
             catch (Exception e)
@@ -107,7 +107,7 @@ namespace T_API.DAL.Concrete
 
         }
 
-        public async Task DeleteDatabase(DatabaseEntity database)
+        public async Task DeleteDatabase(Database database)
         {
 
             try
@@ -136,7 +136,7 @@ namespace T_API.DAL.Concrete
 
         }
 
-        public async Task<List<DatabaseEntity>> GetByUser(int userId)
+        public async Task<List<Database>> GetByUser(int userId)
         {
             try
             {
@@ -155,12 +155,12 @@ namespace T_API.DAL.Concrete
 
                     DataTable dt = new DataTable();
                     dt.Load(sqlReader);
-                    List<DatabaseEntity> databases = new List<DatabaseEntity>();
+                    List<Database> databases = new List<Database>();
                     for (int i = 0; i < dt.Rows.Count; i++)
                     {
                         var dataRow = dt.Rows[i];
-                        var databaseEntity = ProcessDatabaseEntity(dataRow);
-                        databases.Add(databaseEntity);
+                        var Database = ProcessDatabaseEntity(dataRow);
+                        databases.Add(Database);
                     }
 
                     return databases;
@@ -176,7 +176,7 @@ namespace T_API.DAL.Concrete
 
         }
 
-        public async Task<List<DatabaseEntity>> GetByUser(string username)
+        public async Task<List<Database>> GetByUser(string username)
         {
             try
             {
@@ -195,7 +195,7 @@ namespace T_API.DAL.Concrete
 
                     DataTable dt = new DataTable();
                     dt.Load(sqlReader);
-                    List<DatabaseEntity> databases = new List<DatabaseEntity>();
+                    List<Database> databases = new List<Database>();
                     for (int i = 0; i < dt.Rows.Count; i++)
                     {
                         var dataRow = dt.Rows[i];
@@ -214,16 +214,16 @@ namespace T_API.DAL.Concrete
 
         }
 
-        private static DatabaseEntity ProcessDatabaseEntity(DataRow dataRow)
+        private static Database ProcessDatabaseEntity(DataRow dataRow)
         {
-            var databaseEntity = new DatabaseEntity
+            var databaseEntity = new Database
             {
                 Username = dataRow["Username"] as string,
                 Provider = dataRow["Provider"] as string,
                 Port = dataRow["Port"] as string,
                 Password = dataRow["Password"] as string,
                 StartDate = Convert.ToDateTime(dataRow["StartDate"]),
-                Database = dataRow["Database"] as string,
+                DatabaseName = dataRow["Database"] as string,
                 IsActive = Convert.ToBoolean(dataRow["IsActive"]),
                 IsApiSupport = Convert.ToBoolean(dataRow["IsApiSupport"]),
                 IsStorageSupport = Convert.ToBoolean(dataRow["IsStorageSupport"]),
@@ -235,7 +235,7 @@ namespace T_API.DAL.Concrete
             return databaseEntity;
         }
 
-        public async Task<DatabaseEntity> GetById(int databaseId)
+        public async Task<Database> GetById(int databaseId)
         {
             try
             {
@@ -253,7 +253,7 @@ namespace T_API.DAL.Concrete
 
                     DataTable dt = new DataTable();
                     dt.Load(sqlReader);
-                    DatabaseEntity databaseEntity;
+                    Database databaseEntity;
                     var dataRow = dt.Rows[0];
                     databaseEntity = ProcessDatabaseEntity(dataRow);
                     return databaseEntity;
@@ -266,7 +266,7 @@ namespace T_API.DAL.Concrete
 
         }
 
-        public async Task<List<DatabaseEntity>> GetAll()
+        public async Task<List<Database>> GetAll()
         {
             try
             {
@@ -285,7 +285,7 @@ namespace T_API.DAL.Concrete
 
                     DataTable dt = new DataTable();
                     dt.Load(sqlReader);
-                    List<DatabaseEntity> databases = new List<DatabaseEntity>();
+                    List<Database> databases = new List<Database>();
                     for (int i = 0; i < dt.Rows.Count; i++)
                     {
                         var dataRow = dt.Rows[i];

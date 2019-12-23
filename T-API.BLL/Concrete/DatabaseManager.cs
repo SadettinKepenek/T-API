@@ -162,7 +162,7 @@ namespace T_API.BLL.Concrete
                 if (result.IsValid)
                 {
 
-                    var mappedEntity = _mapper.Map<DatabaseEntity>(dto);
+                    var mappedEntity = _mapper.Map<Database>(dto);
 
                     using TransactionScope scope = new TransactionScope();
                     var addDatabase = await _databaseRepository.AddDatabase(mappedEntity);
@@ -201,7 +201,7 @@ namespace T_API.BLL.Concrete
                 }
 
                 using TransactionScope scope = new TransactionScope();
-                var mappedData = _mapper.Map<DatabaseEntity>(dto);
+                var mappedData = _mapper.Map<Database>(dto);
                 await _databaseRepository.UpdateDatabase(mappedData);
                 scope.Complete();
             }
@@ -230,7 +230,7 @@ namespace T_API.BLL.Concrete
                 }
 
                 using TransactionScope scope=new TransactionScope();
-                var mappedData = _mapper.Map<DatabaseEntity>(dto);
+                var mappedData = _mapper.Map<Database>(dto);
                 await _databaseRepository.DeleteDatabase(mappedData);
                 scope.Complete();
             }

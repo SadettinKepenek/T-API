@@ -1,8 +1,6 @@
-﻿using T_API.Entity.Abstract;
-
-namespace T_API.Entity.Concrete
+﻿namespace T_API.Core.DTO.Column
 {
-    public class Column
+    public class ListColumnDto
     {
         public string ColumnName { get; set; }
         public string TableName { get; set; }
@@ -16,9 +14,5 @@ namespace T_API.Entity.Concrete
         public object DefaultValue { get; set; }
 
         public bool HasLength { get; set; }
-
-        public Table Table { get; set; }
-
-     
     }
 }

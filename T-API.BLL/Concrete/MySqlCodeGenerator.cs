@@ -10,12 +10,12 @@ namespace T_API.BLL.Concrete
 {
     public class MySqlCodeGenerator : ISqlCodeGenerator
     {
-        public string CreateDatabase(DatabaseEntity database)
+        public string CreateDatabase(Database database)
         {
-            string s = $"CREATE DATABASE {database.Database};" +
-            $"USE {database.Database};" +
+            string s = $"CREATE DATABASE {database.DatabaseName};" +
+            $"USE {database.DatabaseName};" +
             $"CREATE USER '{database.Username}'@'localhost' IDENTIFIED BY '{database.Password}';" +
-            $"GRANT ALL PRIVILEGES ON {database.Database}.* to '{database.Username}'@'localhost';";
+            $"GRANT ALL PRIVILEGES ON {database.DatabaseName}.* to '{database.Username}'@'localhost';";
             return s;
         }
 

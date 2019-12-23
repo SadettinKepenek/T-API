@@ -25,6 +25,8 @@ namespace T_API.UI.MappingProfiles
             CreateMap<CreateServiceViewModel, AddDatabaseDto>();
             CreateMap<UpdateDatabaseDto, Database>();
             CreateMap<UpdateDatabaseViewModel, UpdateDatabaseDto>().ReverseMap();
+            CreateMap<EditServiceViewModel, UpdateDatabaseDto>().ReverseMap();
+            CreateMap<EditServiceViewModel, DetailDatabaseDto>().ReverseMap();
             CreateMap<DeleteDatabaseDto, Database>();
             CreateMap<ListDatabaseDto, Database>().ReverseMap();
             CreateMap<DetailDatabaseDto, Database>().ReverseMap();

@@ -9,7 +9,7 @@ namespace T_API.BLL.Validators.Database
     {
         public AddDatabaseValidator()
         {
-            RuleFor(x => x.Database).NotNull().NotEmpty();
+            RuleFor(x => x.DatabaseName).NotNull().NotEmpty();
             RuleFor(x => x.EndDate).NotNull().NotEmpty();
             RuleFor(x => x.StartDate).NotNull().NotEmpty();
             RuleFor(x => x.Password).NotNull().NotEmpty();

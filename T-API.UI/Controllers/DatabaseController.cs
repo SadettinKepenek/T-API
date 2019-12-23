@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using T_API.BLL.Abstract;
 using T_API.Core.DTO.Database;
+using T_API.Core.DTO.Table;
 using T_API.UI.Models.Database;
 
 namespace T_API.UI.Controllers
@@ -17,11 +18,12 @@ namespace T_API.UI.Controllers
     {
         private IDatabaseService _databaseService;
         private IMapper _mapper;
-
-        public DatabaseController(IDatabaseService databaseService, IMapper mapper)
+        private IRealDbService _realDbService;
+        public DatabaseController(IDatabaseService databaseService, IMapper mapper, IRealDbService realDbService)
         {
             _databaseService = databaseService;
             _mapper = mapper;
+            _realDbService = realDbService;
         }
 
 
@@ -78,8 +80,16 @@ namespace T_API.UI.Controllers
 
             try
             {
-                var mappedModel = _mapper.Map<AddDatabaseDto>(model);
-                _ = await _databaseService.AddDatabase(mappedModel);
+                var dto = _mapper.Map<AddDatabaseDto>(model);
+                dto.StartDate = DateTime.Now;
+                dto.EndDate = DateTime.Now.AddMonths(1);
+                dto.Port = "3306";
+                dto.Provider = "MySql";
+                dto.Server = "localhost";
+                dto.IsActive = false;
+                dto.IsApiSupport = true;
+                dto.IsStorageSupport = false;
+                _ = await _databaseService.AddDatabase(dto);
                 TempData["Message"] = "Database Başarıyla Eklendi";
                 return RedirectToAction("Index", "Database");
             }
@@ -91,43 +101,29 @@ namespace T_API.UI.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> EditService()
+        public async Task<IActionResult> EditService(int serviceId)
         {
-            CreateServiceViewModel model = new CreateServiceViewModel();
-            model.UserId = Convert.ToInt32(HttpContext.User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value);
+            var database = await _databaseService.GetById(serviceId);
+            if (database == null)
+            {
+                TempData["Message"] = "İstenilen database'e ulaşılamadı";
+                return RedirectToAction("Index", "Database");
+            }
+
+            EditServiceViewModel model = _mapper.Map<EditServiceViewModel>(database);
+            //model.UserId = Convert.ToInt32(HttpContext.User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value);
 
             return View(model);
         }
 
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> EditService(CreateServiceViewModel model)
-        {
-            if (!ModelState.IsValid)
-            {
-                return View(model);
-            }
-
-            try
-            {
-                var mappedModel = _mapper.Map<UpdateDatabaseDto>(model);
-                await _databaseService.UpdateDatabase(mappedModel);
-                TempData["Message"] = "Database Başarıyla güncellendi";
-                return RedirectToAction("Index", "Database");
-            }
-            catch (Exception e)
-            {
-                TempData["Message"] = "Database Güncellenirken hata oluştu";
-                return RedirectToAction("Index", "Database");
-            }
-        }
+     
 
 
-        [HttpGet("{provider}",Name = "GetDataTypes")]
+        [HttpGet("{provider}", Name = "GetDataTypes")]
         public async Task<IActionResult> GetDataTypes(string provider)
         {
             var dataTypes = await _databaseService.GetDataTypes(provider: provider);
-            if (dataTypes!=null && dataTypes.Count!=0)
+            if (dataTypes != null && dataTypes.Count != 0)
             {
                 return Ok(dataTypes);
             }
@@ -135,8 +131,13 @@ namespace T_API.UI.Controllers
         }
 
         [HttpPost("", Name = "AddTable")]
-        public async Task<IActionResult> AddTable()
+        public async Task<IActionResult> AddTable([FromBody] AddTableDto addTableDto)
         {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(addTableDto);
+            }
+            await _realDbService.CreateTableOnRemote(addTableDto);
             return Ok();
         }
 

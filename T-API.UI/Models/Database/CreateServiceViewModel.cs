@@ -18,7 +18,6 @@ namespace T_API.UI.Models.Database
         public bool IsActive { get; set; }
         public bool IsStorageSupport { get; set; }
         public bool IsApiSupport { get; set; }
-        public List<AddTableDto> Tables { get; set; }
 
     }
 }

@@ -148,14 +148,7 @@ namespace T_API.BLL.Concrete
         {
             try
             {
-                dto.StartDate = DateTime.Now;
-                dto.EndDate = DateTime.Now.AddMonths(1);
-                dto.Port = "3306";
-                dto.Provider = "MySql";
-                dto.Server = "localhost";
-                dto.IsActive = false;
-                dto.IsApiSupport = true;
-                dto.IsStorageSupport = false;
+               
 
                 AddDatabaseValidator validator = new AddDatabaseValidator();
                 var result = validator.Validate(dto);

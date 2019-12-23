@@ -9,15 +9,7 @@ namespace T_API.Core.DAL.Concrete
     public static class DbConnectionExtension
     {
 
-        public static MySqlConnection ConvertToMySqlConnection(this IDbConnection conn)
-        {
-            MySqlConnection=conn as MySqlConnection;
-            return MySqlConnection;
-        }
-        public static SqlConnection ConvertToSqlConnection(this IDbConnection conn)
-        {
-            return conn as SqlConnection;
-        }
+        
 
         private static SqlCommand CreateSqlCommand(string query, IDbConnection conn)
         {

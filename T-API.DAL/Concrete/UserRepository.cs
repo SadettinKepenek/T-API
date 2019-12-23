@@ -110,7 +110,7 @@ namespace T_API.DAL.Concrete
             try
             {
                 using var conn = _dbConnectionFactory.CreateConnection(ConfigurationSettings.DbInformation);
-                if (conn.State == ConnectionState.Broken || conn.State == ConnectionState.Closed) conn.Open();s
+                if (conn.State == ConnectionState.Broken || conn.State == ConnectionState.Closed) conn.Open(); 
                 string sql = "Delete from users where UserId = @UserId";
                 var cmd = conn.CreateCommand(sql);
                 using (cmd)
@@ -178,7 +178,7 @@ namespace T_API.DAL.Concrete
                     if (conn.State == ConnectionState.Broken || conn.State == ConnectionState.Closed) conn.Open();
                     string sql = "Select * from users where UserId=@UserId";
                     var cmd = conn.CreateCommand(sql);
-                    using (cmd )
+                    using (cmd)
                     {
                         cmd.AddParameter("UserId", userId);
                         using var sqlReader = cmd.ExecuteReader();

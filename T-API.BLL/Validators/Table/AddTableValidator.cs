@@ -12,6 +12,8 @@ namespace T_API.BLL.Validators.Table
         public AddTableValidator()
         {
             RuleFor(x => x.TableName).NotEmpty().NotNull();
+            RuleFor(x => x.Provider).NotEmpty().NotNull();
+            RuleFor(x => x.DatabaseName).NotEmpty().NotNull();
             RuleFor(x => x.Columns).NotNull().NotEmpty();
             RuleForEach(x => x.Columns).SetValidator(new AddColumnValidator()).When(x => x.Columns != null);
             RuleForEach(x => x.Indices).SetValidator(new AddIndexValidator()).When(x => x.Indices != null);

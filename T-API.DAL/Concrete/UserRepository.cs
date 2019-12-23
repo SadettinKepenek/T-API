@@ -134,7 +134,7 @@ namespace T_API.DAL.Concrete
                 {
                     if (conneciton.State == ConnectionState.Broken || conneciton.State == ConnectionState.Closed) conneciton.Open();
                     string sql = "Select * from users";
-                    var command = conneciton.CreateCommand(sql);
+                    var command = _unitOfWork.CreateCommand(sql);
                     ;
                     using (command)
                     {

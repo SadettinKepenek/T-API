@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
 using System.Threading.Tasks;
+using System.Transactions;
 using MySql.Data.MySqlClient;
 using T_API.Core.DAL.Concrete;
 using T_API.Core.Exception;
@@ -28,8 +29,6 @@ namespace T_API.DAL.Concrete
         {
             try
             {
-
-
                 using var conn = DbConnectionFactory.CreateConnection(ConfigurationSettings.DbInformation);
 
                 string sql =
@@ -41,7 +40,6 @@ namespace T_API.DAL.Concrete
                 var cmd = conn.CreateCommand(sql);
                 using (cmd)
                 {
-
                     cmd.AddParameter("UserId", database.UserId);
                     cmd.AddParameter("Server", database.Server);
                     cmd.AddParameter("Username", database.Username);
@@ -55,7 +53,7 @@ namespace T_API.DAL.Concrete
                     cmd.AddParameter("IsApiSupport", database.IsApiSupport);
                     cmd.AddParameter("Database", database.DatabaseName);
 
-                    var id = Convert.ToInt32(cmd.ExecuteScalar());
+                    var id = Convert.ToInt32(cmd.ExecuteScalar()); 
                     return id;
                 }
 

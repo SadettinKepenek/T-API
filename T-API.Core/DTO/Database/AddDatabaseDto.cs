@@ -19,7 +19,6 @@ namespace T_API.Core.DTO.Database
         public bool IsActive { get; set; }
         public bool IsStorageSupport { get; set; }
         public bool IsApiSupport { get; set; }
-        public List<AddTableDto> Tables { get; set; }
 
     }
 }

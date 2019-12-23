@@ -18,8 +18,6 @@ namespace T_API.BLL.Validators.Database
             RuleFor(x => x.Server).NotNull().NotEmpty();
             RuleFor(x => x.UserId).NotNull().NotEmpty();
             RuleFor(x => x.Username).NotNull().NotEmpty();
-            RuleFor(x => x.Tables).NotEmpty().NotNull();
-            RuleForEach(x => x.Tables).SetValidator(new AddTableValidator());
         }
     }
 }

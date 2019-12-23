@@ -11,7 +11,7 @@ namespace T_API.UI.Models.Database
         public string Server { get; set; }
         [Required] public string Username { get; set; }
         [Required] public string Password { get; set; }
-        [Required] public string Database { get; set; }
+        [Required] public string DatabaseName { get; set; }
          public string Port { get; set; }
        public string Provider { get; set; }
 

@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using T_API.Core.DTO.Table;
 
 namespace T_API.UI.Models.Database
 {
@@ -16,6 +18,7 @@ namespace T_API.UI.Models.Database
         public bool IsActive { get; set; }
         public bool IsStorageSupport { get; set; }
         public bool IsApiSupport { get; set; }
+        public List<AddTableDto> Tables { get; set; }
 
     }
 }

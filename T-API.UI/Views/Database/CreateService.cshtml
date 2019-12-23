@@ -3,7 +3,7 @@
     ViewData["Title"] = "CreateService";
 }
 
-<script src="js/DatabaseCrud.js"></script>
+<script src="~/js/DatabaseCrud.js"></script>
 <form asp-action="CreateService" asp-controller="Database" asp-antiforgery="true" method="post">
     <div class="form-group">
         <label asp-for="Username">Database Username</label>
@@ -24,10 +24,20 @@
 
 
 
+    <a class="btn  btn-success btn-sm">Add Table</a>
 
-    <div class="container" id="tablesContainer" style="padding: 5px">
-        <a class="btn  btn-success btn-sm">Add New Table</a>
-        <div class="row" id="tableContainer_1">
+    <div class="row" id="tablesContainer" style="padding: 5px">
+        <div class="col-md-4 form-group" id="tableContainer_1" style="padding: 10px">
+            <label>Table Name</label>
+            <div class="row">
+                <div class="col-md-8">
+                    <input class="form-control" name="Tables[0].TableName" />
+                </div>
+                <div class="col-md-4">
+                    <i class="fa fa-address-book-o">Circle</i>
+                </div>
+            </div>
+            
 
         </div>
     </div>

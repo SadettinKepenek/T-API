@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Mvc;
 using T_API.BLL.Abstract;
 using T_API.Core.DTO.Database;
 using T_API.Core.DTO.Table;
+using T_API.Core.Settings;
 using T_API.UI.Models.Database;
 
 namespace T_API.UI.Controllers
@@ -83,9 +84,9 @@ namespace T_API.UI.Controllers
                 var dto = _mapper.Map<AddDatabaseDto>(model);
                 dto.StartDate = DateTime.Now;
                 dto.EndDate = DateTime.Now.AddMonths(1);
-                dto.Port = "3306";
-                dto.Provider = "MySql";
-                dto.Server = "localhost";
+                dto.Port = ConfigurationSettings.ServerDbInformation.Port;
+                dto.Provider = ConfigurationSettings.ServerDbInformation.Provider;
+                dto.Server = ConfigurationSettings.ServerDbInformation.Server;
                 dto.IsActive = false;
                 dto.IsApiSupport = true;
                 dto.IsStorageSupport = false;

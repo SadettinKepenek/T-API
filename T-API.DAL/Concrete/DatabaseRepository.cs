@@ -152,10 +152,7 @@ namespace T_API.DAL.Concrete
                     cmd.AddParameter("UserId", userId);
 
                     var sqlReader = cmd.ExecuteReader();
-                    if (!sqlReader.Read())
-                    {
-                        return null;
-                    }
+                   
 
                     DataTable dt = new DataTable();
                     dt.Load(sqlReader);
@@ -196,10 +193,7 @@ namespace T_API.DAL.Concrete
 
 
                     var sqlReader = cmd.ExecuteReader();
-                    if (!sqlReader.Read())
-                    {
-                        return null;
-                    }
+                    
 
                     DataTable dt = new DataTable();
                     dt.Load(sqlReader);
@@ -257,10 +251,7 @@ namespace T_API.DAL.Concrete
                     cmd.AddParameter("DatabaseId", databaseId);
 
                     var sqlReader = cmd.ExecuteReader();
-                    if (!sqlReader.Read())
-                    {
-                        return null;
-                    }
+                 
 
                     DataTable dt = new DataTable();
                     dt.Load(sqlReader);
@@ -291,10 +282,8 @@ namespace T_API.DAL.Concrete
                 using (cmd)
                 {
                     var sqlReader = cmd.ExecuteReader();
-                    if (!sqlReader.Read())
-                    {
-                        return null;
-                    }
+                  
+
 
                     DataTable dt = new DataTable();
                     dt.Load(sqlReader);

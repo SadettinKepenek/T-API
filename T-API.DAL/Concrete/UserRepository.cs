@@ -139,10 +139,7 @@ namespace T_API.DAL.Concrete
                     using (command)
                     {
                         using var sqlReader = command.ExecuteReader();
-                        if (!sqlReader.Read())
-                        {
-                            throw new NullReferenceException(" kullanıcısının verilerine ulaşılamadı");
-                        }
+                   
                         DataTable dt = new DataTable();
                         dt.Load(sqlReader);
                         if (dt.Rows.Count != 0)
@@ -182,10 +179,7 @@ namespace T_API.DAL.Concrete
                     {
                         cmd.AddParameter("UserId", userId);
                         using var sqlReader = cmd.ExecuteReader();
-                        if (!sqlReader.Read())
-                        {
-                            throw new NullReferenceException($"{userId} kullanıcısının verilerine ulaşılamadı");
-                        }
+                     
 
                         //sqlReader.Read();
                         DataTable dt = new DataTable();
@@ -248,10 +242,7 @@ namespace T_API.DAL.Concrete
                     {
                         cmd.AddParameter("Username", username);
                         using var sqlReader = cmd.ExecuteReader();
-                        if (!sqlReader.Read())
-                        {
-                            throw new NullReferenceException($"{username} kullanıcısının verilerine ulaşılamadı");
-                        }
+                       
 
                         //sqlReader.Read();
                         DataTable dt = new DataTable();

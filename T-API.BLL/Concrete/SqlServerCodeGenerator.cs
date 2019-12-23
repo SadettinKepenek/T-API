@@ -5,11 +5,17 @@ using T_API.BLL.Abstract;
 using T_API.Entity.Concrete;
 using Index = T_API.Entity.Concrete.Index;
 
-namespace T_API.SqlGenerator.Concrete
+namespace T_API.BLL.Concrete
 {
-    public class SqlServerCodeGenerator : SqlCodeGenerator
+    public class SqlServerCodeGenerator : ISqlCodeGenerator
     {
-        public override string CreateTable(Table table)
+        [Obsolete("To be added")]
+        public string CreateDatabase(DatabaseEntity database)
+        {
+            throw new NotImplementedException();
+        }
+
+        public string CreateTable(Table table)
         {
             StringBuilder sb = new StringBuilder();
             sb.AppendLine($"Create Table '{table.TableName}'");
@@ -28,17 +34,17 @@ namespace T_API.SqlGenerator.Concrete
             return String.Empty;
         }
 
-        public override string DropTable(Table table)
+        public string DropTable(Table table)
         {
             throw new System.NotImplementedException();
         }
 
-        public override string AlterTable(Table table)
+        public string AlterTable(Table table)
         {
             throw new System.NotImplementedException();
         }
 
-        public override string CreateColumn(Column column)
+        public string CreateColumn(Column column)
         {
             StringBuilder stringBuilder = new StringBuilder();
             column.DataType = column.DataType.ToUpperInvariant();
@@ -145,17 +151,17 @@ namespace T_API.SqlGenerator.Concrete
             return stringBuilder.ToString();
         }
 
-        public override string DropColumn(Column column)
+        public string DropColumn(Column column)
         {
             throw new System.NotImplementedException();
         }
 
-        public override string AlterColumn(Column column)
+        public string AlterColumn(Column column)
         {
             throw new System.NotImplementedException();
         }
 
-        public override string CreateRelation(ForeignKey foreignKey)
+        public string CreateRelation(ForeignKey foreignKey)
         {
             try
             {
@@ -176,17 +182,17 @@ namespace T_API.SqlGenerator.Concrete
 
         }
 
-        public override string DropRelation(ForeignKey foreignKey)
+        public string DropRelation(ForeignKey foreignKey)
         {
             throw new System.NotImplementedException();
         }
 
-        public override string AlterRelation(ForeignKey foreignKey)
+        public string AlterRelation(ForeignKey foreignKey)
         {
             throw new System.NotImplementedException();
         }
 
-        public override string CreateKey(Key key)
+        public string CreateKey(Key key)
         {
             StringBuilder stringBuilder = new StringBuilder();
             if (key.KeyName.Equals("FOREIGN KEY"))
@@ -197,31 +203,34 @@ namespace T_API.SqlGenerator.Concrete
             return null;
         }
 
-        public override string DropKey(Key key)
+        public string DropKey(Key key)
         {
             throw new System.NotImplementedException();
         }
 
-        public override string AlterKey(Key key)
+        public string AlterKey(Key key)
         {
             throw new System.NotImplementedException();
         }
 
-        public override string CreateIndex(Index index)
+        public string CreateIndex(Index index)
         {
             throw new System.NotImplementedException();
         }
 
-        public override string DropIndex(Index index)
+        public string DropIndex(Index index)
         {
             throw new System.NotImplementedException();
         }
 
-        public override string AlterIndex(Index index)
+        public string AlterIndex(Index index)
         {
             throw new System.NotImplementedException();
         }
 
 
+        public void Dispose()
+        {
+        }
     }
 }

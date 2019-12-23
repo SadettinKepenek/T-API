@@ -4,15 +4,14 @@ using System.Data;
 using System.Data.SqlClient;
 using System.Threading.Tasks;
 using MySql.Data.MySqlClient;
-using T_API.Core.DAL.Abstract;
 using IDbConnection = System.Data.IDbConnection;
 
 namespace T_API.Core.DAL.Concrete
 {
-    public class SqlConnectionFactory : IDbConnectionFactory
+    public class DbConnectionFactory
     {
 
-        public  IDbConnection CreateConnection(DbInformation information)
+        public static IDbConnection CreateConnection(DbInformation information)
         {
             string connectionString;
             if (information.Provider.Equals("SqlServer"))
@@ -22,7 +21,7 @@ namespace T_API.Core.DAL.Concrete
                 connectionString = $"Data Source={information.Server};" +
                                           $"Initial Catalog={information.Database};" +
                                           $"User id={information.Username};" +
-                                          $"Password={information.Password}" ;
+                                          $"Password={information.Password}";
                 var conn = new SqlConnection(connectionString);
                 conn.Open();
                 return conn;
@@ -46,22 +45,5 @@ namespace T_API.Core.DAL.Concrete
 
         }
 
-        public IDbCommand CreateCommandByProvider(string query, IDbConnection connection)
-        {
-            if (connection is MySqlConnection)
-            {
-                MySqlCommand cmd=new MySqlCommand(query,connection as MySqlConnection);
-                return cmd;
-            }
-
-            if (connection is SqlConnection)
-            {
-                SqlCommand cmd=new SqlCommand(query,connection as SqlConnection);
-                return cmd;
-            }
-
-            throw new ArgumentOutOfRangeException("connection","Belirtilen connection türü desteklenmemektedir.");
-
-        }
     }
 }

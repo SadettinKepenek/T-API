@@ -5,6 +5,7 @@ using System.Data.SqlClient;
 using System.Threading.Tasks;
 using MySql.Data.MySqlClient;
 using T_API.Core.DAL.Abstract;
+using T_API.Core.DAL.Concrete;
 using T_API.Core.Exception;
 using T_API.Core.Settings;
 using T_API.DAL.Abstract;
@@ -12,13 +13,15 @@ using T_API.Entity.Concrete;
 
 namespace T_API.DAL.Concrete
 {
+    // TODO CreateConnection dynamic tipte bir connection döndürüyor bunun kontrol edilmesi gerekli
     public class DatabaseRepository : IDatabaseRepository
     {
-        private IDbConnectionFactory _dbConnectionFactory;
+        //TODO Değiştirilecek.
 
-        public DatabaseRepository(IDbConnectionFactory dbConnectionFactory)
+
+        public DatabaseRepository()
         {
-            _dbConnectionFactory = dbConnectionFactory;
+
         }
 
 
@@ -26,30 +29,40 @@ namespace T_API.DAL.Concrete
         {
             try
             {
-                using var conn = _dbConnectionFactory.CreateConnection(ConfigurationSettings.DbInformation);
-                if (conn.State == ConnectionState.Broken || conn.State == ConnectionState.Closed) conn.Open();
+
+
+                using var conn = DbConnectionFactory.CreateConnection(ConfigurationSettings.DbInformation);
 
                 string sql =
                     "Insert into `databases` (UserId,Server,Username,Password,Port,Provider,StartDate,EndDate,IsActive,IsStorageSupport,IsApiSupport,`Database`) " +
                     "Values (@UserId,@Server,@Username,@Password,@Port,@Provider,@StartDate,@EndDate,@IsActive,@IsStorageSupport,@IsApiSupport,@Database); " +
                     "SELECT LAST_INSERT_ID();";
-                using var cmd = new MySqlCommand("sql", conn as MySqlConnection);
-                cmd.CommandText = sql;
-                cmd.Parameters.AddWithValue("UserId", database.UserId);
-                cmd.Parameters.AddWithValue("Server", database.Server);
-                cmd.Parameters.AddWithValue("Username", database.Username);
-                cmd.Parameters.AddWithValue("Password", database.Password);
-                cmd.Parameters.AddWithValue("Port", database.Port);
-                cmd.Parameters.AddWithValue("Provider", database.Provider);
-                cmd.Parameters.AddWithValue("StartDate", database.StartDate);
-                cmd.Parameters.AddWithValue("EndDate", database.EndDate);
-                cmd.Parameters.AddWithValue("IsActive", database.IsActive);
-                cmd.Parameters.AddWithValue("IsStorageSupport", database.IsStorageSupport);
-                cmd.Parameters.AddWithValue("IsApiSupport", database.IsApiSupport);
-                cmd.Parameters.AddWithValue("Database", database.Database);
 
-                var id = Convert.ToInt32(await cmd.ExecuteScalarAsync());
-                return id;
+
+                var cmd = conn.CreateCommand(sql);
+                using (cmd)
+                {
+
+                    cmd.AddParameter("UserId", database.UserId);
+                    cmd.AddParameter("Server", database.Server);
+                    cmd.AddParameter("Username", database.Username);
+                    cmd.AddParameter("Password", database.Password);
+                    cmd.AddParameter("Port", database.Port);
+                    cmd.AddParameter("Provider", database.Provider);
+                    cmd.AddParameter("StartDate", database.StartDate);
+                    cmd.AddParameter("EndDate", database.EndDate);
+                    cmd.AddParameter("IsActive", database.IsActive);
+                    cmd.AddParameter("IsStorageSupport", database.IsStorageSupport);
+                    cmd.AddParameter("IsApiSupport", database.IsApiSupport);
+                    cmd.AddParameter("Database", database.Database);
+
+                    var id = Convert.ToInt32(cmd.ExecuteScalar());
+                    return id;
+                }
+
+
+
+
             }
             catch (Exception e)
             {
@@ -62,28 +75,30 @@ namespace T_API.DAL.Concrete
         {
             try
             {
-                using var conn = _dbConnectionFactory.CreateConnection(ConfigurationSettings.DbInformation);
-                if (conn.State == ConnectionState.Broken || conn.State == ConnectionState.Closed) conn.Open();
+                using var conn = DbConnectionFactory.CreateConnection(ConfigurationSettings.DbInformation);
+
 
                 string sql =
                     "Update `databases` Set UserId = @UserId,Server = @Server,Username = @Username,Password = @Password,Port = @Port,Provider = @Provider," +
                     "StartDate = @StartDate,EndDate = @EndDate,IsActive = @IsActive,IsStorageSupport = @IsStorageSupport,IsApiSupport = @IsApiSupport ,`Database`=@Database where DatabaseId = @DatabaseId";
-                using var cmd = new MySqlCommand("sql", conn as MySqlConnection);
-                cmd.CommandText = sql;
+                var cmd = conn.CreateCommand(sql);
 
-                cmd.Parameters.AddWithValue("UserId", database.UserId);
-                cmd.Parameters.AddWithValue("Server", database.Server);
-                cmd.Parameters.AddWithValue("Username", database.Username);
-                cmd.Parameters.AddWithValue("Password", database.Password);
-                cmd.Parameters.AddWithValue("Port", database.Port);
-                cmd.Parameters.AddWithValue("Provider", database.Provider);
-                cmd.Parameters.AddWithValue("StartDate", database.StartDate);
-                cmd.Parameters.AddWithValue("EndDate", database.EndDate);
-                cmd.Parameters.AddWithValue("IsActive", database.IsActive);
-                cmd.Parameters.AddWithValue("IsStorageSupport", database.IsStorageSupport);
-                cmd.Parameters.AddWithValue("IsApiSupport", database.IsApiSupport);
-                cmd.Parameters.AddWithValue("DatabaseId", database.DatabaseId);
-                cmd.Parameters.AddWithValue("Database", database.Database);
+                using (cmd)
+                {
+                    cmd.AddParameter("UserId", database.UserId);
+                    cmd.AddParameter("Server", database.Server);
+                    cmd.AddParameter("Username", database.Username);
+                    cmd.AddParameter("Password", database.Password);
+                    cmd.AddParameter("Port", database.Port);
+                    cmd.AddParameter("Provider", database.Provider);
+                    cmd.AddParameter("StartDate", database.StartDate);
+                    cmd.AddParameter("EndDate", database.EndDate);
+                    cmd.AddParameter("IsActive", database.IsActive);
+                    cmd.AddParameter("IsStorageSupport", database.IsStorageSupport);
+                    cmd.AddParameter("IsApiSupport", database.IsApiSupport);
+                    cmd.AddParameter("DatabaseId", database.DatabaseId);
+                    cmd.AddParameter("Database", database.Database);
+                }
             }
             catch (Exception e)
             {
@@ -98,13 +113,21 @@ namespace T_API.DAL.Concrete
 
             try
             {
-                using var conn = _dbConnectionFactory.CreateConnection(ConfigurationSettings.DbInformation);
-                if (conn.State == ConnectionState.Broken || conn.State == ConnectionState.Closed) conn.Open();
+                using var conn = DbConnectionFactory.CreateConnection(ConfigurationSettings.DbInformation);
+
 
                 string sql = "Delete from `databases` where DatabaseId = @DatabaseId";
-                using var cmd = new MySqlCommand("sql", conn as MySqlConnection);
-                cmd.CommandText = sql;
-                cmd.Parameters.AddWithValue("DatabaseId", database.DatabaseId);
+
+
+
+                var cmd = conn.CreateCommand(sql);
+                using (cmd)
+                {
+                    cmd.AddParameter("DatabaseId", database.DatabaseId);
+                    cmd.ExecuteNonQuery();
+                }
+
+
             }
             catch (Exception e)
             {
@@ -118,31 +141,33 @@ namespace T_API.DAL.Concrete
         {
             try
             {
-                using var conn = _dbConnectionFactory.CreateConnection(ConfigurationSettings.DbInformation);
-                if (conn.State == ConnectionState.Broken || conn.State == ConnectionState.Closed) conn.Open();
+                using var conn = DbConnectionFactory.CreateConnection(ConfigurationSettings.DbInformation);
+
 
                 string sql = "Select * from `databases` where UserId = @UserId";
-                using var cmd = new MySqlCommand("sql", conn as MySqlConnection);
-                cmd.CommandText = sql;
-                cmd.Parameters.AddWithValue("UserId", userId);
+                var cmd = conn.CreateCommand(sql);
 
-                var sqlReader = cmd.ExecuteReader();
-                if (!sqlReader.HasRows)
+                using (cmd)
                 {
-                    return null;
+                    cmd.AddParameter("UserId", userId);
+
+                    var sqlReader = cmd.ExecuteReader();
+
+
+                    DataTable dt = new DataTable();
+                    dt.Load(sqlReader);
+                    List<DatabaseEntity> databases = new List<DatabaseEntity>();
+                    for (int i = 0; i < dt.Rows.Count; i++)
+                    {
+                        var dataRow = dt.Rows[i];
+                        var databaseEntity = ProcessDatabaseEntity(dataRow);
+                        databases.Add(databaseEntity);
+                    }
+
+                    return databases;
                 }
 
-                DataTable dt = new DataTable();
-                dt.Load(sqlReader);
-                List<DatabaseEntity> databases = new List<DatabaseEntity>();
-                for (int i = 0; i < dt.Rows.Count; i++)
-                {
-                    var dataRow = dt.Rows[i];
-                    var databaseEntity = ProcessDatabaseEntity(dataRow);
-                    databases.Add(databaseEntity);
-                }
 
-                return databases;
             }
             catch (Exception e)
             {
@@ -156,32 +181,31 @@ namespace T_API.DAL.Concrete
         {
             try
             {
-                using var conn = _dbConnectionFactory.CreateConnection(ConfigurationSettings.DbInformation);
-                if (conn.State == ConnectionState.Broken || conn.State == ConnectionState.Closed) conn.Open();
 
+                using var conn = DbConnectionFactory.CreateConnection(ConfigurationSettings.DbInformation);
                 string sql = "Select * from `databases` inner join users on databases.UserId = users.UserId Where users.Username = @Username";
-                using var cmd = new MySqlCommand("sql", conn as MySqlConnection);
-                cmd.CommandText = sql;
-                cmd.Parameters.AddWithValue("Username", username);
-
-
-                var sqlReader = cmd.ExecuteReader();
-                if (!sqlReader.HasRows)
+                var cmd = conn.CreateCommand(sql);
+                using (cmd)
                 {
-                    return null;
-                }
 
-                DataTable dt = new DataTable();
-                dt.Load(sqlReader);
-                List<DatabaseEntity> databases = new List<DatabaseEntity>();
-                for (int i = 0; i < dt.Rows.Count; i++)
-                {
-                    var dataRow = dt.Rows[i];
-                    var databaseEntity = ProcessDatabaseEntity(dataRow);
-                    databases.Add(databaseEntity);
-                }
+                    cmd.AddParameter("Username", username);
 
-                return databases;
+
+                    var sqlReader = cmd.ExecuteReader();
+
+
+                    DataTable dt = new DataTable();
+                    dt.Load(sqlReader);
+                    List<DatabaseEntity> databases = new List<DatabaseEntity>();
+                    for (int i = 0; i < dt.Rows.Count; i++)
+                    {
+                        var dataRow = dt.Rows[i];
+                        var databaseEntity = ProcessDatabaseEntity(dataRow);
+                        databases.Add(databaseEntity);
+                    }
+
+                    return databases;
+                }
             }
             catch (Exception e)
             {
@@ -216,27 +240,25 @@ namespace T_API.DAL.Concrete
         {
             try
             {
-                using var conn = _dbConnectionFactory.CreateConnection(ConfigurationSettings.DbInformation);
-                if (conn.State == ConnectionState.Broken || conn.State == ConnectionState.Closed) conn.Open();
+                using var conn = DbConnectionFactory.CreateConnection(ConfigurationSettings.DbInformation);
+
 
                 string sql = "Select * from `databases` where DatabaseId = @DatabaseId";
-                using var cmd = new MySqlCommand("sql", conn as MySqlConnection);
-                cmd.CommandText = sql;
-                cmd.Parameters.AddWithValue("DatabaseId", databaseId);
-
-                var sqlReader = cmd.ExecuteReader();
-                if (!sqlReader.HasRows)
+                var cmd = conn.CreateCommand(sql);
+                using (cmd)
                 {
-                    return null;
+                    cmd.AddParameter("DatabaseId", databaseId);
+
+                    var sqlReader = cmd.ExecuteReader();
+
+
+                    DataTable dt = new DataTable();
+                    dt.Load(sqlReader);
+                    DatabaseEntity databaseEntity;
+                    var dataRow = dt.Rows[0];
+                    databaseEntity = ProcessDatabaseEntity(dataRow);
+                    return databaseEntity;
                 }
-
-                DataTable dt = new DataTable();
-                dt.Load(sqlReader);
-                var databaseEntity = new DatabaseEntity();
-
-                var dataRow = dt.Rows[0];
-                databaseEntity = ProcessDatabaseEntity(dataRow);
-                return databaseEntity;
             }
             catch (Exception e)
             {
@@ -249,30 +271,31 @@ namespace T_API.DAL.Concrete
         {
             try
             {
-                using var conn = _dbConnectionFactory.CreateConnection(ConfigurationSettings.DbInformation);
-                if (conn.State == ConnectionState.Broken || conn.State == ConnectionState.Closed) conn.Open();
+                using var conn = DbConnectionFactory.CreateConnection(ConfigurationSettings.DbInformation);
+
 
                 string sql = "Select * from `databases`";
-                using var cmd = new MySqlCommand(sql, conn as MySqlConnection);
-              //  var GetAllDatabase = (List<DatabaseEntity>)await cmd.ExecuteScalarAsync();
+                //  var GetAllDatabase = (List<DatabaseEntity>)await cmd.ExecuteScalarAsync();
 
-                var sqlReader = cmd.ExecuteReader();
-                if (!sqlReader.HasRows)
+                var cmd = conn.CreateCommand(sql);
+                using (cmd)
                 {
-                    return null;
-                }
+                    var sqlReader = cmd.ExecuteReader();
 
-                DataTable dt = new DataTable();
-                dt.Load(sqlReader);
-                List<DatabaseEntity> databases = new List<DatabaseEntity>();
-                for (int i = 0; i < dt.Rows.Count; i++)
-                {
-                    var dataRow = dt.Rows[i];
-                    var databaseEntity = ProcessDatabaseEntity(dataRow);
-                    databases.Add(databaseEntity);
-                }
 
-                return databases;
+
+                    DataTable dt = new DataTable();
+                    dt.Load(sqlReader);
+                    List<DatabaseEntity> databases = new List<DatabaseEntity>();
+                    for (int i = 0; i < dt.Rows.Count; i++)
+                    {
+                        var dataRow = dt.Rows[i];
+                        var databaseEntity = ProcessDatabaseEntity(dataRow);
+                        databases.Add(databaseEntity);
+                    }
+
+                    return databases;
+                }
             }
             catch (Exception e)
             {

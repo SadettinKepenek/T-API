@@ -1,11 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using System.Transactions;
 using AutoMapper;
 using T_API.BLL.Abstract;
 using T_API.BLL.Validators.Database;
+using T_API.Core.DAL.Concrete;
 using T_API.Core.DTO.Database;
 using T_API.Core.Exception;
+using T_API.Core.Settings;
 using T_API.DAL.Abstract;
 using T_API.Entity.Concrete;
 
@@ -14,11 +17,13 @@ namespace T_API.BLL.Concrete
     public class DatabaseManager : IDatabaseService
     {
         private IDatabaseRepository _databaseRepository;
+        private IRealDbRepositoryFactory _dbRepositoryFactory;
         private IMapper _mapper;
-        public DatabaseManager(IDatabaseRepository databaseRepository, IMapper mapper)
+        public DatabaseManager(IDatabaseRepository databaseRepository, IMapper mapper, IRealDbRepositoryFactory dbRepositoryFactory)
         {
             _databaseRepository = databaseRepository;
             _mapper = mapper;
+            _dbRepositoryFactory = dbRepositoryFactory;
         }
 
 
@@ -73,7 +78,6 @@ namespace T_API.BLL.Concrete
                 {
                     throw new ArgumentNullException("username", "Kullanıcı adı boş olamaz");
                 }
-
                 var databases = await _databaseRepository.GetByUser(username);
                 if (databases == null)
                 {
@@ -126,20 +130,31 @@ namespace T_API.BLL.Concrete
                 dto.IsActive = false;
                 dto.IsApiSupport = true;
                 dto.IsStorageSupport = false;
-                
+
                 AddDatabaseValidator validator = new AddDatabaseValidator();
                 var result = validator.Validate(dto);
-                if (!result.IsValid)
+                if (result.IsValid)
                 {
-                    throw new ValidationException(result.Errors.ToString());
+
+                    var mappedEntity = _mapper.Map<DatabaseEntity>(dto);
+                    using (TransactionScope scope = new TransactionScope())
+                    {
+                        var addDatabase = await _databaseRepository.AddDatabase(mappedEntity);
+                        scope.Complete();
+                        return addDatabase;
+
+                    }
                 }
 
-                var mappedEntity = _mapper.Map<DatabaseEntity>(dto);
-                return await _databaseRepository.AddDatabase(mappedEntity);
+                throw new ValidationException(result.Errors.ToString());
 
             }
             catch (Exception e)
             {
+                if (e is TransactionAbortedException)
+                {
+                    Console.WriteLine("TransactionAbortedException Message: {0}", e.Message);
+                }
                 throw ExceptionHandler.HandleException(e);
             }
 
@@ -154,7 +169,7 @@ namespace T_API.BLL.Concrete
                     throw new NullReferenceException("Bilgiler boş geldi");
                 }
 
-                UpdateDatabaseValidator validator=new UpdateDatabaseValidator();
+                UpdateDatabaseValidator validator = new UpdateDatabaseValidator();
                 var validation = validator.Validate(dto);
                 if (!validation.IsValid)
                 {
@@ -181,7 +196,7 @@ namespace T_API.BLL.Concrete
 
                 }
 
-                DeleteDatabaseValidator validator=new DeleteDatabaseValidator();
+                DeleteDatabaseValidator validator = new DeleteDatabaseValidator();
                 var validation = validator.Validate(dto);
                 if (!validation.IsValid)
                 {

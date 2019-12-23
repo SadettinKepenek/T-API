@@ -141,13 +141,10 @@ namespace T_API.BLL.Concrete
 
                     var mappedEntity = _mapper.Map<DatabaseEntity>(dto);
 
-                    using (var uow = UnitOfWorkFactory.Create(DbConnectionFactory.CreateConnection(ConfigurationSettings.ServerDbInformation)))
-                    {
-                        var addDatabase = await _databaseRepository.AddDatabase(mappedEntity);
-                        return addDatabase;
-
-                    }
-
+                    using var uow = UnitOfWorkFactory.Create(DbConnectionFactory.CreateConnection(ConfigurationSettings.ServerDbInformation));
+                    var addDatabase = await _databaseRepository.AddDatabase(mappedEntity);
+                    uow.SaveChanges();
+                    return addDatabase;
                 }
 
                 throw new ValidationException(result.Errors.ToString());

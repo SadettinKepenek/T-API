@@ -4,7 +4,6 @@ using System.Data;
 using System.Data.SqlClient;
 using System.Threading.Tasks;
 using MySql.Data.MySqlClient;
-using T_API.Core.DAL.Abstract;
 using T_API.Core.DAL.Concrete;
 using T_API.Core.Exception;
 using T_API.Core.Settings;

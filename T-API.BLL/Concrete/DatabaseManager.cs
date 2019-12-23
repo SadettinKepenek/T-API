@@ -5,7 +5,6 @@ using System.Transactions;
 using AutoMapper;
 using T_API.BLL.Abstract;
 using T_API.BLL.Validators.Database;
-using T_API.Core.DAL.Abstract;
 using T_API.Core.DAL.Concrete;
 using T_API.Core.DTO.Database;
 using T_API.Core.Exception;

@@ -1,13 +1,11 @@
 ﻿using System;
 using System.Reflection;
-using T_API.Core.DAL.Abstract;
 using T_API.DAL.Abstract;
 
 namespace T_API.DAL.Concrete
 {
     public class RealDbRepositoryFactory : IRealDbRepositoryFactory
     {
-        // TODO CreateConnection dynamic tipte bir connection döndürüyor bunun kontrol edilmesi gerekli
 
         private MySqlRealDbRepository _mySqlRealDbRepository;
 

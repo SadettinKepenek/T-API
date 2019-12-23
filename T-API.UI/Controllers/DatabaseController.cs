@@ -134,6 +134,13 @@ namespace T_API.UI.Controllers
             return NoContent();
         }
 
+        [HttpPost("", Name = "AddTable")]
+        public async Task<IActionResult> AddTable()
+        {
+            return Ok();
+        }
+
+
         // TODO Add Table AJax yapılacak
     }
 }

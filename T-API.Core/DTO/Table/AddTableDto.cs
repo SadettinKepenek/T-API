@@ -14,5 +14,8 @@ namespace T_API.Core.DTO.Table
         public ObservableCollection<AddIndexDto> Indices { get; set; }
         public ObservableCollection<AddKeyDto> Keys { get; set; }
         public ObservableCollection<AddColumnDto> Columns { get; set; }
+
+        public string Provider { get; set; }
+        public string DatabaseName { get; set; }
     }
 }

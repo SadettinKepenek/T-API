@@ -14,7 +14,7 @@ namespace T_API.DAL.Concrete
         // TODO CreateConnection dynamic tipte bir connection döndürüyor bunun kontrol edilmesi gerekli
 
 
-        public MySqlRealDbRepository( )
+        public MySqlRealDbRepository()
         {
         }
 
@@ -24,80 +24,55 @@ namespace T_API.DAL.Concrete
 
             using (var conn = DbConnectionFactory.CreateConnection(ConfigurationSettings.ServerDbInformation))
             {
-                
+
 
                 var cmd = conn.CreateCommand(query);
-                var transaction = conn.BeginTransaction();
 
                 using (cmd)
                 {
                     try
                     {
-                        cmd.Transaction = transaction;
                         cmd.ExecuteNonQuery();
-                        transaction.Commit();
+                    }
+                    catch (Exception ex)
+                    {
+
+                        throw ExceptionHandler.HandleException(ex);
+
+                    }
+                }
+
+            }
+
+
+
+        }
+
+        public async Task CreateTableOnRemote(string query)
+        {
+            using (var conn = DbConnectionFactory.CreateConnection(ConfigurationSettings.ServerDbInformation))
+            {
+
+
+                var cmd = conn.CreateCommand(query);
+
+                using (cmd)
+                {
+                    try
+                    {
+                        cmd.ExecuteNonQuery();
                     }
                     catch (Exception ex)
                     {
                         Console.WriteLine("Commit Exception Type: {0}", ex.GetType());
                         Console.WriteLine("  Message: {0}", ex.Message);
-                        try
-                        {
-                            transaction.Rollback();
-                        }
-                        catch (Exception ex2)
-                        {
-                            Console.WriteLine("Rollback Exception Type: {0}", ex2.GetType());
-                            Console.WriteLine("  Message: {0}", ex2.Message);
-                            throw ExceptionHandler.HandleException(ex2);
-                        }
+                        throw ExceptionHandler.HandleException(ex);
+
                     }
                 }
 
             }
 
-
-
-            try
-            {
-                using (var conn = DbConnectionFactory.CreateConnection(ConfigurationSettings.ServerDbInformation))
-                {
-                    
-
-                    var cmd = conn.CreateCommand(query);
-                    using (cmd)
-                    {
-                        var transaction = conn.BeginTransaction();
-                        cmd.Transaction = transaction;
-
-                        cmd.ExecuteNonQuery();
-                        transaction.Commit();
-                    }
-
-                }
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine("Commit Exception Type: {0}", ex.GetType());
-                Console.WriteLine("  Message: {0}", ex.Message);
-                try
-                {
-
-                }
-                catch (Exception ex2)
-                {
-                    Console.WriteLine("Rollback Exception Type: {0}", ex2.GetType());
-                    Console.WriteLine("  Message: {0}", ex2.Message);
-
-                }
-                throw ExceptionHandler.HandleException(ex);
-            }
-        }
-
-        [Obsolete("Method daha eklenmedi lütfen daha sonra tekrar bakın.")]
-        public Task CreateTableOnRemote(string query)
-        {
-            throw new System.NotImplementedException();
         }
 
         [Obsolete("Method daha eklenmedi lütfen daha sonra tekrar bakın.")]

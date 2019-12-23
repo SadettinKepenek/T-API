@@ -1,49 +1,54 @@
-﻿@*@model T_API.UI.Areas.Admin.Models.Database.UpdateDatabaseViewModel
+﻿@model T_API.UI.Areas.Admin.Models.Database.UpdateDatabaseViewModel
 @{
     ViewData["Title"] = "Update";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }}
 @addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
-
+@if (TempData["Message"] != null)
+{
+    <div class="alert alert-info alert-dismissible fade show" role="alert">
+        @TempData["Message"].ToString()
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+}
 <form asp-action="UpdateDatabase" asp-controller="Database" asp-antiforgery="true" method="post">
     <div class="form-group">
-        <label asp-for="Firstname">Firstname</label>
-        <input type="text" class="form-control" placeholder="@Model.Firstname" asp-for="Firstname">
-        <span class="text-danger" asp-validation-for="Firstname"></span>
-    </div>
-    <div class="form-group">
-        <label asp-for="Lastname">Lastname</label>
-        <input type="text" class="form-control" placeholder="@Model.Lastname" asp-for="Lastname">
-        <span class="text-danger" asp-validation-for="Lastname"></span>
+        <label asp-for="Server">Server</label>
+        <input type="text" class="form-control" placeholder="@Model.Server" asp-for="Server">
+        <span class="text-danger" asp-validation-for="Server"></span>
     </div>
     <div class="form-group">
         <label asp-for="Username">Username</label>
         <input type="text" class="form-control" placeholder="@Model.Username" asp-for="Username">
         <span class="text-danger" asp-validation-for="Username"></span>
-    </div>
-    <div class="form-group">
-        <label asp-for="Email">Email</label>
-        <input type="text" class="form-control" placeholder="@Model.Email" asp-for="Email">
-        <span class="text-danger" asp-validation-for="Email"></span>
-    </div>
+    </div> //
     <div class="form-group">
         <label asp-for="Password">Password</label>
         <input type="password" class="form-control" placeholder="@Model.Password" asp-for="Password">
         <span class="text-danger" asp-validation-for="Password"></span>
     </div>
     <div class="form-group">
-        <label asp-for="Role">Role</label>
-        <input type="text" class="form-control" placeholder="@Model.Role" asp-for="Role">
-        <span class="text-danger" asp-validation-for="Role"></span>
+        <label asp-for="Port">Port</label>
+        <input type="text" class="form-control" placeholder="@Model.Port" asp-for="Port">
+        <span class="text-danger" asp-validation-for="Port"></span>
     </div>
     <div class="form-group">
-        <label asp-for="PhoneNumber">Phone Number</label>
-        <input type="text" class="form-control" placeholder="@Model.PhoneNumber" asp-for="PhoneNumber">
-        <span class="text-danger" asp-validation-for="PhoneNumber"></span>
+        <label asp-for="Provider">Provider</label>
+        <input type="text" class="form-control" placeholder="@Model.Provider" asp-for="Provider">
+        <span class="text-danger" asp-validation-for="Provider"></span>
     </div>
+    <div class="form-group">
+        <label asp-for="Database">Database</label>
+        <input type="text" class="form-control" placeholder="@Model.Database" asp-for="Database">
+        <span class="text-danger" asp-validation-for="Database"></span>
+    </div>
+
     <input asp-for="UserId" hidden="hidden" />
+    <input asp-for="DatabaseId" hidden="hidden" />
 
     <button type="reset" class="btn btn-danger">Discard</button>
     <button type="submit" class="btn btn-success">Submit</button>
-</form>*@
+</form>
 

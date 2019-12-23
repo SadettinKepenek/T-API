@@ -5,39 +5,52 @@
 
 }
 @addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+@if (TempData["Message"] != null)
+{
+    <div class="alert alert-info alert-dismissible fade show" role="alert">
+        @TempData["Message"].ToString()
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+}
 
-    <form asp-action="CreateUser" asp-controller="User" asp-antiforgery="true" method="post">
-        <div class="form-group">
-            <label asp-for="Firstname">Firstname</label>
-            <input type="text" class="form-control" placeholder="Enter Firstname" asp-for="Firstname">
-            <span class="text-danger" asp-validation-for="Firstname"></span>
-        </div>
-        <div class="form-group">
-            <label asp-for="Lastname">Lastname</label>
-            <input type="text" class="form-control" placeholder="Enter Lastname" asp-for="Lastname">
-            <span class="text-danger" asp-validation-for="Lastname"></span>
-        </div>
-        <div class="form-group">
-            <label asp-for="Username">Username</label>
-            <input type="text" class="form-control" placeholder="Enter Username" asp-for="Username">
-            <span class="text-danger" asp-validation-for="Username"></span>
-        </div>
-        <div class="form-group">
-            <label asp-for="Email">Email</label>
-            <input type="text" class="form-control" placeholder="Enter Email" asp-for="Email">
-            <span class="text-danger" asp-validation-for="Email"></span>
-        </div>
-        <div class="form-group">
-            <label asp-for="Password">Password</label>
-            <input type="password" class="form-control" placeholder="Enter Password" asp-for="Password">
-            <span class="text-danger" asp-validation-for="Password"></span>
-        </div>
-        <div class="form-group">
-            <label asp-for="Role">Role</label>
-            <input type="text" class="form-control" placeholder="Enter Role" asp-for="Role">
-            <span class="text-danger" asp-validation-for="Role"></span>
-        </div>
-        <button type="reset" class="btn btn-danger">Discard</button>
-        <button type="submit" class="btn btn-success">Submit</button>
-    </form>
+<form asp-action="CreateUser" asp-controller="User" asp-antiforgery="true" method="post">
+    <div class="form-group">
+        <label asp-for="Firstname">Firstname</label>
+        <input type="text" class="form-control" placeholder="Enter Firstname" asp-for="Firstname">
+        <span class="text-danger" asp-validation-for="Firstname"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="Lastname">Lastname</label>
+        <input type="text" class="form-control" placeholder="Enter Lastname" asp-for="Lastname">
+        <span class="text-danger" asp-validation-for="Lastname"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="Username">Username</label>
+        <input type="text" class="form-control" placeholder="Enter Username" asp-for="Username">
+        <span class="text-danger" asp-validation-for="Username"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="Email">Email</label>
+        <input type="text" class="form-control" placeholder="Enter Email" asp-for="Email">
+        <span class="text-danger" asp-validation-for="Email"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="Password">Password</label>
+        <input type="password" class="form-control" placeholder="Enter Password" asp-for="Password">
+        <span class="text-danger" asp-validation-for="Password"></span>
+    </div>
+    <div class=" form-group">
+        <label asp-for="Role">Role</label>
+        <select class="form-control" asp-for="Role">
+            <option>Admin</option>
+            <option>Client</option>
+        </select>
+        <span class="text-danger" asp-validation-for="Role"></span>
+
+    </div>
+    <button type="reset" class="btn btn-danger">Discard</button>
+    <button type="submit" class="btn btn-success">Submit</button>
+</form>
 

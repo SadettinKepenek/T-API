@@ -6,10 +6,8 @@ using System.Threading.Tasks;
 
 namespace T_API.UI.Areas.Admin.Models.Database
 {
-    public class UpdateDatabaseViewModel
+    public class CreateDatabaseViewModel
     {
-        [Required]
-        public int DatabaseId { get; set; }
         public int UserId { get; set; }
         [Required]
         public string Server { get; set; }
@@ -23,6 +21,7 @@ namespace T_API.UI.Areas.Admin.Models.Database
         public string Port { get; set; }
         [Required]
         public string Provider { get; set; }
+        [Required]
         public DateTime StartDate { get; set; }
         public DateTime EndDate { get; set; }
         public bool IsActive { get; set; }

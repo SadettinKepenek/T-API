@@ -14,15 +14,13 @@ namespace T_API.BLL.Concrete
 {
     public class RealDbManager : IRealDbService
     {
-        private ISqlCodeGeneratorFactory _codeGeneratorFactory;
         private IRealDbRepositoryFactory _realDbRepositoryFactory;
         private IMapper _mapper;
 
         //Factory Design Pattern
 
-        public RealDbManager(ISqlCodeGeneratorFactory codeGeneratorFactory, IRealDbRepositoryFactory realDbRepositoryFactory, IMapper mapper)
+        public RealDbManager(IRealDbRepositoryFactory realDbRepositoryFactory, IMapper mapper)
         {
-            _codeGeneratorFactory = codeGeneratorFactory;
             _realDbRepositoryFactory = realDbRepositoryFactory;
             _mapper = mapper;
         }
@@ -33,7 +31,7 @@ namespace T_API.BLL.Concrete
             {
                 if (database.Provider.Equals("MySql"))
                 {
-                    using MySqlCodeGenerator generator = _codeGeneratorFactory.CreateGenerator(database.Provider) as MySqlCodeGenerator;
+                    using MySqlCodeGenerator generator = (MySqlCodeGenerator) SqlCodeGeneratorFactory.CreateGenerator(database.Provider);
                     if (generator != null)
                     {
                         AddDatabaseValidator addDatabaseValidator = new AddDatabaseValidator();

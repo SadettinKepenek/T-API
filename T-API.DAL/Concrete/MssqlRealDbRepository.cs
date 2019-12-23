@@ -7,11 +7,9 @@ namespace T_API.DAL.Concrete
     public class MssqlRealDbRepository: IRealDbRepository
     {
         // TODO CreateConnection dynamic tipte bir connection döndürüyor bunun kontrol edilmesi gerekli
-        private IDbConnectionFactory _dbConnectionFactory;
 
-        public MssqlRealDbRepository(IDbConnectionFactory dbConnectionFactory)
+        public MssqlRealDbRepository()
         {
-            _dbConnectionFactory = dbConnectionFactory;
         }
 
         public Task CreateDatabaseOnRemote(string query)

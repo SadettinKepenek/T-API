@@ -4,8 +4,11 @@ using System.Threading.Tasks;
 using AutoMapper;
 using T_API.BLL.Abstract;
 using T_API.BLL.Validators.Database;
+using T_API.Core.DAL.Abstract;
+using T_API.Core.DAL.Concrete;
 using T_API.Core.DTO.Database;
 using T_API.Core.Exception;
+using T_API.Core.Settings;
 using T_API.DAL.Abstract;
 using T_API.Entity.Concrete;
 
@@ -128,7 +131,7 @@ namespace T_API.BLL.Concrete
                 dto.IsActive = false;
                 dto.IsApiSupport = true;
                 dto.IsStorageSupport = false;
-                
+
                 AddDatabaseValidator validator = new AddDatabaseValidator();
                 var result = validator.Validate(dto);
                 if (result.IsValid)
@@ -137,9 +140,14 @@ namespace T_API.BLL.Concrete
 
 
                     var mappedEntity = _mapper.Map<DatabaseEntity>(dto);
-                    var addDatabase = await _databaseRepository.AddDatabase(mappedEntity);
 
-                    return addDatabase;
+                    using (var uow = UnitOfWorkFactory.Create(DbConnectionFactory.CreateConnection(ConfigurationSettings.ServerDbInformation)))
+                    {
+                        var addDatabase = await _databaseRepository.AddDatabase(mappedEntity);
+                        return addDatabase;
+
+                    }
+
                 }
 
                 throw new ValidationException(result.Errors.ToString());
@@ -162,7 +170,7 @@ namespace T_API.BLL.Concrete
                     throw new NullReferenceException("Bilgiler boş geldi");
                 }
 
-                UpdateDatabaseValidator validator=new UpdateDatabaseValidator();
+                UpdateDatabaseValidator validator = new UpdateDatabaseValidator();
                 var validation = validator.Validate(dto);
                 if (!validation.IsValid)
                 {
@@ -189,7 +197,7 @@ namespace T_API.BLL.Concrete
 
                 }
 
-                DeleteDatabaseValidator validator=new DeleteDatabaseValidator();
+                DeleteDatabaseValidator validator = new DeleteDatabaseValidator();
                 var validation = validator.Validate(dto);
                 if (!validation.IsValid)
                 {

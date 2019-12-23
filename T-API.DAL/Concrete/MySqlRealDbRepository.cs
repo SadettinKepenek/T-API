@@ -14,22 +14,22 @@ namespace T_API.DAL.Concrete
     {
         // TODO CreateConnection dynamic tipte bir connection döndürüyor bunun kontrol edilmesi gerekli
 
-        private IDbConnectionFactory _dbConnectionFactory;
+        private IUnitOfWork _unitOfWork;
 
-        public MySqlRealDbRepository(IDbConnectionFactory dbConnectionFactory)
+        public MySqlRealDbRepository( IUnitOfWork unitOfWork)
         {
-            _dbConnectionFactory = dbConnectionFactory;
+            _unitOfWork = unitOfWork;
         }
 
 
         public async Task CreateDatabaseOnRemote(string query)
         {
 
-            using (var conn = _dbConnectionFactory.CreateConnection(ConfigurationSettings.ServerDbInformation))
+            using (var conn = DbConnectionFactory.CreateConnection(ConfigurationSettings.ServerDbInformation))
             {
                 if (conn.State == ConnectionState.Broken || conn.State == ConnectionState.Closed) conn.Open();
 
-                var cmd = conn.CreateCommand(query);
+                var cmd = _unitOfWork.CreateCommand(query);
                 var transaction = conn.BeginTransaction();
 
                 using (cmd)
@@ -63,11 +63,11 @@ namespace T_API.DAL.Concrete
 
             try
             {
-                using (var conn = _dbConnectionFactory.CreateConnection(ConfigurationSettings.ServerDbInformation))
+                using (var conn = DbConnectionFactory.CreateConnection(ConfigurationSettings.ServerDbInformation))
                 {
                     if (conn.State == ConnectionState.Broken || conn.State == ConnectionState.Closed) conn.Open();
 
-                    var cmd = conn.CreateCommand(query);
+                    var cmd = _unitOfWork.CreateCommand(query);
                     using (cmd)
                     {
                         var transaction = conn.BeginTransaction();

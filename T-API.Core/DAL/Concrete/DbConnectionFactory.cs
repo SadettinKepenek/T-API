@@ -9,10 +9,10 @@ using IDbConnection = System.Data.IDbConnection;
 
 namespace T_API.Core.DAL.Concrete
 {
-    public class DbConnectionFactory : IDbConnectionFactory
+    public class DbConnectionFactory
     {
 
-        public  IDbConnection CreateConnection(DbInformation information)
+        public static IDbConnection CreateConnection(DbInformation information)
         {
             string connectionString;
             if (information.Provider.Equals("SqlServer"))
@@ -22,9 +22,9 @@ namespace T_API.Core.DAL.Concrete
                 connectionString = $"Data Source={information.Server};" +
                                           $"Initial Catalog={information.Database};" +
                                           $"User id={information.Username};" +
-                                          $"Password={information.Password}" ;
+                                          $"Password={information.Password}";
                 var conn = new SqlConnection(connectionString);
-                
+
                 conn.Open();
                 return conn;
             }

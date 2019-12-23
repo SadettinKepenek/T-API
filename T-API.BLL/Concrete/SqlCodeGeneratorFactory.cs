@@ -3,11 +3,11 @@ using T_API.BLL.Abstract;
 
 namespace T_API.BLL.Concrete
 {
-    public class SqlCodeGeneratorFactory : ISqlCodeGeneratorFactory
+    public class SqlCodeGeneratorFactory 
     {
-        private MySqlCodeGenerator mySqlCodeGenerator;
+        private static MySqlCodeGenerator mySqlCodeGenerator;
 
-        public MySqlCodeGenerator MySqlCodeGenerator
+        public static MySqlCodeGenerator MySqlCodeGenerator
         {
             get
             {
@@ -18,9 +18,9 @@ namespace T_API.BLL.Concrete
             set { mySqlCodeGenerator = value; }
         }
 
-        private SqlServerCodeGenerator sqlServerCodeGenerator;
+        private static SqlServerCodeGenerator sqlServerCodeGenerator;
 
-        public SqlServerCodeGenerator SqlServerCodeGenerator
+        public static SqlServerCodeGenerator SqlServerCodeGenerator
         {
             get
             {
@@ -33,7 +33,7 @@ namespace T_API.BLL.Concrete
         }
 
 
-        public ISqlCodeGenerator CreateGenerator(string provider)
+        public static ISqlCodeGenerator CreateGenerator(string provider)
         {
             if (provider.Equals("MySql"))
             {

@@ -17,8 +17,7 @@ namespace T_API.DAL.Concrete
             {
                 if (_mySqlRealDbRepository == null)
                 {
-                    var sqlRealDbRepository = new MySqlRealDbRepository(
-                        _serviceProvider.GetService(typeof(IDbConnectionFactory)) as IDbConnectionFactory);
+                    var sqlRealDbRepository = new MySqlRealDbRepository(_serviceProvider.GetService(typeof(IUnitOfWork)) as IUnitOfWork);
                     _mySqlRealDbRepository = sqlRealDbRepository;
                     return sqlRealDbRepository;
                 }
@@ -36,7 +35,7 @@ namespace T_API.DAL.Concrete
             {
                 if (_mssqlRealDbRepository == null)
                 {
-                    var sqlDbRepository = new MssqlRealDbRepository(_serviceProvider.GetService(typeof(IDbConnectionFactory)) as IDbConnectionFactory);
+                    var sqlDbRepository = new MssqlRealDbRepository();
                     _mssqlRealDbRepository = sqlDbRepository;
                     return _mssqlRealDbRepository;
                 }

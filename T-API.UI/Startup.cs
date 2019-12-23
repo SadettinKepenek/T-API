@@ -46,10 +46,8 @@ namespace T_API.UI
             services.AddScoped<IAuthService, AuthManager>();
             services.AddScoped<IDatabaseService, DatabaseManager>();
             services.AddScoped<IDatabaseRepository, DatabaseRepository>();
-            services.AddTransient<IDbConnectionFactory, DbConnectionFactory>();
             services.AddScoped<IUserService, UserManager>();
             services.AddScoped<IUserRepository, UserRepository>();
-            services.AddSingleton<ISqlCodeGeneratorFactory, SqlCodeGeneratorFactory>();
             services.AddTransient<IRealDbRepositoryFactory, RealDbRepositoryFactory>();
             services.AddTransient<IRealDbService, RealDbManager>();
 

@@ -24,7 +24,6 @@ namespace T_API.Core.DAL.Concrete
                                           $"User id={information.Username};" +
                                           $"Password={information.Password}";
                 var conn = new SqlConnection(connectionString);
-
                 conn.Open();
                 return conn;
             }

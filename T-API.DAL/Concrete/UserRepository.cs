@@ -17,7 +17,6 @@ namespace T_API.DAL.Concrete
     {
         // TODO CreateConnection dynamic tipte bir connection döndürüyor bunun kontrol edilmesi gerekli
 
-        private IUnitOfWork _unitOfWork;
 
         public UserRepository()
         {
@@ -29,7 +28,7 @@ namespace T_API.DAL.Concrete
             {
                 using (var conn = DbConnectionFactory.CreateConnection(ConfigurationSettings.DbInformation))
                 {
-                    if (conn.State == ConnectionState.Broken || conn.State == ConnectionState.Closed) conn.Open();
+                    
 
 
                     string sql =
@@ -37,7 +36,7 @@ namespace T_API.DAL.Concrete
                         "@Email , @PhoneNumber , @Balance , @Username , @Password , @IsActive); SELECT LAST_INSERT_ID();";
 
 
-                    var cmd = _unitOfWork.CreateCommand(sql);
+                    var cmd = conn.CreateCommand(sql);
                     using (cmd)
                     {
 
@@ -73,12 +72,12 @@ namespace T_API.DAL.Concrete
             try
             {
                 using var conn = DbConnectionFactory.CreateConnection(ConfigurationSettings.DbInformation);
-                if (conn.State == ConnectionState.Broken || conn.State == ConnectionState.Closed) conn.Open();
+                
 
                 string sql = "Update users set Username = @username, Password = @password,Firstname = @firstname,Lastname = @lastname,Role = @role,PhoneNumber = @phonenumber,Balance = @balance," +
                              "IsActive = @isActive where UserId = @userId";
 
-                var cmd = _unitOfWork.CreateCommand(sql);
+                var cmd = conn.CreateCommand(sql);
 
 
                 using (cmd)
@@ -109,9 +108,9 @@ namespace T_API.DAL.Concrete
             try
             {
                 using var conn = DbConnectionFactory.CreateConnection(ConfigurationSettings.DbInformation);
-                if (conn.State == ConnectionState.Broken || conn.State == ConnectionState.Closed) conn.Open(); 
+                
                 string sql = "Delete from users where UserId = @UserId";
-                var cmd = _unitOfWork.CreateCommand(sql);
+                var cmd = conn.CreateCommand(sql);
                 using (cmd)
                 {
 
@@ -129,16 +128,14 @@ namespace T_API.DAL.Concrete
         {
             try
             {
-                using (var conneciton = DbConnectionFactory.CreateConnection(ConfigurationSettings.DbInformation))
+                using (var conn = DbConnectionFactory.CreateConnection(ConfigurationSettings.DbInformation))
                 {
-                    if (conneciton.State == ConnectionState.Broken || conneciton.State == ConnectionState.Closed) conneciton.Open();
+                    
+
                     string sql = "Select * from users";
-                    var command = _unitOfWork.CreateCommand(sql);
-                    ;
-                    using (command)
+                    using (var command = conn.CreateCommand(sql))
                     {
                         using var sqlReader = command.ExecuteReader();
-                   
                         DataTable dt = new DataTable();
                         dt.Load(sqlReader);
                         if (dt.Rows.Count != 0)
@@ -171,14 +168,14 @@ namespace T_API.DAL.Concrete
                 using (var conn = DbConnectionFactory.CreateConnection(ConfigurationSettings.DbInformation))
                 {
 
-                    if (conn.State == ConnectionState.Broken || conn.State == ConnectionState.Closed) conn.Open();
+                    
                     string sql = "Select * from users where UserId=@UserId";
-                    var cmd = _unitOfWork.CreateCommand(sql);
+                    var cmd = conn.CreateCommand(sql);
                     using (cmd)
                     {
                         cmd.AddParameter("UserId", userId);
                         using var sqlReader = cmd.ExecuteReader();
-                     
+
 
                         //sqlReader.Read();
                         DataTable dt = new DataTable();
@@ -234,14 +231,14 @@ namespace T_API.DAL.Concrete
                 using (var conn = DbConnectionFactory.CreateConnection(ConfigurationSettings.DbInformation))
                 {
 
-                    if (conn.State == ConnectionState.Broken || conn.State == ConnectionState.Closed) conn.Open();
+                    
                     string sql = "Select * from users where Username=@Username";
-                    var cmd = _unitOfWork.CreateCommand(sql);
+                    var cmd = conn.CreateCommand(sql);
                     using (cmd)
                     {
                         cmd.AddParameter("Username", username);
                         using var sqlReader = cmd.ExecuteReader();
-                       
+
 
                         //sqlReader.Read();
                         DataTable dt = new DataTable();

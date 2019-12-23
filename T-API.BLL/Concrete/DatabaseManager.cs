@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using System.Transactions;
 using AutoMapper;
 using T_API.BLL.Abstract;
 using T_API.BLL.Validators.Database;
@@ -78,7 +79,6 @@ namespace T_API.BLL.Concrete
                 {
                     throw new ArgumentNullException("username", "Kullanıcı adı boş olamaz");
                 }
-                using var uow = UnitOfWorkFactory.Create(ConfigurationSettings.DbInformation);
                 var databases = await _databaseRepository.GetByUser(username);
                 if (databases == null)
                 {
@@ -86,7 +86,6 @@ namespace T_API.BLL.Concrete
                 }
 
                 var mappedEntities = _mapper.Map<List<ListDatabaseDto>>(databases);
-                uow.SaveChanges();
                 return mappedEntities;
             }
             catch (Exception e)
@@ -138,14 +137,14 @@ namespace T_API.BLL.Concrete
                 if (result.IsValid)
                 {
 
-
-
                     var mappedEntity = _mapper.Map<DatabaseEntity>(dto);
+                    using (TransactionScope scope = new TransactionScope())
+                    {
+                        var addDatabase = await _databaseRepository.AddDatabase(mappedEntity);
+                        scope.Complete();
+                        return addDatabase;
 
-                    using var uow = UnitOfWorkFactory.Create(ConfigurationSettings.DbInformation);
-                    var addDatabase = await _databaseRepository.AddDatabase(mappedEntity);
-                    uow.SaveChanges();
-                    return addDatabase;
+                    }
                 }
 
                 throw new ValidationException(result.Errors.ToString());
@@ -153,7 +152,10 @@ namespace T_API.BLL.Concrete
             }
             catch (Exception e)
             {
-
+                if (e is TransactionAbortedException)
+                {
+                    Console.WriteLine("TransactionAbortedException Message: {0}", e.Message);
+                }
                 throw ExceptionHandler.HandleException(e);
             }
 

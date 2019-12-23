@@ -14,7 +14,6 @@ namespace T_API.DAL.Concrete
     {
         // TODO CreateConnection dynamic tipte bir connection döndürüyor bunun kontrol edilmesi gerekli
 
-        private IUnitOfWork _unitOfWork;
 
         public MySqlRealDbRepository( )
         {
@@ -26,9 +25,9 @@ namespace T_API.DAL.Concrete
 
             using (var conn = DbConnectionFactory.CreateConnection(ConfigurationSettings.ServerDbInformation))
             {
-                if (conn.State == ConnectionState.Broken || conn.State == ConnectionState.Closed) conn.Open();
+                
 
-                var cmd = _unitOfWork.CreateCommand(query);
+                var cmd = conn.CreateCommand(query);
                 var transaction = conn.BeginTransaction();
 
                 using (cmd)
@@ -64,9 +63,9 @@ namespace T_API.DAL.Concrete
             {
                 using (var conn = DbConnectionFactory.CreateConnection(ConfigurationSettings.ServerDbInformation))
                 {
-                    if (conn.State == ConnectionState.Broken || conn.State == ConnectionState.Closed) conn.Open();
+                    
 
-                    var cmd = _unitOfWork.CreateCommand(query);
+                    var cmd = conn.CreateCommand(query);
                     using (cmd)
                     {
                         var transaction = conn.BeginTransaction();

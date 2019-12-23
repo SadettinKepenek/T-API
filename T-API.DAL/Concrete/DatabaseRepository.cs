@@ -16,7 +16,6 @@ namespace T_API.DAL.Concrete
     // TODO CreateConnection dynamic tipte bir connection döndürüyor bunun kontrol edilmesi gerekli
     public class DatabaseRepository : IDatabaseRepository
     {
-        private IUnitOfWork _unitOfWork;
         //TODO Değiştirilecek.
 
 
@@ -30,8 +29,9 @@ namespace T_API.DAL.Concrete
         {
             try
             {
-               
 
+
+                using var conn = DbConnectionFactory.CreateConnection(ConfigurationSettings.DbInformation);
 
                 string sql =
                     "Insert into `databases` (UserId,Server,Username,Password,Port,Provider,StartDate,EndDate,IsActive,IsStorageSupport,IsApiSupport,`Database`) " +
@@ -39,7 +39,7 @@ namespace T_API.DAL.Concrete
                     "SELECT LAST_INSERT_ID();";
 
 
-                var cmd = UnitOfWorkFactory.GetInstance().CreateCommand(sql);
+                var cmd = conn.CreateCommand(sql);
                 using (cmd)
                 {
 
@@ -76,12 +76,12 @@ namespace T_API.DAL.Concrete
             try
             {
                 using var conn = DbConnectionFactory.CreateConnection(ConfigurationSettings.DbInformation);
-                if (conn.State == ConnectionState.Broken || conn.State == ConnectionState.Closed) conn.Open();
+
 
                 string sql =
                     "Update `databases` Set UserId = @UserId,Server = @Server,Username = @Username,Password = @Password,Port = @Port,Provider = @Provider," +
                     "StartDate = @StartDate,EndDate = @EndDate,IsActive = @IsActive,IsStorageSupport = @IsStorageSupport,IsApiSupport = @IsApiSupport ,`Database`=@Database where DatabaseId = @DatabaseId";
-                var cmd = _unitOfWork.CreateCommand(sql);
+                var cmd = conn.CreateCommand(sql);
 
                 using (cmd)
                 {
@@ -114,13 +114,13 @@ namespace T_API.DAL.Concrete
             try
             {
                 using var conn = DbConnectionFactory.CreateConnection(ConfigurationSettings.DbInformation);
-                if (conn.State == ConnectionState.Broken || conn.State == ConnectionState.Closed) conn.Open();
+
 
                 string sql = "Delete from `databases` where DatabaseId = @DatabaseId";
 
 
 
-                var cmd = _unitOfWork.CreateCommand(sql);
+                var cmd = conn.CreateCommand(sql);
                 using (cmd)
                 {
                     cmd.AddParameter("DatabaseId", database.DatabaseId);
@@ -142,17 +142,17 @@ namespace T_API.DAL.Concrete
             try
             {
                 using var conn = DbConnectionFactory.CreateConnection(ConfigurationSettings.DbInformation);
-                if (conn.State == ConnectionState.Broken || conn.State == ConnectionState.Closed) conn.Open();
+
 
                 string sql = "Select * from `databases` where UserId = @UserId";
-                var cmd = UnitOfWorkFactory.GetInstance().CreateCommand(sql);
+                var cmd = conn.CreateCommand(sql);
 
                 using (cmd)
                 {
                     cmd.AddParameter("UserId", userId);
 
                     var sqlReader = cmd.ExecuteReader();
-                   
+
 
                     DataTable dt = new DataTable();
                     dt.Load(sqlReader);
@@ -181,11 +181,10 @@ namespace T_API.DAL.Concrete
         {
             try
             {
-                using var conn = DbConnectionFactory.CreateConnection(ConfigurationSettings.DbInformation);
-                if (conn.State == ConnectionState.Broken || conn.State == ConnectionState.Closed) conn.Open();
 
+                using var conn = DbConnectionFactory.CreateConnection(ConfigurationSettings.DbInformation);
                 string sql = "Select * from `databases` inner join users on databases.UserId = users.UserId Where users.Username = @Username";
-                var cmd = UnitOfWorkFactory.GetInstance().CreateCommand(sql);
+                var cmd = conn.CreateCommand(sql);
                 using (cmd)
                 {
 
@@ -193,7 +192,7 @@ namespace T_API.DAL.Concrete
 
 
                     var sqlReader = cmd.ExecuteReader();
-                    
+
 
                     DataTable dt = new DataTable();
                     dt.Load(sqlReader);
@@ -242,16 +241,16 @@ namespace T_API.DAL.Concrete
             try
             {
                 using var conn = DbConnectionFactory.CreateConnection(ConfigurationSettings.DbInformation);
-                if (conn.State == ConnectionState.Broken || conn.State == ConnectionState.Closed) conn.Open();
+
 
                 string sql = "Select * from `databases` where DatabaseId = @DatabaseId";
-                var cmd = _unitOfWork.CreateCommand(sql);
+                var cmd = conn.CreateCommand(sql);
                 using (cmd)
                 {
                     cmd.AddParameter("DatabaseId", databaseId);
 
                     var sqlReader = cmd.ExecuteReader();
-                 
+
 
                     DataTable dt = new DataTable();
                     dt.Load(sqlReader);
@@ -273,16 +272,16 @@ namespace T_API.DAL.Concrete
             try
             {
                 using var conn = DbConnectionFactory.CreateConnection(ConfigurationSettings.DbInformation);
-                if (conn.State == ConnectionState.Broken || conn.State == ConnectionState.Closed) conn.Open();
+
 
                 string sql = "Select * from `databases`";
                 //  var GetAllDatabase = (List<DatabaseEntity>)await cmd.ExecuteScalarAsync();
 
-                var cmd = _unitOfWork.CreateCommand(sql);
+                var cmd = conn.CreateCommand(sql);
                 using (cmd)
                 {
                     var sqlReader = cmd.ExecuteReader();
-                  
+
 
 
                     DataTable dt = new DataTable();

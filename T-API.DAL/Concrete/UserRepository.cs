@@ -5,6 +5,7 @@ using System.Data.SqlClient;
 using System.Threading.Tasks;
 using MySql.Data.MySqlClient;
 using T_API.Core.DAL.Abstract;
+using T_API.Core.DAL.Concrete;
 using T_API.Core.Exception;
 using T_API.Core.Settings;
 using T_API.DAL.Abstract;
@@ -36,19 +37,21 @@ namespace T_API.DAL.Concrete
                         "Insert into users (Firstname,Lastname,Email,PhoneNumber,Balance,Username,Password,IsActive ) Values (@Firstname , @Lastname , " +
                         "@Email , @PhoneNumber , @Balance , @Username , @Password , @IsActive); SELECT LAST_INSERT_ID();";
 
-                    using (var cmd = new MySqlCommand("", conn as MySqlConnection))
+
+                    var cmd = conn.CreateCommand(sql);
+                    using (cmd)
                     {
 
                         cmd.CommandText = sql;
                         cmd.Connection = conn as MySqlConnection;
-                        cmd.Parameters.AddWithValue("Firstname", user.Firstname);
-                        cmd.Parameters.AddWithValue("Lastname", user.Lastname);
-                        cmd.Parameters.AddWithValue("Email", user.Email);
-                        cmd.Parameters.AddWithValue("PhoneNumber", user.PhoneNumber);
-                        cmd.Parameters.AddWithValue("Balance", user.Balance);
-                        cmd.Parameters.AddWithValue("Username", user.Username);
-                        cmd.Parameters.AddWithValue("Password", user.Password);
-                        cmd.Parameters.AddWithValue("IsActive", user.IsActive);
+                        cmd.AddParameter("Firstname", user.Firstname);
+                        cmd.AddParameter("Lastname", user.Lastname);
+                        cmd.AddParameter("Email", user.Email);
+                        cmd.AddParameter("PhoneNumber", user.PhoneNumber);
+                        cmd.AddParameter("Balance", user.Balance);
+                        cmd.AddParameter("Username", user.Username);
+                        cmd.AddParameter("Password", user.Password);
+                        cmd.AddParameter("IsActive", user.IsActive);
                         var id = Convert.ToInt32(cmd.ExecuteScalar());
                         return id;
 
@@ -75,20 +78,26 @@ namespace T_API.DAL.Concrete
 
                 string sql = "Update users set Username = @username, Password = @password,Firstname = @firstname,Lastname = @lastname,Role = @role,PhoneNumber = @phonenumber,Balance = @balance," +
                              "IsActive = @isActive where UserId = @userId";
-                
-                using var cmd = new MySqlCommand(sql, conn as MySqlConnection);
 
-                cmd.Parameters.AddWithValue("userId", user.UserId);
-                cmd.Parameters.AddWithValue("username", user.Username);
-                cmd.Parameters.AddWithValue("password", user.Password);
-                cmd.Parameters.AddWithValue("firstname", user.Firstname);
-                cmd.Parameters.AddWithValue("lastname", user.Lastname);
-                cmd.Parameters.AddWithValue("role", user.Role);
-                cmd.Parameters.AddWithValue("phonenumber", user.PhoneNumber);
-                cmd.Parameters.AddWithValue("balance", user.Balance);
-                cmd.Parameters.AddWithValue("isActive", user.IsActive);
+                var cmd = conn.CreateCommand(sql);
 
-                cmd.ExecuteNonQuery();
+
+                using (cmd)
+                {
+                    cmd.AddParameter("userId", user.UserId);
+                    cmd.AddParameter("username", user.Username);
+                    cmd.AddParameter("password", user.Password);
+                    cmd.AddParameter("firstname", user.Firstname);
+                    cmd.AddParameter("lastname", user.Lastname);
+                    cmd.AddParameter("role", user.Role);
+                    cmd.AddParameter("phonenumber", user.PhoneNumber);
+                    cmd.AddParameter("balance", user.Balance);
+                    cmd.AddParameter("isActive", user.IsActive);
+
+                    cmd.ExecuteNonQuery();
+                }
+
+
             }
             catch (Exception e)
             {
@@ -101,13 +110,15 @@ namespace T_API.DAL.Concrete
             try
             {
                 using var conn = _dbConnectionFactory.CreateConnection(ConfigurationSettings.DbInformation);
-                if (conn.State == ConnectionState.Broken || conn.State == ConnectionState.Closed) conn.Open();
-
+                if (conn.State == ConnectionState.Broken || conn.State == ConnectionState.Closed) conn.Open();s
                 string sql = "Delete from users where UserId = @UserId";
-                using var cmd = new MySqlCommand(sql, conn as MySqlConnection);
+                var cmd = conn.CreateCommand(sql);
+                using (cmd)
+                {
 
-                cmd.Parameters.AddWithValue("UserId", user.UserId);
-                cmd.ExecuteNonQuery();
+                    cmd.AddParameter("UserId", user.UserId);
+                    cmd.ExecuteNonQuery();
+                }
             }
             catch (Exception e)
             {
@@ -123,10 +134,12 @@ namespace T_API.DAL.Concrete
                 {
                     if (conneciton.State == ConnectionState.Broken || conneciton.State == ConnectionState.Closed) conneciton.Open();
                     string sql = "Select * from users";
-                    using (var command = new MySqlCommand(sql, conneciton as MySqlConnection))
+                    var command = conneciton.CreateCommand(sql);
+                    ;
+                    using (command)
                     {
                         using var sqlReader = command.ExecuteReader();
-                        if (!sqlReader.HasRows)
+                        if (!sqlReader.Read())
                         {
                             throw new NullReferenceException(" kullanıcısının verilerine ulaşılamadı");
                         }
@@ -164,11 +177,12 @@ namespace T_API.DAL.Concrete
 
                     if (conn.State == ConnectionState.Broken || conn.State == ConnectionState.Closed) conn.Open();
                     string sql = "Select * from users where UserId=@UserId";
-                    using (var cmd = new MySqlCommand(sql, conn as MySqlConnection))
+                    var cmd = conn.CreateCommand(sql);
+                    using (cmd )
                     {
-                        cmd.Parameters.AddWithValue("UserId", userId);
+                        cmd.AddParameter("UserId", userId);
                         using var sqlReader = cmd.ExecuteReader();
-                        if (!sqlReader.HasRows)
+                        if (!sqlReader.Read())
                         {
                             throw new NullReferenceException($"{userId} kullanıcısının verilerine ulaşılamadı");
                         }
@@ -201,7 +215,7 @@ namespace T_API.DAL.Concrete
             string phoneNumber = dr["PhoneNumber"] as string;
             decimal balance = Convert.ToDecimal(dr["Balance"]);
             bool isActive = Convert.ToBoolean(dr["IsActive"]);
-            var Id = (int) dr["UserId"];
+            var Id = (int)dr["UserId"];
 
 
             var userEntity = new UserEntity
@@ -229,11 +243,12 @@ namespace T_API.DAL.Concrete
 
                     if (conn.State == ConnectionState.Broken || conn.State == ConnectionState.Closed) conn.Open();
                     string sql = "Select * from users where Username=@Username";
-                    using (var cmd = new MySqlCommand(sql, conn as MySqlConnection))
+                    var cmd = conn.CreateCommand(sql);
+                    using (cmd)
                     {
-                        cmd.Parameters.AddWithValue("Username", username);
+                        cmd.AddParameter("Username", username);
                         using var sqlReader = cmd.ExecuteReader();
-                        if (!sqlReader.HasRows)
+                        if (!sqlReader.Read())
                         {
                             throw new NullReferenceException($"{username} kullanıcısının verilerine ulaşılamadı");
                         }

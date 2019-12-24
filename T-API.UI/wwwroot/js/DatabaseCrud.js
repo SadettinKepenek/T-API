@@ -50,6 +50,15 @@ var addTableContainer = function addTable(object) {
         tableContentString += '<div class="col-md-2">';
         tableContentString += 'Is Auto Inc';
         tableContentString += '</div>';
+        tableContentString += '<div class="col-md-2">';
+        tableContentString += '<button type="button"' +
+            ' class="btn btn-info btn-sm"' +
+            ' style="margin-bottom: 5px"' +
+            ' data-toggle="modal" ' +
+            'data-target="#addColumnModal">';
+        tableContentString += 'Add Column';
+        tableContentString += '</button>';
+        tableContentString += '</div>';
         tableContentString += '<hr/>';
         tableContentString += '</div>';
         tabTables.append(tabTablesString);
@@ -74,7 +83,9 @@ var addTableContainer = function addTable(object) {
             tableContentString += column.autoInc;
             tableContentString += '</div>';
             tableContentString += '</div>';
+
         });
+        tableContentString += '<hr/>';
         tableContentString += '</div>';
         tableContent.append(tableContentString);
 

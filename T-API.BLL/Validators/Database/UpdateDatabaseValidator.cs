@@ -8,7 +8,7 @@ namespace T_API.BLL.Validators.Database
         public UpdateDatabaseValidator()
         {
             RuleFor(x => x.DatabaseId).NotNull().NotEmpty();
-            RuleFor(x => x.Database).NotNull().NotEmpty();
+            RuleFor(x => x.DatabaseName).NotNull().NotEmpty();
             RuleFor(x => x.EndDate).NotNull().NotEmpty();
             RuleFor(x => x.StartDate).NotNull().NotEmpty();
             RuleFor(x => x.IsActive).NotNull().NotEmpty();

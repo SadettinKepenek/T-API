@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Reflection;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Transactions;
 using AutoMapper;
@@ -17,13 +19,13 @@ namespace T_API.BLL.Concrete
     public class DatabaseManager : IDatabaseService
     {
         private IDatabaseRepository _databaseRepository;
-        private IRealDbRepositoryFactory _dbRepositoryFactory;
         private IMapper _mapper;
-        public DatabaseManager(IDatabaseRepository databaseRepository, IMapper mapper, IRealDbRepositoryFactory dbRepositoryFactory)
+        private IRealDbService _realDbService;
+        public DatabaseManager(IDatabaseRepository databaseRepository, IMapper mapper, IRealDbService realDbService)
         {
             _databaseRepository = databaseRepository;
             _mapper = mapper;
-            _dbRepositoryFactory = dbRepositoryFactory;
+            _realDbService = realDbService;
         }
 
 
@@ -118,30 +120,60 @@ namespace T_API.BLL.Concrete
             }
         }
 
+        public async Task<List<string>> GetDataTypes(string provider)
+        {
+            List<string> dataTypes = new List<string>();
+            if (provider.Equals("MySql"))
+            {
+                foreach (FieldInfo field in typeof(MysqlProviderColumnType).GetFields())
+                {
+                    dataTypes.Add(field.GetValue(null) as string);
+                }
+            }
+            else if (provider.Equals("MsSql"))
+            {
+                foreach (FieldInfo field in typeof(SqlServerProviderColumnType).GetFields())
+                {
+                    dataTypes.Add(field.GetValue(null) as string);
+                }
+            }
+            else
+            {
+                throw new AmbiguousMatchException("Provider türü için support bulunamadı");
+            }
+
+            return dataTypes;
+        }
+
         public async Task<int> AddDatabase(AddDatabaseDto dto)
         {
             try
             {
-                dto.StartDate = DateTime.Now;
-                dto.EndDate = DateTime.Now.AddMonths(1);
-                dto.Port = "3306";
-                dto.Provider = "MySql";
-                dto.Server = "localhost";
-                dto.IsActive = false;
-                dto.IsApiSupport = true;
-                dto.IsStorageSupport = false;
+                var transactionCompletedEvent = new AutoResetEvent(true);
+
 
                 AddDatabaseValidator validator = new AddDatabaseValidator();
                 var result = validator.Validate(dto);
                 if (result.IsValid)
                 {
 
-                    var mappedEntity = _mapper.Map<DatabaseEntity>(dto);
+                    var mappedEntity = _mapper.Map<Database>(dto);
 
+                    int addDatabaseResult;
                     using TransactionScope scope = new TransactionScope();
-                    var addDatabase = await _databaseRepository.AddDatabase(mappedEntity);
+
+                    addDatabaseResult = await _databaseRepository.AddDatabase(mappedEntity);
+                    Transaction.Current.TransactionCompleted += delegate
+                    {
+                        using TransactionScope scopeInline = new TransactionScope();
+                        _realDbService.CreateDatabaseOnRemote(dto);
+                        scopeInline.Complete();
+
+                    };
                     scope.Complete();
-                    return addDatabase;
+
+
+                    return addDatabaseResult;
                 }
 
                 throw new ValidationException(result.Errors.ToString());
@@ -149,10 +181,6 @@ namespace T_API.BLL.Concrete
             }
             catch (Exception e)
             {
-                if (e is TransactionAbortedException)
-                {
-                    Console.WriteLine("TransactionAbortedException Message: {0}", e.Message);
-                }
                 throw ExceptionHandler.HandleException(e);
             }
 
@@ -175,7 +203,7 @@ namespace T_API.BLL.Concrete
                 }
 
                 using TransactionScope scope = new TransactionScope();
-                var mappedData = _mapper.Map<DatabaseEntity>(dto);
+                var mappedData = _mapper.Map<Database>(dto);
                 await _databaseRepository.UpdateDatabase(mappedData);
                 scope.Complete();
             }
@@ -203,8 +231,8 @@ namespace T_API.BLL.Concrete
                     throw new ValidationException(validation.Errors.ToString());
                 }
 
-                using TransactionScope scope=new TransactionScope();
-                var mappedData = _mapper.Map<DatabaseEntity>(dto);
+                using TransactionScope scope = new TransactionScope();
+                var mappedData = _mapper.Map<Database>(dto);
                 await _databaseRepository.DeleteDatabase(mappedData);
                 scope.Complete();
             }

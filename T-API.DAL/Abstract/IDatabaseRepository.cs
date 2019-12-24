@@ -8,13 +8,13 @@ namespace T_API.DAL.Abstract
 {
     public interface IDatabaseRepository
     {
-        Task<int> AddDatabase(DatabaseEntity database);
-        Task UpdateDatabase(DatabaseEntity database);
-        Task DeleteDatabase(DatabaseEntity database);
-        Task<List<DatabaseEntity>> GetByUser(int userId);
-        Task<List<DatabaseEntity>> GetByUser(string username);
-        Task<DatabaseEntity> GetById(int databaseId);
-        Task<List<DatabaseEntity>> GetAll();
+        Task<int> AddDatabase(Database database);
+        Task UpdateDatabase(Database database);
+        Task DeleteDatabase(Database database);
+        Task<List<Database>> GetByUser(int userId);
+        Task<List<Database>> GetByUser(string username);
+        Task<Database> GetById(int databaseId);
+        Task<List<Database>> GetAll();
         Task SuspendDatabase(int databaseId);
         Task RecoverDatabase(int databaseId);
 

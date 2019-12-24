@@ -10,7 +10,7 @@ namespace T_API.BLL.Concrete
     public class SqlServerCodeGenerator : ISqlCodeGenerator
     {
         [Obsolete("To be added")]
-        public string CreateDatabase(DatabaseEntity database)
+        public string CreateDatabase(Database database)
         {
             throw new NotImplementedException();
         }

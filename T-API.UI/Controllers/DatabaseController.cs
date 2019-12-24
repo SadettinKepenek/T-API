@@ -131,6 +131,10 @@ namespace T_API.UI.Controllers
             return NoContent();
         }
 
+
+
+
+
         [HttpPost("", Name = "AddTable")]
         public async Task<IActionResult> AddTable([FromBody] AddTableDto addTableDto)
         {

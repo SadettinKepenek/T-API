@@ -112,6 +112,8 @@ namespace T_API.BLL.Concrete
                 }
 
                 var mappedEntities = _mapper.Map<DetailDatabaseDto>(databaseEntity);
+                mappedEntities.Tables = await _realDbService.GetTables(databaseEntity.DatabaseName, databaseEntity.Provider);
+
                 return mappedEntities;
             }
             catch (Exception e)

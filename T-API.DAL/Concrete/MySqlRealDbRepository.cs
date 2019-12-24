@@ -131,7 +131,7 @@ namespace T_API.DAL.Concrete
                     }
                     catch (Exception ex)
                     {
-                        throw ExceptionHandler.HandleException(ex);
+                        throw ex;
 
                     }
                 }
@@ -158,7 +158,7 @@ namespace T_API.DAL.Concrete
 
                 #region ForeignKeys
 
-                var foreignKeys = groupedColumn.Where(x => x.Field<bool>("IsForeignKey"));
+                var foreignKeys = groupedColumn.Where(x => x.Field<long>("IsForeignKey")==1);
                 foreach (DataRow key in foreignKeys)
                 {
                     if (table.ForeignKeys.All(x => x.ForeignKeyName != key["CONSTRAINT_NAME"] as string))
@@ -257,7 +257,7 @@ namespace T_API.DAL.Concrete
                     : 0),
                 DataType = firstRow["COLUMN_TYPE"] as string,
                 HasLength = firstRow["CHARACTER_MAXIMUM_LENGTH"] != DBNull.Value,
-                NotNull = Convert.ToBoolean(firstRow["IS_NULLABLE"]),
+                NotNull = firstRow["IS_NULLABLE"].Equals("NO"),
                 TableName = firstRow["TABLE_NAME"] as string,
                 PrimaryKey = groupedColumn.Any(x => x.Field<string>("COLUMN_KEY").Equals("PRI")),
                 Unique = groupedColumn.Any(x => x.Field<string>("COLUMN_KEY").Equals("UNI")),

@@ -102,7 +102,28 @@ namespace T_API.DAL.Concrete
 
         public Task<List<Table>> GetTables(string databaseName)
         {
+            using (var conn = DbConnectionFactory.CreateConnection(ConfigurationSettings.ServerDbInformation))
+            {
 
+
+                var cmd = conn.CreateCommand("");
+
+                using (cmd)
+                {
+                    try
+                    {
+                        cmd.ExecuteNonQuery();
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine("Commit Exception Type: {0}", ex.GetType());
+                        Console.WriteLine("  Message: {0}", ex.Message);
+                        throw ExceptionHandler.HandleException(ex);
+
+                    }
+                }
+
+            }
             throw new NotImplementedException();
         }
 

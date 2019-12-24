@@ -19,27 +19,27 @@ namespace T_API.BLL.Abstract
         Task CreateForeignKeyOnRemote(AddForeignKeyDto foreignKey);
         Task CreateKeyOnRemote(AddKeyDto key);
 
-        Task<List<DetailTableDto>> GetTables(string databaseName);
-        Task<DetailTableDto> GetTable(string tableName, string databaseName);
+        Task<List<DetailTableDto>> GetTables(string databaseName,string provider);
+        Task<DetailTableDto> GetTable(string tableName, string databaseName, string provider);
 
 
-        Task<List<DetailForeignKeyDto>> GetForeignKeys(string databaseName);
-        Task<List<DetailForeignKeyDto>> GetForeignKeys(string databaseName, string tableName);
-        Task<DetailForeignKeyDto> GetForeignKey(string databaseName, string tableName, string foreignKeyName);
+        Task<List<DetailForeignKeyDto>> GetForeignKeys(string databaseName, string provider);
+        Task<List<DetailForeignKeyDto>> GetForeignKeys(string databaseName, string tableName, string provider);
+        Task<DetailForeignKeyDto> GetForeignKey(string databaseName, string tableName, string foreignKeyName, string provider);
 
 
-        Task<List<DetailKeyDto>> GetKeys(string databaseName);
-        Task<List<DetailKeyDto>> GetKeys(string databaseName, string tableName);
-        Task<DetailKeyDto> GetKey(string databaseName, string tableName, string keyName);
+        Task<List<DetailKeyDto>> GetKeys(string databaseName, string provider);
+        Task<List<DetailKeyDto>> GetKeys(string databaseName, string tableName, string provider);
+        Task<DetailKeyDto> GetKey(string databaseName, string tableName, string keyName, string provider);
 
 
-        Task<List<DetailIndexDto>> GetIndices(string databaseName);
-        Task<List<DetailIndexDto>> GetIndices(string databaseName, string tableName);
-        Task<DetailIndexDto> GetIndex(string databaseName, string tableName, string indexName);
+        Task<List<DetailIndexDto>> GetIndices(string databaseName, string provider);
+        Task<List<DetailIndexDto>> GetIndices(string databaseName, string tableName, string provider);
+        Task<DetailIndexDto> GetIndex(string databaseName, string tableName, string indexName, string provider);
 
 
-        Task<List<DetailColumnDto>> GetColumns(string databaseName, string tableName);
-        Task<DetailColumnDto> GetColumn(string databaseName, string tableName, string columnName);
+        Task<List<DetailColumnDto>> GetColumns(string databaseName, string tableName, string provider);
+        Task<DetailColumnDto> GetColumn(string databaseName, string tableName, string columnName, string provider);
 
 
 

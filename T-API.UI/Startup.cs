@@ -17,7 +17,6 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Tokens;
 using T_API.BLL.Abstract;
 using T_API.BLL.Concrete;
-using T_API.Core.DAL.Abstract;
 using T_API.Core.DAL.Concrete;
 using T_API.Core.Settings;
 using T_API.DAL.Abstract;

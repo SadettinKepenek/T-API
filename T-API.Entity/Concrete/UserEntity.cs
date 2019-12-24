@@ -21,7 +21,7 @@ namespace T_API.Entity.Concrete
         public string Password { get; set; }
         public string Role { get; set; }
         public decimal Balance { get; set; }
-        public List<DatabaseEntity> Databases { get; set; }
+        public List<Database> Databases { get; set; }
         public bool IsActive { get; set; }
 
     }

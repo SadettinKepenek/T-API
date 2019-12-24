@@ -6,7 +6,7 @@ namespace T_API.BLL.Abstract
 {
     public interface  ISqlCodeGenerator : IDisposable
     {
-        string CreateDatabase(DatabaseEntity database);
+        string CreateDatabase(Database database);
          string CreateTable(Table table);
          string DropTable(Table table);
         string AlterTable(Table table);

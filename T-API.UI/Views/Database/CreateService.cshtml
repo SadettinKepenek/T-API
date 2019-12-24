@@ -3,25 +3,27 @@
     ViewData["Title"] = "CreateService";
 }
 
+<script src="~/js/DatabaseCrud.js"></script>
+<form asp-action="CreateService" asp-controller="Database" asp-antiforgery="true" method="post">
+    <div class="form-group">
+        <label asp-for="Username">Database Username</label>
+        <input type="text" class="form-control" placeholder="Enter Username" asp-for="Username">
+        <span class="text-danger" asp-validation-for="Username"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="Password">Database Password</label>
+        <input type="password" class="form-control" placeholder="Enter Password" asp-for="Password">
+        <span class="text-danger" asp-validation-for="Password"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="DatabaseName">Database Name</label>
+        <input type="text" class="form-control" placeholder="Enter Database Name" asp-for="DatabaseName">
+        <span class="text-danger" asp-validation-for="DatabaseName"></span>
+    </div>
 
-    <form asp-action="CreateService" asp-controller="Database" asp-antiforgery="true" method="post">
-        <div class="form-group">
-            <label asp-for="Username">Database Username</label>
-            <input type="text" class="form-control"  placeholder="Enter Username" asp-for="Username">
-            <span class="text-danger" asp-validation-for="Username"></span>
-        </div>
-        <div class="form-group">
-            <label asp-for="Password">Database Password</label>
-            <input type="password" class="form-control" placeholder="Enter Password" asp-for="Password">
-            <span class="text-danger" asp-validation-for="Password"></span>
-        </div>
-        <div class="form-group">
-            <label asp-for="Database">Database Name</label>
-            <input type="password" class="form-control"  placeholder="Enter Database Name" asp-for="Database">
-            <span class="text-danger" asp-validation-for="Database"></span>
-        </div>
-        <input asp-for="UserId" hidden="hidden"/>
-      
-        <button type="reset" class="btn btn-danger">Discard</button>
-        <button type="submit" class="btn btn-success">Submit</button>
-    </form>
+    <input asp-for="UserId" hidden="hidden" />
+
+
+    <button type="reset" class="btn btn-danger">Discard</button>
+    <button type="submit" class="btn btn-success">Submit</button>
+</form>

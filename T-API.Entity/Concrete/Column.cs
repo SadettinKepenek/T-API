@@ -5,6 +5,8 @@ namespace T_API.Entity.Concrete
     public class Column
     {
         public string ColumnName { get; set; }
+        public string TableName { get; set; }
+
         public string DataType { get; set; }
         public int DataLength { get; set; }
         public bool NotNull { get; set; }

@@ -1,6 +1,6 @@
 ﻿using T_API.Entity.Abstract;
 
-namespace T_API.Entity.Concrete
+namespace T_API.Core.Settings
 {
    public class MysqlProviderColumnType:ProviderColumnType
     {

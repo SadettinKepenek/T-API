@@ -14,7 +14,8 @@ namespace T_API.DAL.Concrete
 {
     public class MySqlRealDbRepository : IRealDbRepository
     {
-        // TODO CreateConnection dynamic tipte bir connection döndürüyor bunun kontrol edilmesi gerekli
+     
+
 
 
         public async Task CreateDatabaseOnRemote(string query)
@@ -94,6 +95,11 @@ namespace T_API.DAL.Concrete
             throw new NotImplementedException();
         }
 
+        /// <summary>
+        /// Veritabanının tablolarını , foreign keylerini,indexlerini,keylerini ve sütunlarını getirir.
+        /// </summary>
+        /// <param name="databaseName">Veritabanı adı</param>
+        /// <returns>Veritabanı Tabloları</returns>
         public async Task<List<Table>> GetTables(string databaseName)
         {
             using (var conn = DbConnectionFactory.CreateConnection(ConfigurationSettings.ServerDbInformation))

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Reflection;
 using System.Threading.Tasks;
 using System.Transactions;
@@ -6,7 +7,11 @@ using AutoMapper;
 using T_API.BLL.Abstract;
 using T_API.BLL.Validators.Database;
 using T_API.BLL.Validators.Table;
+using T_API.Core.DTO.Column;
 using T_API.Core.DTO.Database;
+using T_API.Core.DTO.ForeignKey;
+using T_API.Core.DTO.Index;
+using T_API.Core.DTO.Key;
 using T_API.Core.DTO.Table;
 using T_API.Core.Exception;
 using T_API.DAL.Abstract;
@@ -136,6 +141,120 @@ namespace T_API.BLL.Concrete
                 throw ExceptionHandler.HandleException(e);
             }
 
+        }
+
+        public Task CreateColumnOnRemote(AddColumnDto column)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task CreateIndexOnRemote(AddIndexDto index)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task CreateForeignKeyOnRemote(AddForeignKeyDto foreignKey)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task CreateKeyOnRemote(AddKeyDto key)
+        {
+            throw new NotImplementedException();
+        }
+
+        public async Task<List<DetailTableDto>> GetTables(string databaseName, string provider)
+        {
+            if (String.IsNullOrEmpty(databaseName))
+            {
+                throw new ArgumentNullException("databaseName","Database ismi boş gönderilemez");
+            }
+            MySqlRealDbRepository realDbRepository =
+                _realDbRepositoryFactory.CreateRepository(provider) as MySqlRealDbRepository;
+
+            if (realDbRepository==null)
+            {
+                throw new NullReferenceException("Real Db Repository Referansına Ulaşılamadı");
+            }
+
+            var result = await realDbRepository.GetTables(databaseName);
+            var mappedResults = _mapper.Map<List<DetailTableDto>>(result);
+            return mappedResults;
+        }
+
+        public async Task<DetailTableDto> GetTable(string tableName, string databaseName, string provider)
+        {
+
+            if (String.IsNullOrEmpty(databaseName))
+            {
+                throw new ArgumentNullException("databaseName", "Database ismi boş gönderilemez");
+            }
+            MySqlRealDbRepository realDbRepository =
+                _realDbRepositoryFactory.CreateRepository(provider) as MySqlRealDbRepository;
+
+            if (realDbRepository == null)
+            {
+                throw new NullReferenceException("Real Db Repository Referansına Ulaşılamadı");
+            }
+
+            var result = await realDbRepository.GetTable(tableName,databaseName);
+            var mappedResults = _mapper.Map<DetailTableDto>(result);
+            return mappedResults;
+        }
+
+        public Task<List<DetailForeignKeyDto>> GetForeignKeys(string databaseName, string provider)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<List<DetailForeignKeyDto>> GetForeignKeys(string databaseName, string tableName, string provider)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<DetailForeignKeyDto> GetForeignKey(string databaseName, string tableName, string foreignKeyName, string provider)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<List<DetailKeyDto>> GetKeys(string databaseName, string provider)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<List<DetailKeyDto>> GetKeys(string databaseName, string tableName, string provider)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<DetailKeyDto> GetKey(string databaseName, string tableName, string keyName, string provider)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<List<DetailIndexDto>> GetIndices(string databaseName, string provider)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<List<DetailIndexDto>> GetIndices(string databaseName, string tableName, string provider)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<DetailIndexDto> GetIndex(string databaseName, string tableName, string indexName, string provider)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<List<DetailColumnDto>> GetColumns(string databaseName, string tableName, string provider)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<DetailColumnDto> GetColumn(string databaseName, string tableName, string columnName, string provider)
+        {
+            throw new NotImplementedException();
         }
 
         public async Task CreateColumnOnRemote(Database database)

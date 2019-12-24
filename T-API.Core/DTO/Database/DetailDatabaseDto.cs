@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using T_API.Core.DTO.Table;
 
 namespace T_API.Core.DTO.Database
 {
@@ -17,5 +19,7 @@ namespace T_API.Core.DTO.Database
         public bool IsActive { get; set; }
         public bool IsStorageSupport { get; set; }
         public bool IsApiSupport { get; set; }
+
+        public List<DetailTableDto> Tables { get; set; }
     }
 }

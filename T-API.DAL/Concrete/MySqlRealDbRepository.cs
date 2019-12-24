@@ -124,27 +124,19 @@ namespace T_API.DAL.Concrete
                             if (tables.All(x => x.TableName != group.Key))
                             {
                                 var table = ParseTable(group);
-
                                 tables.Add(table);
                             }
                         }
-
-
-
                         return tables;
-
                     }
                     catch (Exception ex)
                     {
-                        Console.WriteLine("Commit Exception Type: {0}", ex.GetType());
-                        Console.WriteLine("  Message: {0}", ex.Message);
                         throw ExceptionHandler.HandleException(ex);
 
                     }
                 }
 
             }
-            throw new NotImplementedException();
         }
 
         private static Table ParseTable(IGrouping<string, DataRow> group)
@@ -198,6 +190,61 @@ namespace T_API.DAL.Concrete
             return table;
         }
 
+        private static Table ParseTable(DataTable dt)
+        {
+            if (dt.Rows.Count == 0)
+                return null;
+
+            Table table = new Table
+            {
+                TableName = dt.Rows[0]["TABLE_NAME"] as string
+            };
+            var groupedColumns = dt.AsEnumerable().GroupBy(row => row.Field<string>("COLUMN_NAME"));
+            //Sütun isimlerine göre gruplandırıldı şimdi sütunlar gezilecek.
+            foreach (IGrouping<string, DataRow> groupedColumn in groupedColumns)
+            {
+                #region Columns
+
+                var column = ParseColumn(groupedColumn);
+                table.Columns.Add(column);
+
+                #endregion
+
+                #region ForeignKeys
+
+                var foreignKeys = groupedColumn.Where(x => x.Field<bool>("IsForeignKey"));
+                foreach (DataRow key in foreignKeys)
+                {
+                    if (table.ForeignKeys.All(x => x.ForeignKeyName != key["CONSTRAINT_NAME"] as string))
+                    {
+                        var foreignKey = ParseForeignKey(key);
+                        table.ForeignKeys.Add(foreignKey);
+                    }
+                }
+
+                #endregion
+
+                #region UniqueKeys And Primary Keys
+
+                var uniqueKeys =
+                    groupedColumn.Where(x =>
+                        x.Field<string>("COLUMN_KEY").Equals("UNI") || x.Field<string>("COLUMN_KEY").Equals("PRI"));
+                foreach (DataRow uniqueKey in uniqueKeys)
+                {
+                    if (table.Keys.All(x => x.KeyName != uniqueKey["CONSTRAINT_NAME"] as string))
+                    {
+                        var key = ParseUniqueKey(uniqueKey);
+                        table.Keys.Add(key);
+                    }
+                }
+
+                #endregion
+            }
+
+            return table;
+        }
+
+
         private static Column ParseColumn(IGrouping<string, DataRow> groupedColumn)
         {
             var firstRow = groupedColumn.FirstOrDefault();
@@ -240,15 +287,33 @@ namespace T_API.DAL.Concrete
             key.KeyName = uniqueKeyName;
             return key;
         }
-        private Table ProcessTableEntity(DataRow dataRow)
-        {
-            string tableName = dataRow["TABLE_NAME"] as string;
-            throw new NotImplementedException();
-        }
 
-        public Task<Table> GetTable(string tableName, string databaseName)
+        public async Task<Table> GetTable(string tableName, string databaseName)
         {
-            throw new NotImplementedException();
+            using (var conn = DbConnectionFactory.CreateConnection(ConfigurationSettings.ServerDbInformation))
+            {
+
+                var cmd = conn.CreateCommand(MySqlQueryTemplates.GetTable(databaseName));
+
+                using (cmd)
+                {
+                    try
+                    {
+                        var sqlReader = cmd.ExecuteReader();
+                        DataTable dt = new DataTable();
+                        dt.Load(sqlReader);
+
+                        var table = ParseTable(dt);
+                        return table;
+                    }
+                    catch (Exception ex)
+                    {
+                        throw ExceptionHandler.HandleException(ex);
+
+                    }
+                }
+
+            }
         }
 
         public Task<List<ForeignKey>> GetForeignKeys(string databaseName)

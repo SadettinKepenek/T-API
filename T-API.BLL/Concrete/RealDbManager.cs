@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Reflection;
 using System.Threading.Tasks;
 using System.Transactions;
@@ -158,6 +159,71 @@ namespace T_API.BLL.Concrete
         }
 
         public Task CreateKeyOnRemote(AddKeyDto key)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<List<DetailTableDto>> GetTables(string databaseName)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<DetailTableDto> GetTable(string tableName, string databaseName)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<List<DetailForeignKeyDto>> GetForeignKeys(string databaseName)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<List<DetailForeignKeyDto>> GetForeignKeys(string databaseName, string tableName)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<DetailForeignKeyDto> GetForeignKey(string databaseName, string tableName, string foreignKeyName)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<List<DetailKeyDto>> GetKeys(string databaseName)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<List<DetailKeyDto>> GetKeys(string databaseName, string tableName)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<DetailKeyDto> GetKey(string databaseName, string tableName, string keyName)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<List<DetailIndexDto>> GetIndices(string databaseName)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<List<DetailIndexDto>> GetIndices(string databaseName, string tableName)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<DetailIndexDto> GetIndex(string databaseName, string tableName, string indexName)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<List<DetailColumnDto>> GetColumns(string databaseName, string tableName)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<DetailColumnDto> GetColumn(string databaseName, string tableName, string columnName)
         {
             throw new NotImplementedException();
         }

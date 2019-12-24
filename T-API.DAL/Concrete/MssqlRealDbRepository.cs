@@ -25,5 +25,20 @@ namespace T_API.DAL.Concrete
         {
             throw new System.NotImplementedException();
         }
+
+        public Task CreateIndexOnRemote(string query)
+        {
+            throw new System.NotImplementedException();
+        }
+
+        public Task CreateForeignKeyOnRemote(string query)
+        {
+            throw new System.NotImplementedException();
+        }
+
+        public Task CreateKeyOnRemote(string query)
+        {
+            throw new System.NotImplementedException();
+        }
     }
 }

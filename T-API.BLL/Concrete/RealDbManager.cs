@@ -6,7 +6,11 @@ using AutoMapper;
 using T_API.BLL.Abstract;
 using T_API.BLL.Validators.Database;
 using T_API.BLL.Validators.Table;
+using T_API.Core.DTO.Column;
 using T_API.Core.DTO.Database;
+using T_API.Core.DTO.ForeignKey;
+using T_API.Core.DTO.Index;
+using T_API.Core.DTO.Key;
 using T_API.Core.DTO.Table;
 using T_API.Core.Exception;
 using T_API.DAL.Abstract;
@@ -136,6 +140,26 @@ namespace T_API.BLL.Concrete
                 throw ExceptionHandler.HandleException(e);
             }
 
+        }
+
+        public Task CreateColumnOnRemote(AddColumnDto column)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task CreateIndexOnRemote(AddIndexDto index)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task CreateForeignKeyOnRemote(AddForeignKeyDto foreignKey)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task CreateKeyOnRemote(AddKeyDto key)
+        {
+            throw new NotImplementedException();
         }
 
         public async Task CreateColumnOnRemote(Database database)

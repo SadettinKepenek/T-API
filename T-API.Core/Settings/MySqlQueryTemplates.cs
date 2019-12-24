@@ -14,6 +14,7 @@ namespace T_API.Core.Settings
                            "COLUMNS.IS_NULLABLE," +
                            "COLUMNS.CHARACTER_MAXIMUM_LENGTH," +
                            "COLUMNS.NUMERIC_PRECISION," +
+                           "COLUMNS.EXTRA,"+
                            "IF(COLUMNS.NUMERIC_PRECISION IS NULL, false, true) AS IsNumeric," +
                            "COLUMNS.COLUMN_KEY," +
                            "KEY_COLUMN_USAGE.CONSTRAINT_NAME," +
@@ -40,6 +41,7 @@ namespace T_API.Core.Settings
                            "COLUMNS.IS_NULLABLE," +
                            "COLUMNS.CHARACTER_MAXIMUM_LENGTH," +
                            "COLUMNS.NUMERIC_PRECISION," +
+                           "COLUMNS.EXTRA," +
                            "IF(COLUMNS.NUMERIC_PRECISION IS NULL, false, true) AS IsNumeric," +
                            "COLUMNS.COLUMN_KEY," +
                            "KEY_COLUMN_USAGE.CONSTRAINT_NAME," +
@@ -66,6 +68,7 @@ namespace T_API.Core.Settings
                            "COLUMNS.IS_NULLABLE," +
                            "COLUMNS.CHARACTER_MAXIMUM_LENGTH," +
                            "COLUMNS.NUMERIC_PRECISION," +
+                           "COLUMNS.EXTRA," +
                            "IF(COLUMNS.NUMERIC_PRECISION IS NULL, false, true) AS IsNumeric," +
                            "COLUMNS.COLUMN_KEY," +
                            "KEY_COLUMN_USAGE.CONSTRAINT_NAME," +

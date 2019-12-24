@@ -1,9 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Linq;
 using System.Threading.Tasks;
-using System.Transactions;
-using MySql.Data.MySqlClient;
 using T_API.Core.DAL.Concrete;
 using T_API.Core.Exception;
 using T_API.Core.Settings;
@@ -16,11 +15,6 @@ namespace T_API.DAL.Concrete
     public class MySqlRealDbRepository : IRealDbRepository
     {
         // TODO CreateConnection dynamic tipte bir connection döndürüyor bunun kontrol edilmesi gerekli
-
-
-        public MySqlRealDbRepository()
-        {
-        }
 
 
         public async Task CreateDatabaseOnRemote(string query)
@@ -82,7 +76,7 @@ namespace T_API.DAL.Concrete
         [Obsolete("Method daha eklenmedi lütfen daha sonra tekrar bakın.")]
         public Task CreateColumnOnRemote(string query)
         {
-            throw new System.NotImplementedException();
+            throw new NotImplementedException();
         }
 
         public Task CreateIndexOnRemote(string query)
@@ -100,19 +94,45 @@ namespace T_API.DAL.Concrete
             throw new NotImplementedException();
         }
 
-        public Task<List<Table>> GetTables(string databaseName)
+        public async Task<List<Table>> GetTables(string databaseName)
         {
             using (var conn = DbConnectionFactory.CreateConnection(ConfigurationSettings.ServerDbInformation))
             {
 
 
-                var cmd = conn.CreateCommand("");
+                var cmd = conn.CreateCommand(MySqlQueryTemplates.GetTable(databaseName));
 
                 using (cmd)
                 {
                     try
                     {
-                        cmd.ExecuteNonQuery();
+                        var sqlReader = cmd.ExecuteReader();
+                        DataTable dt = new DataTable();
+                        dt.Load(sqlReader);
+                        List<Table> tables = new List<Table>();
+
+
+                        if (dt.Rows.Count == 0)
+                        {
+                            return tables;
+                        }
+
+                        var groupedTables = dt.AsEnumerable().GroupBy(row => row.Field<string>("TABLE_NAME"));
+                        foreach (var group in groupedTables)
+                        {
+
+                            if (tables.All(x => x.TableName != group.Key))
+                            {
+                                var table = ParseTable(group);
+
+                                tables.Add(table);
+                            }
+                        }
+
+
+
+                        return tables;
+
                     }
                     catch (Exception ex)
                     {
@@ -124,6 +144,105 @@ namespace T_API.DAL.Concrete
                 }
 
             }
+            throw new NotImplementedException();
+        }
+
+        private static Table ParseTable(IGrouping<string, DataRow> group)
+        {
+            Table table = new Table
+            {
+                TableName = group.Key
+            };
+            var groupedColumns = group.AsEnumerable().GroupBy(row => row.Field<string>("COLUMN_NAME"));
+            //Sütun isimlerine göre gruplandırıldı şimdi sütunlar gezilecek.
+            foreach (IGrouping<string, DataRow> groupedColumn in groupedColumns)
+            {
+                #region Columns
+
+                var column = ParseColumn(groupedColumn);
+                table.Columns.Add(column);
+
+                #endregion
+
+                #region ForeignKeys
+
+                var foreignKeys = groupedColumn.Where(x => x.Field<bool>("IsForeignKey"));
+                foreach (DataRow key in foreignKeys)
+                {
+                    if (table.ForeignKeys.All(x => x.ForeignKeyName != key["CONSTRAINT_NAME"] as string))
+                    {
+                        var foreignKey = ParseForeignKey(key);
+                        table.ForeignKeys.Add(foreignKey);
+                    }
+                }
+
+                #endregion
+
+                #region UniqueKeys And Primary Keys
+
+                var uniqueKeys =
+                    groupedColumn.Where(x =>
+                        x.Field<string>("COLUMN_KEY").Equals("UNI") || x.Field<string>("COLUMN_KEY").Equals("PRI"));
+                foreach (DataRow uniqueKey in uniqueKeys)
+                {
+                    if (table.Keys.All(x => x.KeyName != uniqueKey["CONSTRAINT_NAME"] as string))
+                    {
+                        var key = ParseUniqueKey(uniqueKey);
+                        table.Keys.Add(key);
+                    }
+                }
+
+                #endregion
+            }
+
+            return table;
+        }
+
+        private static Column ParseColumn(IGrouping<string, DataRow> groupedColumn)
+        {
+            var firstRow = groupedColumn.FirstOrDefault();
+            Column column = new Column
+            {
+                DefaultValue = firstRow["COLUMN_DEFAULT"],
+                ColumnName = firstRow["COLUMN_NAME"] as string,
+                DataLength = Convert.ToInt32(firstRow["CHARACTER_MAXIMUM_LENGTH"] != DBNull.Value
+                    ? firstRow["CHARACTER_MAXIMUM_LENGTH"]
+                    : 0),
+                DataType = firstRow["COLUMN_TYPE"] as string,
+                HasLength = firstRow["CHARACTER_MAXIMUM_LENGTH"] != DBNull.Value,
+                NotNull = Convert.ToBoolean(firstRow["IS_NULLABLE"]),
+                TableName = firstRow["TABLE_NAME"] as string,
+                PrimaryKey = groupedColumn.Any(x => x.Field<string>("COLUMN_KEY").Equals("PRI")),
+                Unique = groupedColumn.Any(x => x.Field<string>("COLUMN_KEY").Equals("UNI")),
+                AutoInc = groupedColumn.Any(x => x.Field<string>("EXTRA").Contains("auto_increment"))
+            };
+            return column;
+        }
+
+        private static ForeignKey ParseForeignKey(DataRow key)
+        {
+            ForeignKey foreignKey = new ForeignKey();
+            foreignKey.ForeignKeyName = key["CONSTRAINT_NAME"] as string;
+            foreignKey.TargetColumn = key["REFERENCED_COLUMN_NAME"] as string;
+            foreignKey.SourceTable = key["TABLE_NAME"] as string;
+            foreignKey.TargetTable = key["REFERENCED_TABLE_NAME"] as string;
+            foreignKey.SourceColumn = key["COLUMN_NAME"] as string;
+            return foreignKey;
+        }
+
+        private static Key ParseUniqueKey(DataRow uniqueKey)
+        {
+            Key key = new Key();
+            var uniqueKeyName = uniqueKey["CONSTRAINT_NAME"] as string;
+            key.TableName = uniqueKey["TABLE_NAME"] as string;
+            key.IsPrimary = uniqueKey["COLUMN_KEY"].Equals("PRI");
+            key.KeyColumn = uniqueKey["COLUMN_NAME"] as string;
+            key.KeyName = uniqueKeyName;
+            return key;
+        }
+        private Table ProcessTableEntity(DataRow dataRow)
+        {
+            string tableName = dataRow["TABLE_NAME"] as string;
             throw new NotImplementedException();
         }
 

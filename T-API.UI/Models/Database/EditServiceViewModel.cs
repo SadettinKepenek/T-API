@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections.ObjectModel;
 using System.ComponentModel.DataAnnotations;
+using T_API.Core.DTO.Table;
 
 namespace T_API.UI.Models.Database
 {
@@ -26,5 +28,7 @@ namespace T_API.UI.Models.Database
         public bool IsApiSupport { get; set; }
         public DateTime StartDate { get; set; }
         public DateTime EndDate { get; set; }
+
+        public ObservableCollection<DetailTableDto> Tables { get; set; }
     }
 }

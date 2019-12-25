@@ -14,6 +14,7 @@
 
 <script src="~/lib/jquery/dist/jquery.min.js"></script>
 <script src="~/js/DatabaseCrud.js"></script>
+<script src="~/js/DataTransferObjects.js"></script>
 
 
 
@@ -87,15 +88,37 @@
             </div>
             <div class="modal-body">
                 <form id="addColumnForm">
+                    <h5>Column Info</h5>
+
                     <div class="form-group">
-                        <input id="tableName" placeholder="Column Name" class="form-control" required="required" />
+                        <input id="columnName" placeholder="Column Name" class="form-control" required="required" />
                     </div>
                     <div class="form-group">
-                        <select class="custom-select"  required="required" id="columnTypesSelect">
+                        <select class="custom-select" required="required" id="columnTypesSelect">
                             <option selected disabled="disabled">Column Data Type</option>
-                          
                         </select>
                     </div>
+                    <div class="form-group">
+                        <input id="dataLength" placeholder="Data Length" type="number" class="form-control" required="required" />
+                    </div>
+                    <h5>Column Attributes</h5>
+                    <div class=" custom-control custom-checkbox">
+                        <input type="checkbox" class="custom-control-input form-control" id="isPrimary">
+                        <label class="custom-control-label" for="isPrimary">Is Primary</label>
+                    </div>
+                    <div class=" custom-control custom-checkbox">
+                        <input type="checkbox" class="custom-control-input form-control" id="isAutoInc">
+                        <label class="custom-control-label" for="isAutoInc">Is Auto Increment</label>
+                    </div>
+                    <div class="custom-control custom-checkbox">
+                        <input type="checkbox" class="custom-control-input form-control" id="isUnique">
+                        <label class="custom-control-label" for="isUnique">Is Unique</label>
+                    </div>
+                    <div class="custom-control custom-checkbox">
+                        <input type="checkbox" class="custom-control-input form-control" id="isNotNull">
+                        <label class="custom-control-label" for="isNotNull">Is Not Null</label>
+                    </div>
+
                 </form>
 
             </div>
@@ -118,10 +141,17 @@
         $('#addColumnModal').on('shown.bs.modal', function (e) {
             console.log('shown');
             getDataTypes('@Model.Provider');
+            var addColumnDto = new AddColumnDto('test');
+            window.addColumnDto=addColumnDto
+
         });
+
+        $('#columnName').on('input',
+            function () {
+                window.addColumnDto.columnName = $('#columnName').val();
+            });
         $('#addColumnModalSubmit').click(function (e) {
             e.preventDefault();
-            
         });
     });
 

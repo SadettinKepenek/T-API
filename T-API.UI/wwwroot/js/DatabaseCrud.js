@@ -1,5 +1,6 @@
 ﻿window.tableCount = 0;
 
+
 var parseTables = function parseTables(table) {
 
     var tabTables = $('#v-pills-tab-tables');
@@ -137,7 +138,6 @@ var getDataTypes = function getDataTypes(provider) {
         type: 'GET',
         success: function (data, textStatus, xhr) {
             data.forEach(function (d) {
-                console.log(d);
                 $('#columnTypesSelect').append($('<option>',
                     {
                         value: d,

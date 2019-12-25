@@ -95,11 +95,10 @@ namespace T_API.DAL.Concrete
             throw new NotImplementedException();
         }
 
-        public async Task ExecuteQueryOnRemote(string query)
+        public async Task ExecuteQueryOnRemote(string query,DbInformation dbInformation)
         {
-            using (var conn = DbConnectionFactory.CreateConnection(ConfigurationSettings.ServerDbInformation))
+            using (var conn = DbConnectionFactory.CreateConnection(dbInformation))
             {
-
 
                 var cmd = conn.CreateCommand(query);
 

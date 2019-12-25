@@ -89,8 +89,13 @@
             <div class="modal-body">
                 <form id="addColumnForm">
 
+                    <h5>Provider Info</h5>
+                    <input id="providerInfo" placeholder="Provider Info" readonly="readonly" class="form-control" />
+                    <hr />
+
+
                     <h5>Table Info</h5>
-                    <input id="tableName" placeholder="Table Name" readonly="readonly" class="form-control"/>
+                    <input id="tableName" placeholder="Table Name" readonly="readonly" class="form-control" />
                     <hr />
 
                     <h5>Column Info</h5>
@@ -108,7 +113,7 @@
                     <div class="form-group">
                         <input id="defaultValue" placeholder="Default Value" class="form-control" />
                     </div>
-                    <hr/>
+                    <hr />
                     <h5>Column Attributes</h5>
                     <div class=" custom-control custom-checkbox">
                         <input type="checkbox" class="custom-control-input form-control" id="isPrimary">
@@ -147,18 +152,18 @@
     $(document).ready(function () {
         getDatabase(@Model.DatabaseId);
         $('#addColumnModal').on('shown.bs.modal', function (e) {
-            getDataTypes('@Model.Provider');
             $('#addColumnForm').trigger('reset');
-            window.addColumnDto = new AddColumnDto();
+            getDataTypes('@Model.Provider');
+
+            window.addColumnDto = new AddColumnDto(parseInt(@Model.DatabaseId),'@Model.Provider');
             var tableName = $(e.relatedTarget).data('id');
-            window.addColumnDto.tableName =tableName ;
+            window.addColumnDto.TableName = tableName;
             $('#tableName').val(tableName);
+            $('#providerInfo').val('@Model.Provider');
         });
 
 
-        $('#addColumnModalSubmit').click(function (e) {
-            e.preventDefault();
-        });
+
     });
 
 

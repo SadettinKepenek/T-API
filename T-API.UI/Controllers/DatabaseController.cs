@@ -7,6 +7,7 @@ using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using T_API.BLL.Abstract;
+using T_API.Core.DTO.Column;
 using T_API.Core.DTO.Database;
 using T_API.Core.DTO.Table;
 using T_API.Core.Exception;
@@ -134,16 +135,22 @@ namespace T_API.UI.Controllers
 
 
 
-
-        [HttpPost("", Name = "AddTable")]
-        public async Task<IActionResult> AddTable([FromBody] AddTableDto addTableDto)
+        [HttpPost]
+        public async Task<IActionResult> AddColumn(AddColumnDto model)
         {
-            if (!ModelState.IsValid)
+
+            if (model == null)
+                return BadRequest("Gönderilen veri boş");
+            try
             {
-                return BadRequest(addTableDto);
+                await _realDbService.CreateColumnOnRemote(model);
+                return Ok();
             }
-            await _realDbService.CreateTableOnRemote(addTableDto);
-            return Ok();
+            catch (Exception e)
+            {
+                return BadRequest(e.Message+"\n"+e.StackTrace);
+            }
+         
         }
 
         [HttpGet]

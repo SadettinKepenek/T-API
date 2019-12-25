@@ -1,14 +1,18 @@
 ﻿class AddColumnDto {
-    tableName = null;
-    columnName = null;
-    dataType = null;
-    dataLength = null;
-    notNull = null;
-    autoInc = null;
-    unique = null;
-    primaryKey = null;
-    defaultValue = null;
-    hasLength=null;
-    constructor() {
+    TableName = null;
+    ColumnName = null;
+    DataType = null;
+    DataLength = null;
+    NotNull = null;
+    AutoInc = null;
+    Unique = null;
+    PrimaryKey = null;
+    DefaultValue = null;
+    HasLength = null;
+    DatabaseId = null;
+    Provider='';
+    constructor(databaseId,provider) {
+        this.DatabaseId = databaseId;
+        this.Provider = provider;
     }
 }

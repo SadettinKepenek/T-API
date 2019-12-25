@@ -5,6 +5,7 @@
         public string ColumnName { get; set; }
         public string TableName { get; set; }
 
+        public int DatabaseId { get; set; }
         public string DataType { get; set; }
         public int DataLength { get; set; }
         public bool NotNull { get; set; }
@@ -15,5 +16,10 @@
 
         public bool HasLength { get; set; }
         public string Provider { get; set; }
+
+        public AddColumnDto()
+        {
+            
+        }
     }
 }

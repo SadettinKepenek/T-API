@@ -47,7 +47,6 @@ namespace T_API.BLL.Concrete
                 throw ExceptionHandler.HandleException(e);
             }
         }
-
         public async Task<List<ListDatabaseDto>> GetByUser(int userId)
         {
             try
@@ -71,7 +70,6 @@ namespace T_API.BLL.Concrete
                 throw ExceptionHandler.HandleException(e);
             }
         }
-
         public async Task<List<ListDatabaseDto>> GetByUser(string username)
         {
             try
@@ -94,7 +92,6 @@ namespace T_API.BLL.Concrete
                 throw ExceptionHandler.HandleException(e);
             }
         }
-
 
         public async Task<DetailDatabaseDto> GetById(int databaseId)
         {

@@ -8,6 +8,7 @@ using T_API.BLL.Abstract;
 using T_API.BLL.Validators.Column;
 using T_API.BLL.Validators.Database;
 using T_API.BLL.Validators.Table;
+using T_API.Core.DAL.Concrete;
 using T_API.Core.DTO.Column;
 using T_API.Core.DTO.Database;
 using T_API.Core.DTO.ForeignKey;
@@ -24,14 +25,16 @@ namespace T_API.BLL.Concrete
     public class RealDbManager : IRealDbService
     {
         private IRealDbRepositoryFactory _realDbRepositoryFactory;
+        private IDatabaseRepository _databaseRepository;
         private IMapper _mapper;
 
         //Factory Design Pattern
 
-        public RealDbManager(IRealDbRepositoryFactory realDbRepositoryFactory, IMapper mapper)
+        public RealDbManager(IRealDbRepositoryFactory realDbRepositoryFactory, IMapper mapper, IDatabaseRepository databaseRepository)
         {
             _realDbRepositoryFactory = realDbRepositoryFactory;
             _mapper = mapper;
+            _databaseRepository = databaseRepository;
         }
 
         public async Task CreateDatabaseOnRemote(AddDatabaseDto database)
@@ -176,7 +179,23 @@ namespace T_API.BLL.Concrete
                                 if (realDbRepository != null)
                                 {
                                     using TransactionScope scope = new TransactionScope();
-                                    await realDbRepository.ExecuteQueryOnRemote(command);
+
+
+                                    var db = await _databaseRepository.GetById(column.DatabaseId);
+                                    if (db == null)
+                                    {
+                                        throw new NullReferenceException("Database bulunamadı");
+                                    }
+                                    DbInformation dbInformation = new DbInformation
+                                    {
+                                        Database = db.DatabaseName,
+                                        Provider = db.Provider,
+                                        Username = db.Username,
+                                        Port = db.Port,
+                                        Server = db.Server,
+                                        Password = db.Password
+                                    };
+                                    await realDbRepository.ExecuteQueryOnRemote(command, dbInformation);
                                     scope.Complete();
                                 }
                                 else

@@ -105,6 +105,8 @@ $(document).ready(function () {
 
 });
 
+
+
 var getDatabase = function getDatabase(databaseId) {
     var tabTables = $('#v-pills-tab-tables');
     var tableContent = $('#v-pills-tabContent-tables');
@@ -133,7 +135,6 @@ var getDatabase = function getDatabase(databaseId) {
 };
 
 var getDataTypes = function getDataTypes(provider) {
-    console.log(provider);
     $.ajax({
         url: 'https://localhost:44383/Database/GetDataTypes?provider=' + provider,
         type: 'GET',
@@ -162,11 +163,23 @@ var getDataTypes = function getDataTypes(provider) {
 };
 
 
+
 var prepareInputChangeEvents = function prepareInputChangeEvents() {
     $('#dataLength').fadeOut();
 
 
-  
+    $('#addColumnModalSubmit').click(function (e) {
+        e.preventDefault();
+        if (window.addColumnDto === null) {
+            $('#errorModalTitle').text('Hata!');
+            $('#errorModalBodyText').text('Herhangi bir veri gönderilmedi..!');
+            $('#errorModal').modal('show');
+        }
+
+
+
+        addColumn(window.addColumnDto);
+    });
 
 
     $('#columnName').on('input', function () {
@@ -174,52 +187,74 @@ var prepareInputChangeEvents = function prepareInputChangeEvents() {
             alert('Lütfen Sütun isimlerinde boşluk bırakmayınız');
 
             $('#columnName').val(this.value.replace(/\s/g, ''));
-            window.addColumnDto.columnName = $('#columnName').val();
+            window.addColumnDto.ColumnName = $('#columnName').val();
         } else {
-            window.addColumnDto.columnName = $('#columnName').val();
+            window.addColumnDto.ColumnName = $('#columnName').val();
         }
     });
     $('#columnTypesSelect').on('change', function (e) {
-        window.addColumnDto.dataType = this.value;
+        window.addColumnDto.DataType = this.value;
 
         if (this.value === 'char' ||
             this.value === 'varchar' ||
             this.value.search('text') >= 0) {
             $('#dataLength').fadeIn();
-            window.addColumnDto.hasLength = true;
+            window.addColumnDto.HasLength = true;
             //
         } else {
             $('#dataLength').fadeOut();
-            window.addColumnDto.hasLength = false;
+            window.addColumnDto.HasLength = false;
         }
 
     });
 
     $('#isPrimary').on('change', function () {
-        window.addColumnDto.primaryKey = this.checked;
+        window.addColumnDto.PrimaryKey = this.checked;
     });
 
     $('#isAutoInc').on('change', function () {
-        window.addColumnDto.autoInc = this.checked;
+        window.addColumnDto.AutoInc = this.checked;
     });
 
     $('#isNotNull').on('change', function () {
-        window.addColumnDto.notNull = this.checked;
+        window.addColumnDto.NotNull = this.checked;
     });
     $('#isUnique').on('change', function () {
-        window.addColumnDto.unique = this.checked;
+        window.addColumnDto.Unique = this.checked;
     });
     $('#defaultValue').on('change', function () {
-        window.addColumnDto.defaultValue = this.value;
+        window.addColumnDto.DefaultValue = this.value;
     });
     $('#dataLength').on('change', function () {
-        if (window.addColumnDto.hasLength === false) {
+        if (window.addColumnDto.HasLength === false) {
             alert('Bu tip için length girilemez');
         } else {
-            window.addColumnDto.dataLength = parseInt(this.value);
+            window.addColumnDto.DataLength = parseInt(this.value);
         }
     });
 
 
 
+};
+
+var addColumn = function addColumn(columnObj) {
+    console.log(JSON.stringify(columnObj));
+
+    $.ajax({
+        type: 'POST',
+        beforeSend: function(request) {
+            request.setRequestHeader("Content-Type", "application/json");
+        },
+        url: 'https://localhost:44383/Database/AddColumn',
+        data: JSON.stringify(columnObj),
+        dataType: 'JSON',
+        contentType: "application/json",
+        success: function (data) {
+            console.log(data);
+            getDatabase(columnObj.DatabaseId);
+        },
+        failure: function (errMsg) {
+            alert(errMsg);
+        }
+    });
 };

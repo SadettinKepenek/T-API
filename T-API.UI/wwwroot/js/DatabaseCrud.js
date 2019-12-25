@@ -1,11 +1,7 @@
 ﻿window.tableCount = 0;
-var getDataTypes = function getDataTypes() {
 
-};
+var parseTables = function parseTables(table) {
 
-var addTableContainer = function addTable(object) {
-
-    var table = JSON.parse(object);
     var tabTables = $('#v-pills-tab-tables');
     var tableContent = $('#v-pills-tabContent-tables');
 
@@ -74,7 +70,6 @@ var addTableContainer = function addTable(object) {
             tableContentString += '</div>';
             tableContentString += '<div class="col-md-2">';
             tableContentString += column.defaultValue;
-            console.log(column.defaultValue);
             tableContentString += '</div>';
             tableContentString += '<div class="col-md-2">';
             tableContentString += column.primaryKey;
@@ -97,3 +92,70 @@ var addTableContainer = function addTable(object) {
 
 };
 
+
+$(document).ready(function () {
+    // Change Table Count
+    $("body").on('DOMSubtreeModified', "#v-pills-tab-tables", function () {
+        window.tableCount = $('#v-pills-tab-tables').children().length;
+    });
+
+
+
+});
+
+var getDatabase = function getDatabase(databaseId) {
+    var tabTables = $('#v-pills-tab-tables');
+    var tableContent = $('#v-pills-tabContent-tables');
+    tabTables.empty();
+    tableContent.empty();
+
+    $.ajax({
+        url: 'https://localhost:44383/Database/GetDatabase?databaseId=' + databaseId,
+        type: 'GET',
+        success: function (data, textStatus, xhr) {
+            parseTables(data.tables);
+        },
+        complete: function (xhr, textStatus) {
+
+        }
+    }).done(function (result) {
+
+    }).fail(function (jqXHR, textStatus, error) {
+        $('#errorModalTitle').text('Hata!');
+        $('#errorModalBodyText').text('Veritabanı yüklenirken hata oluştu lütfen daha sonra tekrar deneyiniz..!');
+        $('#errorModal').modal('show');
+        $('#errorModal').on('hidden.bs.modal', function (e) {
+            window.location.replace("https://localhost:44383/Database/");
+        });
+    });
+};
+
+var getDataTypes = function getDataTypes(provider) {
+    console.log(provider);
+    $.ajax({
+        url: 'https://localhost:44383/Database/GetDataTypes?provider=' + provider,
+        type: 'GET',
+        success: function (data, textStatus, xhr) {
+            data.forEach(function (d) {
+                console.log(d);
+                $('#columnTypesSelect').append($('<option>',
+                    {
+                        value: d,
+                        text:d
+                    }));
+            });
+        },
+        complete: function (xhr, textStatus) {
+        }
+    }).done(function (result) {
+        // do something
+    }).fail(function (jqXHR, textStatus, error) {
+        $('#errorModalTitle').text('Hata!');
+        $('#errorModalBodyText').text('Veri Tipleri yüklenirken hata oluştu lütfen daha sonra tekrar deneyiniz..!');
+        $('#errorModal').modal('show');
+        $('#errorModal').on('hidden.bs.modal', function (e) {
+            window.location.replace("https://localhost:44383/Database/");
+        });
+    });
+
+};

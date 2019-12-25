@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Mvc;
 using T_API.BLL.Abstract;
 using T_API.Core.DTO.Database;
 using T_API.Core.DTO.Table;
+using T_API.Core.Exception;
 using T_API.Core.Settings;
 using T_API.UI.Models.Database;
 
@@ -117,10 +118,9 @@ namespace T_API.UI.Controllers
             return View(model);
         }
 
-     
 
 
-        [HttpGet("{provider}", Name = "GetDataTypes")]
+
         public async Task<IActionResult> GetDataTypes(string provider)
         {
             var dataTypes = await _databaseService.GetDataTypes(provider: provider);
@@ -144,6 +144,38 @@ namespace T_API.UI.Controllers
             }
             await _realDbService.CreateTableOnRemote(addTableDto);
             return Ok();
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetDatabase(int databaseId)
+        {
+            try
+            {
+                var database = await _databaseService.GetById(databaseId);
+                if (database == null)
+                {
+                    return NoContent();
+                }
+
+                var userId = Convert.ToInt32(HttpContext.User.Claims
+                    .FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)
+                    ?.Value);
+                
+                if (database.UserId != userId)
+                {
+                    return BadRequest("User Id uyuşmuyor");
+                }
+
+
+                //model.UserId = Convert.ToInt32(HttpContext.User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value);
+
+                return Ok(database);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.StackTrace);
+            }
+          
         }
 
 

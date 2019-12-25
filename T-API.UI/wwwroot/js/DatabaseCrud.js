@@ -99,7 +99,7 @@ $(document).ready(function () {
     $("body").on('DOMSubtreeModified', "#v-pills-tab-tables", function () {
         window.tableCount = $('#v-pills-tab-tables').children().length;
     });
-
+    prepareInputChangeEvents();
 
 
 });
@@ -141,7 +141,7 @@ var getDataTypes = function getDataTypes(provider) {
                 $('#columnTypesSelect').append($('<option>',
                     {
                         value: d,
-                        text:d
+                        text: d
                     }));
             });
         },
@@ -157,5 +157,18 @@ var getDataTypes = function getDataTypes(provider) {
             window.location.replace("https://localhost:44383/Database/");
         });
     });
+
+};
+
+
+var prepareInputChangeEvents = function prepareInputChangeEvents() {
+    $('#columnName').on('input', function () {
+        window.addColumnDto.columnName = $('#columnName').val();
+    });
+    $('#columnTypesSelect').on('change', function (e) {
+        window.addColumnDto.dataType = this.value;
+    });
+
+
 
 };

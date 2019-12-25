@@ -139,17 +139,11 @@
     $(document).ready(function () {
         getDatabase(@Model.DatabaseId);
         $('#addColumnModal').on('shown.bs.modal', function (e) {
-            console.log('shown');
             getDataTypes('@Model.Provider');
-            var addColumnDto = new AddColumnDto('test');
-            window.addColumnDto=addColumnDto
-
+            window.addColumnDto = new AddColumnDto();
         });
 
-        $('#columnName').on('input',
-            function () {
-                window.addColumnDto.columnName = $('#columnName').val();
-            });
+
         $('#addColumnModalSubmit').click(function (e) {
             e.preventDefault();
         });

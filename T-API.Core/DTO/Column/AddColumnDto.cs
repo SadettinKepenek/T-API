@@ -14,5 +14,6 @@
         public object DefaultValue { get; set; }
 
         public bool HasLength { get; set; }
+        public string Provider { get; set; }
     }
 }

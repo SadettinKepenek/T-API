@@ -14,7 +14,7 @@ namespace T_API.DAL.Concrete
 {
     public class MySqlRealDbRepository : IRealDbRepository
     {
-     
+
 
 
 
@@ -95,6 +95,32 @@ namespace T_API.DAL.Concrete
             throw new NotImplementedException();
         }
 
+        public async Task ExecuteQueryOnRemote(string query)
+        {
+            using (var conn = DbConnectionFactory.CreateConnection(ConfigurationSettings.ServerDbInformation))
+            {
+
+
+                var cmd = conn.CreateCommand(query);
+
+                using (cmd)
+                {
+                    try
+                    {
+                        cmd.ExecuteNonQuery();
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine("Commit Exception Type: {0}", ex.GetType());
+                        Console.WriteLine("  Message: {0}", ex.Message);
+                        throw ExceptionHandler.HandleException(ex);
+
+                    }
+                }
+
+            }
+        }
+
         /// <summary>
         /// Veritabanının tablolarını , foreign keylerini,indexlerini,keylerini ve sütunlarını getirir.
         /// </summary>
@@ -164,7 +190,7 @@ namespace T_API.DAL.Concrete
 
                 #region ForeignKeys
 
-                var foreignKeys = groupedColumn.Where(x => x.Field<long>("IsForeignKey")==1);
+                var foreignKeys = groupedColumn.Where(x => x.Field<long>("IsForeignKey") == 1);
                 foreach (DataRow key in foreignKeys)
                 {
                     if (table.ForeignKeys.All(x => x.ForeignKeyName != key["CONSTRAINT_NAME"] as string))

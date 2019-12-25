@@ -20,6 +20,7 @@ namespace T_API.DAL.Abstract
         Task CreateForeignKeyOnRemote(string query);
         Task CreateKeyOnRemote(string query);
 
+        Task ExecuteQueryOnRemote(string query);
 
         Task<List<Table>> GetTables(string databaseName);
         Task<Table> GetTable(string tableName, string databaseName);

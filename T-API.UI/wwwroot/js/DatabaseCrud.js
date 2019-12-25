@@ -52,7 +52,8 @@ var parseTables = function parseTables(table) {
             ' class="btn btn-info btn-sm"' +
             ' style="margin-bottom: 5px"' +
             ' data-toggle="modal" ' +
-            'data-target="#addColumnModal">';
+            ' data-id=' + table.tableName +
+            ' data-target="#addColumnModal">';
         tableContentString += 'Add Column';
         tableContentString += '</button>';
         tableContentString += '</div>';
@@ -162,11 +163,61 @@ var getDataTypes = function getDataTypes(provider) {
 
 
 var prepareInputChangeEvents = function prepareInputChangeEvents() {
+    $('#dataLength').fadeOut();
+
+
+  
+
+
     $('#columnName').on('input', function () {
-        window.addColumnDto.columnName = $('#columnName').val();
+        if (this.value.search(' ') >= 0) {
+            alert('Lütfen Sütun isimlerinde boşluk bırakmayınız');
+
+            $('#columnName').val(this.value.replace(/\s/g, ''));
+            window.addColumnDto.columnName = $('#columnName').val();
+        } else {
+            window.addColumnDto.columnName = $('#columnName').val();
+        }
     });
     $('#columnTypesSelect').on('change', function (e) {
         window.addColumnDto.dataType = this.value;
+
+        if (this.value === 'char' ||
+            this.value === 'varchar' ||
+            this.value.search('text') >= 0) {
+            $('#dataLength').fadeIn();
+            window.addColumnDto.hasLength = true;
+            //
+        } else {
+            $('#dataLength').fadeOut();
+            window.addColumnDto.hasLength = false;
+        }
+
+    });
+
+    $('#isPrimary').on('change', function () {
+        window.addColumnDto.primaryKey = this.checked;
+    });
+
+    $('#isAutoInc').on('change', function () {
+        window.addColumnDto.autoInc = this.checked;
+    });
+
+    $('#isNotNull').on('change', function () {
+        window.addColumnDto.notNull = this.checked;
+    });
+    $('#isUnique').on('change', function () {
+        window.addColumnDto.unique = this.checked;
+    });
+    $('#defaultValue').on('change', function () {
+        window.addColumnDto.defaultValue = this.value;
+    });
+    $('#dataLength').on('change', function () {
+        if (window.addColumnDto.hasLength === false) {
+            alert('Bu tip için length girilemez');
+        } else {
+            window.addColumnDto.dataLength = parseInt(this.value);
+        }
     });
 
 

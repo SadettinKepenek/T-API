@@ -43,6 +43,11 @@ namespace T_API.DAL.Concrete
             throw new System.NotImplementedException();
         }
 
+        public Task ExecuteQueryOnRemote(string query)
+        {
+            throw new System.NotImplementedException();
+        }
+
         public Task<List<Table>> GetTables(string databaseName)
         {
             throw new System.NotImplementedException();

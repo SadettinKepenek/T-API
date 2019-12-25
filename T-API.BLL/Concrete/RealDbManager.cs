@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using System.Transactions;
 using AutoMapper;
 using T_API.BLL.Abstract;
+using T_API.BLL.Validators.Column;
 using T_API.BLL.Validators.Database;
 using T_API.BLL.Validators.Table;
 using T_API.Core.DTO.Column;
@@ -107,7 +108,7 @@ namespace T_API.BLL.Concrete
                                     _realDbRepositoryFactory.CreateRepository(table.Provider) as MySqlRealDbRepository;
                                 if (realDbRepository != null)
                                 {
-                                    using TransactionScope scope=new TransactionScope();
+                                    using TransactionScope scope = new TransactionScope();
                                     await realDbRepository.CreateTableOnRemote(command);
                                     scope.Complete();
                                 }
@@ -143,9 +144,71 @@ namespace T_API.BLL.Concrete
 
         }
 
-        public Task CreateColumnOnRemote(AddColumnDto column)
+        public async Task CreateColumnOnRemote(AddColumnDto column)
         {
-            throw new NotImplementedException();
+
+            try
+            {
+                if (column.Provider.Equals("MySql"))
+                {
+                    using MySqlCodeGenerator codeGenerator =
+                        (MySqlCodeGenerator)SqlCodeGeneratorFactory.CreateGenerator(column.Provider);
+                    if (codeGenerator != null)
+                    {
+                        AddColumnValidator validator = new AddColumnValidator();
+                        var validationResult = validator.Validate(column);
+                        if (validationResult.IsValid)
+                        {
+                            var mappedEntity = _mapper.Map<Column>(column);
+
+                            Table table = new Table
+                            {
+                                TableName = column.TableName,
+                            };
+                            table.Columns.Add(mappedEntity);
+
+
+                            string command = codeGenerator.AlterTable(table);
+                            if (!String.IsNullOrEmpty(command))
+                            {
+                                MySqlRealDbRepository realDbRepository =
+                                    _realDbRepositoryFactory.CreateRepository(column.Provider) as MySqlRealDbRepository;
+                                if (realDbRepository != null)
+                                {
+                                    using TransactionScope scope = new TransactionScope();
+                                    await realDbRepository.ExecuteQueryOnRemote(command);
+                                    scope.Complete();
+                                }
+                                else
+                                {
+                                    throw new NullReferenceException("Db Repository Referansına Ulaşlamadı");
+                                }
+                            }
+                            else
+                            {
+                                throw new NullReferenceException("Create Table Sql Referansı Bulunamadı");
+                            }
+                        }
+                        else
+                        {
+                            throw new ValidationException(validationResult.ToString());
+                        }
+                    }
+                    else
+                    {
+                        throw new NullReferenceException("Code Generator Referansına Ulaşlamadı");
+                    }
+                }
+                else
+                {
+                    throw new AmbiguousMatchException("Desteklenen Provider Verilmedi.");
+                }
+            }
+            catch (Exception e)
+            {
+                throw ExceptionHandler.HandleException(e);
+            }
+
         }
 
         public Task CreateIndexOnRemote(AddIndexDto index)
@@ -167,12 +230,12 @@ namespace T_API.BLL.Concrete
         {
             if (String.IsNullOrEmpty(databaseName))
             {
-                throw new ArgumentNullException("databaseName","Database ismi boş gönderilemez");
+                throw new ArgumentNullException("databaseName", "Database ismi boş gönderilemez");
             }
             MySqlRealDbRepository realDbRepository =
                 _realDbRepositoryFactory.CreateRepository(provider) as MySqlRealDbRepository;
 
-            if (realDbRepository==null)
+            if (realDbRepository == null)
             {
                 throw new NullReferenceException("Real Db Repository Referansına Ulaşılamadı");
             }
@@ -197,7 +260,7 @@ namespace T_API.BLL.Concrete
                 throw new NullReferenceException("Real Db Repository Referansına Ulaşılamadı");
             }
 
-            var result = await realDbRepository.GetTable(tableName,databaseName);
+            var result = await realDbRepository.GetTable(tableName, databaseName);
             var mappedResults = _mapper.Map<DetailTableDto>(result);
             return mappedResults;
         }

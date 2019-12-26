@@ -238,11 +238,9 @@ var prepareInputChangeEvents = function prepareInputChangeEvents() {
 };
 
 var addColumn = function addColumn(columnObj) {
-    console.log(JSON.stringify(columnObj));
-
     $.ajax({
         type: 'POST',
-        beforeSend: function(request) {
+        beforeSend: function (request) {
             request.setRequestHeader("Content-Type", "application/json");
         },
         url: 'https://localhost:44383/Database/AddColumn',
@@ -250,11 +248,21 @@ var addColumn = function addColumn(columnObj) {
         dataType: 'JSON',
         contentType: "application/json",
         success: function (data) {
-            console.log(data);
             getDatabase(columnObj.DatabaseId);
         },
-        failure: function (errMsg) {
-            alert(errMsg);
+        statusCode: {
+            200: function(response) {
+                getDatabase(columnObj.DatabaseId);
+                $('#addColumnModal').fadeOut()
+            },
+            400: function(response) {
+                console.log(response.responseText);
+            }
         }
+
+    }).fail(function (jqXHR, textStatus, error) {
+        $('#errorModalTitle').text('Hata!');
+        $('#errorModalBodyText').text(jqXHR.responseText);
+        $('#errorModal').modal('show');
     });
 };

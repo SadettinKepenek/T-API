@@ -9,6 +9,8 @@ namespace T_API.Core.DTO.Table
     public class ListTableDto
     {
         public string TableName { get; set; }
+        public string DatabaseName { get; set; }
+
         public ObservableCollection<ListForeignKeyDto> ForeignKeys { get; set; }
         public ObservableCollection<ListIndexDto> Indices { get; set; }
         public ObservableCollection<ListKeyDto> Keys { get; set; }

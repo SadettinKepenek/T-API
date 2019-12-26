@@ -3,5 +3,7 @@
     public class DeleteTableDto
     {
         public string TableName { get; set; }
+        public string DatabaseName { get; set; }
+
     }
 }

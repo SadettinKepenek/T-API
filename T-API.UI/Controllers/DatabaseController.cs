@@ -7,6 +7,7 @@ using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using T_API.BLL.Abstract;
+using T_API.Core.DAL.Concrete;
 using T_API.Core.DTO.Column;
 using T_API.Core.DTO.Database;
 using T_API.Core.DTO.Table;
@@ -136,21 +137,31 @@ namespace T_API.UI.Controllers
 
 
         [HttpPost]
-        public async Task<IActionResult> AddColumn(AddColumnDto model)
+        public async Task<IActionResult> AddColumn([FromBody] AddColumnDto model)
         {
 
             if (model == null)
                 return BadRequest("Gönderilen veri boş");
             try
             {
-                await _realDbService.CreateColumnOnRemote(model);
+                var db = await _databaseService.GetById(model.DatabaseId);
+                if (db == null)
+                {
+                    throw new NullReferenceException("Database bulunamadı");
+                }
+
+                var dbInformation = _mapper.Map<DbInformation>(db);
+                await _realDbService.CreateColumnOnRemote(model, dbInformation);
                 return Ok();
             }
             catch (Exception e)
             {
-                return BadRequest(e.Message+"\n"+e.StackTrace);
+                if (e is ValidationException)
+                    return BadRequest(e.Message);
+
+                return BadRequest(e.Message + "\n" + e.StackTrace);
             }
-         
+
         }
 
         [HttpGet]
@@ -167,7 +178,7 @@ namespace T_API.UI.Controllers
                 var userId = Convert.ToInt32(HttpContext.User.Claims
                     .FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)
                     ?.Value);
-                
+
                 if (database.UserId != userId)
                 {
                     return BadRequest("User Id uyuşmuyor");
@@ -182,7 +193,7 @@ namespace T_API.UI.Controllers
             {
                 return BadRequest(e.StackTrace);
             }
-          
+
         }
 
 

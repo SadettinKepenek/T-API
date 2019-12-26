@@ -19,7 +19,7 @@ namespace T_API.Core.DAL.Concrete
                 if (String.IsNullOrEmpty(information.Port))
                     information.Port = "3306";
                 connectionString = $"Data Source={information.Server};" +
-                                          $"Initial Catalog={information.Database};" +
+                                          $"Initial Catalog={information.DatabaseName};" +
                                           $"User id={information.Username};" +
                                           $"Password={information.Password}";
                 var conn = new SqlConnection(connectionString);
@@ -32,7 +32,7 @@ namespace T_API.Core.DAL.Concrete
                 if (String.IsNullOrEmpty(information.Port))
                     information.Port = "1443";
                 connectionString = $"Server={information.Server};" +
-                                   $"Initial Catalog={information.Database};" +
+                                   $"Initial Catalog={information.DatabaseName};" +
                                    $"Uid={information.Username};" +
                                    $"Pwd={information.Password};";
                 var mySqlConnection = new MySqlConnection(connectionString);

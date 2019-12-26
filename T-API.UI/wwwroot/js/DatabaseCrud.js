@@ -1,5 +1,28 @@
 ﻿window.tableCount = 0;
 
+var init = function init(databaseId, dbProvider) {
+    window.databaseId = databaseId;
+    window.dbProvider = dbProvider;
+    $("body").on('DOMSubtreeModified',
+        "#v-pills-tab-tables",
+        function () {
+            window.tableCount = $('#v-pills-tab-tables').children().length;
+        });
+
+    getDatabase(window.databaseId);
+    $('#addColumnModal').on('shown.bs.modal',
+        function (e) {
+            $('#addColumnForm').trigger('reset');
+            getDataTypes(window.dbProvider);
+
+            window.addColumnDto = new AddColumnDto(parseInt(window.databaseId), window.dbProvider);
+            var tableName = $(e.relatedTarget).data('id');
+            window.addColumnDto.TableName = tableName;
+            $('#tableName').val(tableName);
+            $('#providerInfo').val(window.dbProvider);
+        });
+    prepareInputChangeEvents();
+};
 
 var parseTables = function parseTables(table) {
 
@@ -94,19 +117,6 @@ var parseTables = function parseTables(table) {
 
 };
 
-
-$(document).ready(function () {
-    // Change Table Count
-    $("body").on('DOMSubtreeModified', "#v-pills-tab-tables", function () {
-        window.tableCount = $('#v-pills-tab-tables').children().length;
-    });
-    prepareInputChangeEvents();
-
-
-});
-
-
-
 var getDatabase = function getDatabase(databaseId) {
     var tabTables = $('#v-pills-tab-tables');
     var tableContent = $('#v-pills-tabContent-tables');
@@ -161,8 +171,6 @@ var getDataTypes = function getDataTypes(provider) {
     });
 
 };
-
-
 
 var prepareInputChangeEvents = function prepareInputChangeEvents() {
     $('#dataLength').fadeOut();
@@ -250,7 +258,5 @@ var addColumn = function addColumn(columnObj) {
         done: function (data) {
             console.log(data.statusCode);
         }
-
-
     });
 };

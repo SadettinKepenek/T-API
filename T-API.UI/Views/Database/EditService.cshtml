@@ -150,20 +150,7 @@
 
 <script type="text/javascript">
     $(document).ready(function () {
-        getDatabase(@Model.DatabaseId);
-        $('#addColumnModal').on('shown.bs.modal', function (e) {
-            $('#addColumnForm').trigger('reset');
-            getDataTypes('@Model.Provider');
-
-            window.addColumnDto = new AddColumnDto(parseInt(@Model.DatabaseId),'@Model.Provider');
-            var tableName = $(e.relatedTarget).data('id');
-            window.addColumnDto.TableName = tableName;
-            $('#tableName').val(tableName);
-            $('#providerInfo').val('@Model.Provider');
-        });
-
-
-
+        init(parseInt(@Model.DatabaseId), '@Model.Provider');
     });
 
 

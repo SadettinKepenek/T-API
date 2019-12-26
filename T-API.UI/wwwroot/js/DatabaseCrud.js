@@ -10,6 +10,9 @@ var init = function init(databaseId, dbProvider) {
         });
 
     getDatabase(window.databaseId);
+
+    // addColumnModal Shown Event
+
     $('#addColumnModal').on('shown.bs.modal',
         function (e) {
             $('#addColumnForm').trigger('reset');
@@ -21,6 +24,47 @@ var init = function init(databaseId, dbProvider) {
             $('#tableName').val(tableName);
             $('#providerInfo').val(window.dbProvider);
         });
+
+    // addForeignKeyModal Shown Event
+
+    $('#addForeignKeyModal').on('shown.bs.modal',
+        function (e) {
+            if (window.databaseTables === null) {
+                showCriticalError('Hata', 'Veritabanı yüklenirken hata oluştu lütfen daha sonra tekrar deneyiniz..', "https://localhost:44383/Database/")
+                return;
+            }
+
+
+            $('#addForeignKeyForm').trigger('reset');
+            window.addForeignKeyDto = new AddForeignKey(parseInt(window.databaseId), window.dbProvider);
+            var tableName = $(e.relatedTarget).data('id');
+            window.addForeignKeyDto.TableName = tableName;
+            window.addForeignKeyDto.Provider = window.dbProvider;
+            $('#foreignKeySourceTable').val(tableName);
+            var found = getColumnsByTableName(tableName);
+            found.columns.forEach(function (d) {
+                $('#foreignKeySourceColumn').append($('<option>',
+                    {
+                        value: d.columnName,
+                        text: d.columnName
+                    }));
+            });
+
+            var otherTables = window.databaseTables.filter(x => x.tableName !== tableName);
+            otherTables.forEach(function(table) {
+                $('#foreignKeyTargetTable').append($('<option>',
+                    {
+                        value: table.tableName,
+                        text: table.tableName
+                    }));
+            });
+
+
+
+        });
+
+
+
     prepareInputChangeEvents();
 };
 
@@ -44,7 +88,7 @@ var parseTables = function parseTables(table) {
             'data-toggle="pill"' +
             'href="#v-pills-' + window.tableCount + '"' +
             'role="tab" aria-controls="v-pills-home" aria-selected="true">' + table.tableName + '</a>';
-        
+
 
         // Add Table Content Div
 
@@ -187,6 +231,43 @@ var parseTables = function parseTables(table) {
 
 };
 
+var initForeignKeyFeature = function initForeignKeyFeature() {
+    window.databaseTables.forEach(function (d) {
+        $('#foreignKeySourceTable').append($('<option>',
+            {
+                value: d.tableName,
+                text: d.tableName
+            }));
+    });
+};
+
+var getColumnsByTableName = function getColumns(tableName) {
+    if (window.databaseTables) {
+        let found = window.databaseTables.find(x => x.tableName === tableName);
+        if (found) {
+            return found;
+        } else {
+            showCriticalError('Hata', 'Veritabanı yüklenirken hata oluştu lütfen daha sonra tekrar deneyiniz..', "https://localhost:44383/Database/")
+            return null;
+        }
+
+    } else {
+        showCriticalError('Hata', 'Veritabanı yüklenirken hata oluştu lütfen daha sonra tekrar deneyiniz..', "https://localhost:44383/Database/")
+        return null;
+    }
+};
+
+
+var showCriticalError = function showCriticialError(title, body, href) {
+    $('#errorModalTitle').text(title);
+    $('#errorModalBodyText').text(body);
+    $('#errorModal').modal('show');
+    $('#errorModal').on('hidden.bs.modal', function (e) {
+        window.location.replace(href);
+    });
+}
+
+
 var getDatabase = function getDatabase(databaseId) {
     var tabTables = $('#v-pills-tab-tables');
     var tableContent = $('#v-pills-tabContent-tables');
@@ -197,7 +278,9 @@ var getDatabase = function getDatabase(databaseId) {
         url: 'https://localhost:44383/Database/GetDatabase?databaseId=' + databaseId,
         type: 'GET',
         success: function (data, textStatus, xhr) {
+            window.databaseTables = data.tables;
             parseTables(data.tables);
+            initForeignKeyFeature();
         },
         complete: function (xhr, textStatus) {
 
@@ -214,11 +297,10 @@ var getDatabase = function getDatabase(databaseId) {
     });
 };
 
-
-var getTable = function getTable( tableName, provider) {
+var getTable = function getTable(tableName, provider) {
     $.ajax({
         url: 'https://localhost:44383/Database/GetTable?databaseId=' + window.databaseId
-            + '&tableName='+tableName+'&provider='+provider,
+            + '&tableName=' + tableName + '&provider=' + provider,
         type: 'GET',
         success: function (data, textStatus, xhr) {
             console.log(data);
@@ -237,9 +319,6 @@ var getTable = function getTable( tableName, provider) {
         });
     });
 };
-
-
-
 
 var getDataTypes = function getDataTypes(provider) {
     $.ajax({
@@ -270,6 +349,8 @@ var getDataTypes = function getDataTypes(provider) {
 };
 
 var prepareInputChangeEvents = function prepareInputChangeEvents() {
+
+    // Add Column Modal
     $('#dataLength').fadeOut();
     $('#addColumnModalSubmit').click(function (e) {
         e.preventDefault();
@@ -329,8 +410,26 @@ var prepareInputChangeEvents = function prepareInputChangeEvents() {
     });
 
 
+    // Add Foreign Key Modal
+
+
+    $('#foreignKeyTargetTable').on('change', function (e) {
+        window.addForeignKeyDto.TargetTable = this.value;
+        console.log
+        var found = getColumnsByTableName(this.value);
+        found.columns.forEach(function (d) {
+            $('#foreignKeyTargetColumn').append($('<option>',
+                {
+                    value: d.columnName,
+                    text: d.columnName
+                }));
+        });
+
+
+    });
 
 };
+
 
 var addColumn = function addColumn(columnObj) {
     $.ajax({

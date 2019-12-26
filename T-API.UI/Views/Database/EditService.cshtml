@@ -12,7 +12,6 @@
     }
 }
 
-<script src="~/lib/jquery/dist/jquery.min.js"></script>
 <script src="~/js/DatabaseCrud.js"></script>
 <script src="~/js/DataTransferObjects.js"></script>
 
@@ -156,7 +155,36 @@
             <div class="modal-body">
                 <form id="addForeignKeyForm">
 
-                   
+                    <h5>Source Information</h5>
+
+                    <label for="foreignKeySourceTable">Source Table</label>
+                    <input class="form-control" id="foreignKeySourceTable" placeholder="Source Table"
+                           required="required" readonly="readonly" />
+
+                    <br />
+                    <div class="form-group">
+                        <select class="custom-select" required="required" id="foreignKeySourceColumn">
+                            <option selected disabled="disabled">Source Column</option>
+                        </select>
+                    </div>
+
+                    <hr />
+                    <h5>Target Information</h5>
+
+                    <div class="form-group">
+                        <select class="custom-select" required="required" id="foreignKeyTargetTable">
+                            <option selected disabled="disabled">Target Table</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <select class="custom-select" required="required" id="foreignKeyTargetColumn">
+                            <option selected disabled="disabled">Target Column</option>
+                        </select>
+                    </div>
+
+                    <hr />
+                    <h5>Actions (To Be Added.)</h5>
 
                 </form>
 

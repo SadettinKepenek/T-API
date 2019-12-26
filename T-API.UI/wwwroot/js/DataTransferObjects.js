@@ -16,3 +16,16 @@
         this.Provider = provider;
     }
 }
+
+class AddForeignKey {
+    SourceTable = '';
+    SourceColumn = '';
+    TargetTable = '';
+    TargetColumn = '';
+    Provider = '';
+    DatabaseId = 0;
+    constructor(databaseId, provider) {
+        this.DatabaseId = databaseId;
+        this.Provider = provider;
+    }
+}

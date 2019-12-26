@@ -24,6 +24,7 @@ class AddForeignKey {
     TargetColumn = '';
     Provider = '';
     DatabaseId = 0;
+    ForeignKeyName='';
     constructor(databaseId, provider) {
         this.DatabaseId = databaseId;
         this.Provider = provider;

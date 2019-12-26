@@ -39,10 +39,13 @@ var init = function init(databaseId, dbProvider) {
             window.addForeignKeyDto = new AddForeignKey(parseInt(window.databaseId), window.dbProvider);
             var tableName = $(e.relatedTarget).data('id');
             window.addForeignKeyDto.TableName = tableName;
+            window.addForeignKeyDto.SourceTable = tableName;
             window.addForeignKeyDto.Provider = window.dbProvider;
+
             $('#foreignKeySourceTable').val(tableName);
             var found = getColumnsByTableName(tableName);
             found.columns.forEach(function (d) {
+
                 $('#foreignKeySourceColumn').append($('<option>',
                     {
                         value: d.columnName,
@@ -59,11 +62,7 @@ var init = function init(databaseId, dbProvider) {
                     }));
             });
 
-
-
         });
-
-
 
     prepareInputChangeEvents();
 };
@@ -415,7 +414,6 @@ var prepareInputChangeEvents = function prepareInputChangeEvents() {
 
     $('#foreignKeyTargetTable').on('change', function (e) {
         window.addForeignKeyDto.TargetTable = this.value;
-        console.log
         var found = getColumnsByTableName(this.value);
         found.columns.forEach(function (d) {
             $('#foreignKeyTargetColumn').append($('<option>',
@@ -426,6 +424,26 @@ var prepareInputChangeEvents = function prepareInputChangeEvents() {
         });
 
 
+    });
+    $('#foreignKeyTargetColumn').on('change', function (e) {
+        window.addForeignKeyDto.TargetColumn = this.value;
+    });
+    $('#foreignKeySourceColumn').on('change', function (e) {
+        window.addForeignKeyDto.SourceColumn = this.value;
+    });
+    $('#foreignKeyName').on('change', function (e) {
+        window.addForeignKeyDto.ForeignKeyName = this.value;
+    });
+
+
+    $('#addForeignKeySubmit').click(function (e) {
+        e.preventDefault();
+        if (window.addForeignKeyDto === null) {
+            $('#errorModalTitle').text('Hata!');
+            $('#errorModalBodyText').text('Herhangi bir veri gönderilmedi..!');
+            $('#errorModal').modal('show');
+        }
+        addForeignKey(window.addForeignKeyDto);
     });
 
 };
@@ -456,3 +474,29 @@ var addColumn = function addColumn(columnObj) {
         }
     });
 };
+
+var addForeignKey = function addForeignKey(foreignKey) {
+    $.ajax({
+        type: 'POST',
+        beforeSend: function (request) {
+            request.setRequestHeader("Content-Type", "application/json");
+        },
+        url: 'https://localhost:44383/Database/AddForeignKey',
+        data: JSON.stringify(foreignKey),
+        contentType: "application/json",
+        success: function (data) {
+            
+            $('#addForeignKeyModal').modal('toggle');
+        },
+        error: function (XMLHttpRequest, textStatus, errorThrown) {
+            console.log(textStatus);
+            console.log(errorThrown);
+            $('#errorModalTitle').text('Hata!');
+            $('#errorModalBodyText').text(XMLHttpRequest.responseText);
+            $('#errorModal').modal('show');
+        },
+        done: function (data) {
+            console.log(data.statusCode);
+        }
+    });
+}

@@ -10,6 +10,7 @@ using T_API.BLL.Abstract;
 using T_API.Core.DAL.Concrete;
 using T_API.Core.DTO.Column;
 using T_API.Core.DTO.Database;
+using T_API.Core.DTO.ForeignKey;
 using T_API.Core.DTO.Table;
 using T_API.Core.Exception;
 using T_API.Core.Settings;
@@ -169,6 +170,42 @@ namespace T_API.UI.Controllers
             }
 
         }
+
+        [HttpPost]
+        public async Task<IActionResult> AddForeignKey([FromBody] AddForeignKeyDto model)
+        {
+
+            if (model == null)
+                return BadRequest("Gönderilen veri boş");
+            try
+            {
+                var db = await _databaseService.GetById(model.DatabaseId);
+                if (db == null)
+                {
+                    throw new NullReferenceException("Database bulunamadı");
+                }
+
+                var dbInformation = _mapper.Map<DbInformation>(db);
+
+                if (dbInformation == null)
+                {
+                    throw new NullReferenceException("Database bulunamadı");
+                }
+
+                await _realDbService.CreateForeignKeyOnRemote(model, dbInformation);
+                return Ok("Success");
+            }
+            catch (Exception e)
+            {
+                if (e is ValidationException)
+                    return BadRequest(e.Message);
+
+                return BadRequest(e.Message + "\n" + e.StackTrace);
+            }
+
+        }
+
+
 
         [HttpGet]
         public async Task<IActionResult> GetDatabase(int databaseId)

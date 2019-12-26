@@ -7,6 +7,7 @@ using AutoMapper;
 using T_API.BLL.Abstract;
 using T_API.BLL.Validators.Column;
 using T_API.BLL.Validators.Database;
+using T_API.BLL.Validators.ForeignKey;
 using T_API.BLL.Validators.Table;
 using T_API.Core.DAL.Concrete;
 using T_API.Core.DTO.Column;
@@ -238,9 +239,74 @@ namespace T_API.BLL.Concrete
             throw new NotImplementedException();
         }
 
-        public Task CreateForeignKeyOnRemote(AddForeignKeyDto foreignKey, DbInformation dbInformation)
+        public async Task CreateForeignKeyOnRemote(AddForeignKeyDto foreignKey, DbInformation dbInformation)
         {
-            throw new NotImplementedException();
+            try
+            {
+                if (dbInformation.Provider.Equals("MySql"))
+                {
+                    using MySqlCodeGenerator codeGenerator =
+                        (MySqlCodeGenerator)SqlCodeGeneratorFactory.CreateGenerator(dbInformation.Provider);
+                    if (codeGenerator != null)
+                    {
+                        AddForeignKeyValidator validator = new AddForeignKeyValidator();
+                        var validationResult = validator.Validate(foreignKey);
+                        if (validationResult.IsValid)
+                        {
+                            var mappedEntity = _mapper.Map<ForeignKey>(foreignKey);
+
+                            Table table = new Table
+                            {
+                                TableName = foreignKey.SourceTable,
+                                DatabaseName = dbInformation.DatabaseName,
+                            };
+                            table.ForeignKeys.Add(mappedEntity);
+
+
+                            string command = codeGenerator.AlterTable(table);
+                            if (!String.IsNullOrEmpty(command))
+                            {
+                                MySqlRealDbRepository realDbRepository =
+                                    _realDbRepositoryFactory.CreateRepository(dbInformation.Provider) as MySqlRealDbRepository;
+                                if (realDbRepository != null)
+                                {
+                                    using TransactionScope scope = new TransactionScope();
+
+
+
+                                    await realDbRepository.ExecuteQueryOnRemote(command, dbInformation);
+                                    scope.Complete();
+                                }
+                                else
+                                {
+                                    throw new NullReferenceException("Db Repository Referansına Ulaşlamadı");
+                                }
+                            }
+                            else
+                            {
+                                throw new NullReferenceException("Create Foreign Key Sql Referansı Bulunamadı");
+                            }
+                        }
+                        else
+                        {
+                            throw new ValidationException(validationResult.ToString());
+                        }
+                    }
+                    else
+                    {
+                        throw new NullReferenceException("Code Generator Referansına Ulaşlamadı");
+                    }
+                }
+                else
+                {
+                    throw new AmbiguousMatchException("Desteklenen Provider Verilmedi.");
+                }
+            }
+            catch (Exception e)
+            {
+                throw ExceptionHandler.HandleException(e);
+            }
+
         }
 
         public Task CreateKeyOnRemote(AddKeyDto key, DbInformation dbInformation)

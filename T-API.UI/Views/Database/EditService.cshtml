@@ -154,6 +154,10 @@
             </div>
             <div class="modal-body">
                 <form id="addForeignKeyForm">
+                    <h5>Info</h5>
+                    <input class="form-control" id="foreignKeyName" placeholder="Foreign Key Name"
+                           required="required"  />
+                    <hr />
 
                     <h5>Source Information</h5>
 
@@ -205,7 +209,6 @@
 <script type="text/javascript">
     $(document).ready(function () {
         init(parseInt(@Model.DatabaseId), '@Model.Provider');
-
     });
 
 

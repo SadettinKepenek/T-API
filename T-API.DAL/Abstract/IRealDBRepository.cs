@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Globalization;
 using System.Threading.Tasks;
+using T_API.Core.DAL.Concrete;
 using T_API.Core.DTO.Column;
 using T_API.Core.DTO.ForeignKey;
 using T_API.Core.DTO.Index;
@@ -20,6 +21,7 @@ namespace T_API.DAL.Abstract
         Task CreateForeignKeyOnRemote(string query);
         Task CreateKeyOnRemote(string query);
 
+        Task ExecuteQueryOnRemote(string query,DbInformation dbInformation);
 
         Task<List<Table>> GetTables(string databaseName);
         Task<Table> GetTable(string tableName, string databaseName);

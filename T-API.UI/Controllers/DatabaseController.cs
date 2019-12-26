@@ -7,8 +7,10 @@ using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using T_API.BLL.Abstract;
+using T_API.Core.DTO.Column;
 using T_API.Core.DTO.Database;
 using T_API.Core.DTO.Table;
+using T_API.Core.Exception;
 using T_API.Core.Settings;
 using T_API.UI.Models.Database;
 
@@ -117,10 +119,9 @@ namespace T_API.UI.Controllers
             return View(model);
         }
 
-     
 
 
-        [HttpGet("{provider}", Name = "GetDataTypes")]
+
         public async Task<IActionResult> GetDataTypes(string provider)
         {
             var dataTypes = await _databaseService.GetDataTypes(provider: provider);
@@ -134,16 +135,54 @@ namespace T_API.UI.Controllers
 
 
 
-
-        [HttpPost("", Name = "AddTable")]
-        public async Task<IActionResult> AddTable([FromBody] AddTableDto addTableDto)
+        [HttpPost]
+        public async Task<IActionResult> AddColumn(AddColumnDto model)
         {
-            if (!ModelState.IsValid)
+
+            if (model == null)
+                return BadRequest("Gönderilen veri boş");
+            try
             {
-                return BadRequest(addTableDto);
+                await _realDbService.CreateColumnOnRemote(model);
+                return Ok();
             }
-            await _realDbService.CreateTableOnRemote(addTableDto);
-            return Ok();
+            catch (Exception e)
+            {
+                return BadRequest(e.Message+"\n"+e.StackTrace);
+            }
+         
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetDatabase(int databaseId)
+        {
+            try
+            {
+                var database = await _databaseService.GetById(databaseId);
+                if (database == null)
+                {
+                    return NoContent();
+                }
+
+                var userId = Convert.ToInt32(HttpContext.User.Claims
+                    .FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)
+                    ?.Value);
+                
+                if (database.UserId != userId)
+                {
+                    return BadRequest("User Id uyuşmuyor");
+                }
+
+
+                //model.UserId = Convert.ToInt32(HttpContext.User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value);
+
+                return Ok(database);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.StackTrace);
+            }
+          
         }
 
 

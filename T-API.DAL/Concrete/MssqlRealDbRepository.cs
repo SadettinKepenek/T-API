@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
+using T_API.Core.DAL.Concrete;
 using T_API.DAL.Abstract;
 using T_API.Entity.Concrete;
 
@@ -39,6 +40,11 @@ namespace T_API.DAL.Concrete
         }
 
         public Task CreateKeyOnRemote(string query)
+        {
+            throw new System.NotImplementedException();
+        }
+
+        public Task ExecuteQueryOnRemote(string query,DbInformation dbInformation)
         {
             throw new System.NotImplementedException();
         }

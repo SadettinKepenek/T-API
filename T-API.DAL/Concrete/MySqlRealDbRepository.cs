@@ -18,83 +18,13 @@ namespace T_API.DAL.Concrete
 
 
 
-        public async Task CreateDatabaseOnRemote(string query)
-        {
-
-            using (var conn = DbConnectionFactory.CreateConnection(ConfigurationSettings.ServerDbInformation))
-            {
-
-
-                var cmd = conn.CreateCommand(query);
-
-                using (cmd)
-                {
-                    try
-                    {
-                        cmd.ExecuteNonQuery();
-                    }
-                    catch (Exception ex)
-                    {
-
-                        throw ExceptionHandler.HandleException(ex);
-
-                    }
-                }
-
-            }
-
-
-
-        }
-
-        public async Task CreateTableOnRemote(string query)
-        {
-            using (var conn = DbConnectionFactory.CreateConnection(ConfigurationSettings.ServerDbInformation))
-            {
-
-
-                var cmd = conn.CreateCommand(query);
-
-                using (cmd)
-                {
-                    try
-                    {
-                        cmd.ExecuteNonQuery();
-                    }
-                    catch (Exception ex)
-                    {
-                        Console.WriteLine("Commit Exception Type: {0}", ex.GetType());
-                        Console.WriteLine("  Message: {0}", ex.Message);
-                        throw ExceptionHandler.HandleException(ex);
-
-                    }
-                }
-
-            }
-
-        }
-
-        [Obsolete("Method daha eklenmedi lütfen daha sonra tekrar bakın.")]
-        public Task CreateColumnOnRemote(string query)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task CreateIndexOnRemote(string query)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task CreateForeignKeyOnRemote(string query)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task CreateKeyOnRemote(string query)
-        {
-            throw new NotImplementedException();
-        }
-
+        
+        /// <summary>
+        /// Veritabanında istenilen sorguyu çalıştırır.
+        /// </summary>
+        /// <param name="query">Çalıştırılmak istenilen sorgu</param>
+        /// <param name="dbInformation">Bağlantı bilgileri</param>
+        /// <returns></returns>
         public async Task ExecuteQueryOnRemote(string query,DbInformation dbInformation)
         {
             using (var conn = DbConnectionFactory.CreateConnection(dbInformation))
@@ -118,6 +48,37 @@ namespace T_API.DAL.Concrete
                 }
 
             }
+        }
+
+        /// <summary>
+        /// Ana makinede istenilen sorguyu çalıştırır.
+        /// </summary>
+        /// <param name="query">Çalıştırılmak istenilen sorgu.</param>
+        /// <returns></returns>
+        public async Task ExecuteQueryOnRemote(string query)
+        {
+            using (var conn = DbConnectionFactory.CreateConnection(ConfigurationSettings.ServerDbInformation))
+            {
+
+
+                var cmd = conn.CreateCommand(query);
+
+                using (cmd)
+                {
+                    try
+                    {
+                        cmd.ExecuteNonQuery();
+                    }
+                    catch (Exception ex)
+                    {
+
+                        throw ExceptionHandler.HandleException(ex);
+
+                    }
+                }
+
+            }
+
         }
 
         /// <summary>
@@ -275,8 +236,6 @@ namespace T_API.DAL.Concrete
 
             return table;
         }
-
-
         private static Column ParseColumn(IGrouping<string, DataRow> groupedColumn)
         {
             var firstRow = groupedColumn.FirstOrDefault();
@@ -297,7 +256,6 @@ namespace T_API.DAL.Concrete
             };
             return column;
         }
-
         private static ForeignKey ParseForeignKey(DataRow key)
         {
             ForeignKey foreignKey = new ForeignKey();
@@ -308,7 +266,6 @@ namespace T_API.DAL.Concrete
             foreignKey.SourceColumn = key["COLUMN_NAME"] as string;
             return foreignKey;
         }
-
         private static Key ParseUniqueKey(DataRow uniqueKey)
         {
             Key key = new Key();
@@ -319,7 +276,6 @@ namespace T_API.DAL.Concrete
             key.KeyName = uniqueKeyName;
             return key;
         }
-
         public async Task<Table> GetTable(string tableName, string databaseName)
         {
             using (var conn = DbConnectionFactory.CreateConnection(ConfigurationSettings.ServerDbInformation))
@@ -348,7 +304,6 @@ namespace T_API.DAL.Concrete
 
             }
         }
-
         public Task<List<ForeignKey>> GetForeignKeys(string databaseName)
         {
             throw new NotImplementedException();

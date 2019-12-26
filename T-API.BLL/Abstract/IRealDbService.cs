@@ -14,11 +14,11 @@ namespace T_API.BLL.Abstract
     public interface IRealDbService
     {
         Task CreateDatabaseOnRemote(AddDatabaseDto database);
-        Task CreateTableOnRemote(AddTableDto database);
+        Task CreateTableOnRemote(AddTableDto database, DbInformation dbInformation);
         Task CreateColumnOnRemote(AddColumnDto column,DbInformation dbInformation);
-        Task CreateIndexOnRemote(AddIndexDto index);
-        Task CreateForeignKeyOnRemote(AddForeignKeyDto foreignKey);
-        Task CreateKeyOnRemote(AddKeyDto key);
+        Task CreateIndexOnRemote(AddIndexDto index, DbInformation dbInformation);
+        Task CreateForeignKeyOnRemote(AddForeignKeyDto foreignKey, DbInformation dbInformation);
+        Task CreateKeyOnRemote(AddKeyDto key, DbInformation dbInformation);
 
         Task<List<DetailTableDto>> GetTables(string databaseName,string provider);
         Task<DetailTableDto> GetTable(string tableName, string databaseName, string provider);

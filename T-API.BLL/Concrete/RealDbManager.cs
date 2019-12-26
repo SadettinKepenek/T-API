@@ -35,6 +35,11 @@ namespace T_API.BLL.Concrete
             _mapper = mapper;
         }
 
+        /// <summary>
+        /// Ana makinede veritabanı oluşturulmak için kullanılan servis.
+        /// </summary>
+        /// <param name="database">Eklenilmek istenilen veritabanı bilgileri</param>
+        /// <returns></returns>
         public async Task CreateDatabaseOnRemote(AddDatabaseDto database)
         {
             try
@@ -56,7 +61,7 @@ namespace T_API.BLL.Concrete
                                     _realDbRepositoryFactory.CreateRepository(database.Provider) as
                                         MySqlRealDbRepository;
                                 if (realDbRepository != null)
-                                    await realDbRepository.CreateDatabaseOnRemote(createDatabaseCommand);
+                                    await realDbRepository.ExecuteQueryOnRemote(createDatabaseCommand);
                                 else
                                     throw new NullReferenceException("Mysql Real Db Repository Referansına Ulaşlamadı");
                             }
@@ -87,7 +92,13 @@ namespace T_API.BLL.Concrete
 
         }
 
-        public async Task CreateTableOnRemote(AddTableDto table)
+        /// <summary>
+        /// İstenilen veri tabanında tablo eklemek için kullanılan servis.
+        /// </summary>
+        /// <param name="table">Eklenilmek istenilen tablo</param>
+        /// <param name="dbInformation">Bağlantı bilgileri.</param>
+        /// <returns></returns>
+        public async Task CreateTableOnRemote(AddTableDto table, DbInformation dbInformation)
         {
             try
             {
@@ -110,7 +121,7 @@ namespace T_API.BLL.Concrete
                                 if (realDbRepository != null)
                                 {
                                     using TransactionScope scope = new TransactionScope();
-                                    await realDbRepository.CreateTableOnRemote(command);
+                                    await realDbRepository.ExecuteQueryOnRemote(command);
                                     scope.Complete();
                                 }
                                 else
@@ -145,7 +156,13 @@ namespace T_API.BLL.Concrete
 
         }
 
-        public async Task CreateColumnOnRemote(AddColumnDto column,DbInformation dbInformation)
+        /// <summary>
+        /// İstenilen veri tabanında belirtilen tabloya sütun eklemek için kullanılan servis.
+        /// </summary>
+        /// <param name="column">Sütun bilgileri</param>
+        /// <param name="dbInformation">Bağlantı bilgileri</param>
+        /// <returns></returns>
+        public async Task CreateColumnOnRemote(AddColumnDto column, DbInformation dbInformation)
         {
 
             try
@@ -180,7 +197,7 @@ namespace T_API.BLL.Concrete
                                     using TransactionScope scope = new TransactionScope();
 
 
-                            
+
                                     await realDbRepository.ExecuteQueryOnRemote(command, dbInformation);
                                     scope.Complete();
                                 }
@@ -216,17 +233,17 @@ namespace T_API.BLL.Concrete
 
         }
 
-        public Task CreateIndexOnRemote(AddIndexDto index)
+        public Task CreateIndexOnRemote(AddIndexDto index, DbInformation dbInformation)
         {
             throw new NotImplementedException();
         }
 
-        public Task CreateForeignKeyOnRemote(AddForeignKeyDto foreignKey)
+        public Task CreateForeignKeyOnRemote(AddForeignKeyDto foreignKey, DbInformation dbInformation)
         {
             throw new NotImplementedException();
         }
 
-        public Task CreateKeyOnRemote(AddKeyDto key)
+        public Task CreateKeyOnRemote(AddKeyDto key, DbInformation dbInformation)
         {
             throw new NotImplementedException();
         }

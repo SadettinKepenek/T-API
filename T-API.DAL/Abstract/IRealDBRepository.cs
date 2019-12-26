@@ -13,15 +13,9 @@ namespace T_API.DAL.Abstract
 {
     public interface IRealDbRepository
     {
-        Task CreateDatabaseOnRemote(string query);
-        Task CreateTableOnRemote(string query);
-        Task CreateColumnOnRemote(string query);
-
-        Task CreateIndexOnRemote(string query);
-        Task CreateForeignKeyOnRemote(string query);
-        Task CreateKeyOnRemote(string query);
 
         Task ExecuteQueryOnRemote(string query,DbInformation dbInformation);
+        Task ExecuteQueryOnRemote(string query);
 
         Task<List<Table>> GetTables(string databaseName);
         Task<Table> GetTable(string tableName, string databaseName);

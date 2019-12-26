@@ -107,17 +107,20 @@ namespace T_API.BLL.Concrete
             StringBuilder sb = new StringBuilder();
             sb.AppendLine($"USE {table.DatabaseName}; \n");
 
-
-            sb.AppendLine($"Alter Table {table.TableName}");
-            foreach (Column column in table.Columns)
+            if (table.Columns != null && table.Columns.Count != 0)
             {
-                string columnQuery = AlterColumn(column);
-                sb.Append($"{columnQuery}");
-                if (table.Columns.IndexOf(column) != table.Columns.Count - 1)
-                    sb.Append(",\n");
-            }
+                sb.AppendLine($"Alter Table {table.TableName}");
+                foreach (Column column in table.Columns)
+                {
+                    string columnQuery = AlterColumn(column);
+                    sb.Append($"{columnQuery}");
+                    if (table.Columns.IndexOf(column) != table.Columns.Count - 1)
+                        sb.Append(",\n");
+                }
 
-            sb.Append(";\n");
+                sb.Append(";\n");
+            }
+           
 
             if (table.ForeignKeys != null && table.ForeignKeys.Count != 0)
             {

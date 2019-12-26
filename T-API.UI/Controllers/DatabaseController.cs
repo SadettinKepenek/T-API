@@ -10,6 +10,7 @@ using T_API.BLL.Abstract;
 using T_API.Core.DAL.Concrete;
 using T_API.Core.DTO.Column;
 using T_API.Core.DTO.Database;
+using T_API.Core.DTO.ForeignKey;
 using T_API.Core.DTO.Table;
 using T_API.Core.Exception;
 using T_API.Core.Settings;
@@ -170,6 +171,42 @@ namespace T_API.UI.Controllers
 
         }
 
+        [HttpPost]
+        public async Task<IActionResult> AddForeignKey([FromBody] AddForeignKeyDto model)
+        {
+
+            if (model == null)
+                return BadRequest("Gönderilen veri boş");
+            try
+            {
+                var db = await _databaseService.GetById(model.DatabaseId);
+                if (db == null)
+                {
+                    throw new NullReferenceException("Database bulunamadı");
+                }
+
+                var dbInformation = _mapper.Map<DbInformation>(db);
+
+                if (dbInformation == null)
+                {
+                    throw new NullReferenceException("Database bulunamadı");
+                }
+
+                await _realDbService.CreateForeignKeyOnRemote(model, dbInformation);
+                return Ok("Success");
+            }
+            catch (Exception e)
+            {
+                if (e is ValidationException)
+                    return BadRequest(e.Message);
+
+                return BadRequest(e.Message + "\n" + e.StackTrace);
+            }
+
+        }
+
+
+
         [HttpGet]
         public async Task<IActionResult> GetDatabase(int databaseId)
         {
@@ -194,6 +231,41 @@ namespace T_API.UI.Controllers
                 //model.UserId = Convert.ToInt32(HttpContext.User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value);
 
                 return Ok(database);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.StackTrace);
+            }
+
+        }
+
+
+        [HttpGet]
+        public async Task<IActionResult> GetTable(int databaseId, string tableName, string provider)
+        {
+            try
+            {
+                if (String.IsNullOrEmpty(tableName) || String.IsNullOrEmpty(provider) || databaseId <= 0)
+                    return BadRequest("Parametreler yanlış ! Database Id,Table Name,Provider");
+
+                var userId = Convert.ToInt32(HttpContext.User.Claims
+                    .FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)
+                    ?.Value);
+                var db = await _databaseService.GetById(databaseId);
+
+                if (db.UserId != userId)
+                {
+                    return BadRequest("User veya Database uyuşmuyor");
+                }
+                var table = await _realDbService.GetTable(tableName, db.DatabaseName, provider);
+                if (table == null)
+                {
+                    return NoContent();
+                }
+
+                //model.UserId = Convert.ToInt32(HttpContext.User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value);
+
+                return Ok(table);
             }
             catch (Exception e)
             {

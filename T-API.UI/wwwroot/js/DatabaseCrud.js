@@ -54,8 +54,23 @@ var parseTables = function parseTables(table) {
             'aria-labelledby="v-pills-home-tab">';
         tableContentString += '<div class="container">';
 
+
+
         tableContentString += '<div class="row">';
-        tableContentString += '<div class="col-md-2">';
+        tableContentString += '<h5>Columns</h5>';
+        tableContentString += '<button type="button"' +
+            ' class="btn btn-info btn-sm"' +
+            ' style="margin-bottom: 5px;margin-left:10px;"' +
+            ' data-toggle="modal" ' +
+            ' data-id=' + table.tableName +
+            ' data-target="#addColumnModal">';
+        tableContentString += 'Add';
+        tableContentString += '</button>';
+        tableContentString += '</div>';
+
+
+        tableContentString += '<div class="row">';
+        tableContentString += '<div class="col-md-4">';
         tableContentString += 'Column Name';
         tableContentString += '</div>';
         tableContentString += '<div class="col-md-2">';
@@ -70,16 +85,6 @@ var parseTables = function parseTables(table) {
         tableContentString += '<div class="col-md-2">';
         tableContentString += 'Is Auto Inc';
         tableContentString += '</div>';
-        tableContentString += '<div class="col-md-2">';
-        tableContentString += '<button type="button"' +
-            ' class="btn btn-info btn-sm"' +
-            ' style="margin-bottom: 5px"' +
-            ' data-toggle="modal" ' +
-            ' data-id=' + table.tableName +
-            ' data-target="#addColumnModal">';
-        tableContentString += 'Add Column';
-        tableContentString += '</button>';
-        tableContentString += '</div>';
         tableContentString += '<hr/>';
         tableContentString += '</div>';
         tabTables.append(tabTablesString);
@@ -87,7 +92,7 @@ var parseTables = function parseTables(table) {
         table.columns.forEach(function (column) {
             tableContentString += '<hr/>';
             tableContentString += '<div class="row">';
-            tableContentString += '<div class="col-md-2">';
+            tableContentString += '<div class="col-md-4">';
             tableContentString += column.columnName;
             tableContentString += '</div>';
             tableContentString += '<div class="col-md-2">';
@@ -105,7 +110,66 @@ var parseTables = function parseTables(table) {
             tableContentString += '</div>';
 
         });
+
+        
+
         tableContentString += '<hr/>';
+        tableContentString += '<div class="row">';
+        tableContentString += '<h5>Foreign Keys</h5>';
+        tableContentString += '<button type="button"' +
+            ' class="btn btn-info btn-sm"' +
+            ' style="margin-bottom: 5px;margin-left:10px;"' +
+            ' data-toggle="modal" ' +
+            ' data-id=' + table.tableName +
+            ' data-target="#addColumnModal">';
+        tableContentString += 'Add';
+        tableContentString += '</button>';
+        tableContentString += '</div>';
+        
+        tableContentString += '<br/>';
+        tableContentString += '<div class="row">';
+        tableContentString += '<div class="col-md-4">';
+        tableContentString += 'Key Name';
+        tableContentString += '</div>';
+        tableContentString += '<div class="col-md-2">';
+        tableContentString += 'Source';
+        tableContentString += '</div>';
+        tableContentString += '<div class="col-md-2">';
+        tableContentString += 'Target';
+        tableContentString += '</div>';
+        tableContentString += '<div class="col-md-2">';
+        tableContentString += 'Source';
+        tableContentString += '</div>';
+        tableContentString += '<div class="col-md-2">';
+        tableContentString += 'Target';
+        tableContentString += '</div>';
+     
+        tableContentString += '<hr/>';
+        tableContentString += '</div>';
+
+
+        table.foreignKeys.forEach(function(foreignKey) {
+            tableContentString += '<hr/>';
+            tableContentString += '<div class="row">';
+            tableContentString += '<div class="col-md-4">';
+            tableContentString += foreignKey.foreignKeyName;
+            tableContentString += '</div>';
+            tableContentString += '<div class="col-md-2">';
+            tableContentString += foreignKey.sourceTable;
+            tableContentString += '</div>';
+            tableContentString += '<div class="col-md-2">';
+            tableContentString += foreignKey.targetTable;
+            tableContentString += '</div>';
+            tableContentString += '<div class="col-md-2">';
+            tableContentString += foreignKey.sourceColumn;
+            tableContentString += '</div>';
+            tableContentString += '<div class="col-md-2">';
+            tableContentString += foreignKey.targetColumn;
+            tableContentString += '</div>';
+            tableContentString += '</div>';
+        });
+
+
         tableContentString += '</div>';
         tableContent.append(tableContentString);
 

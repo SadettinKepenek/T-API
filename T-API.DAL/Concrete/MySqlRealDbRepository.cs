@@ -205,7 +205,7 @@ namespace T_API.DAL.Concrete
 
                 #region ForeignKeys
 
-                var foreignKeys = groupedColumn.Where(x => x.Field<bool>("IsForeignKey"));
+                var foreignKeys = groupedColumn.Where(x => x.Field<Int64>("IsForeignKey")==1);
                 foreach (DataRow key in foreignKeys)
                 {
                     if (table.ForeignKeys.All(x => x.ForeignKeyName != key["CONSTRAINT_NAME"] as string))
@@ -281,7 +281,7 @@ namespace T_API.DAL.Concrete
             using (var conn = DbConnectionFactory.CreateConnection(ConfigurationSettings.ServerDbInformation))
             {
 
-                var cmd = conn.CreateCommand(MySqlQueryTemplates.GetTable(databaseName));
+                var cmd = conn.CreateCommand(MySqlQueryTemplates.GetTable(databaseName,tableName));
 
                 using (cmd)
                 {

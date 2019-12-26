@@ -203,6 +203,41 @@ namespace T_API.UI.Controllers
         }
 
 
+        [HttpGet]
+        public async Task<IActionResult> GetTable(int databaseId, string tableName, string provider)
+        {
+            try
+            {
+                if (String.IsNullOrEmpty(tableName) || String.IsNullOrEmpty(provider) || databaseId <= 0)
+                    return BadRequest("Parametreler yanlış ! Database Id,Table Name,Provider");
+
+                var userId = Convert.ToInt32(HttpContext.User.Claims
+                    .FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)
+                    ?.Value);
+                var db = await _databaseService.GetById(databaseId);
+
+                if (db.UserId != userId)
+                {
+                    return BadRequest("User veya Database uyuşmuyor");
+                }
+                var table = await _realDbService.GetTable(tableName, db.DatabaseName, provider);
+                if (table == null)
+                {
+                    return NoContent();
+                }
+
+                //model.UserId = Convert.ToInt32(HttpContext.User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value);
+
+                return Ok(table);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.StackTrace);
+            }
+
+        }
+
+
         // TODO Add Table AJax yapılacak
     }
 }

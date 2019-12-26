@@ -31,6 +31,9 @@ var parseTables = function parseTables(table) {
 
 
     table.forEach(function (table) {
+
+        // Add Tab Link
+
         var tabTablesString = '<a class="nav-link ';
         if (window.tableCount === 0) {
             tabTablesString += ' active"';
@@ -41,6 +44,9 @@ var parseTables = function parseTables(table) {
             'data-toggle="pill"' +
             'href="#v-pills-' + window.tableCount + '"' +
             'role="tab" aria-controls="v-pills-home" aria-selected="true">' + table.tableName + '</a>';
+        
+
+        // Add Table Content Div
 
         var tableContentString = '<div class="tab-pane fade ';
         if (window.tableCount === 0) {
@@ -55,7 +61,7 @@ var parseTables = function parseTables(table) {
         tableContentString += '<div class="container">';
 
 
-
+        // Add Column Section
         tableContentString += '<div class="row">';
         tableContentString += '<h5>Columns</h5>';
         tableContentString += '<button type="button"' +
@@ -111,7 +117,8 @@ var parseTables = function parseTables(table) {
 
         });
 
-        
+        // Add Foreign Key Section
+
 
         tableContentString += '<hr/>';
         tableContentString += '<div class="row">';
@@ -121,11 +128,11 @@ var parseTables = function parseTables(table) {
             ' style="margin-bottom: 5px;margin-left:10px;"' +
             ' data-toggle="modal" ' +
             ' data-id=' + table.tableName +
-            ' data-target="#addColumnModal">';
+            ' data-target="#addForeignKeyModal">';
         tableContentString += 'Add';
         tableContentString += '</button>';
         tableContentString += '</div>';
-        
+
         tableContentString += '<br/>';
         tableContentString += '<div class="row">';
         tableContentString += '<div class="col-md-4">';
@@ -143,12 +150,12 @@ var parseTables = function parseTables(table) {
         tableContentString += '<div class="col-md-2">';
         tableContentString += 'Target';
         tableContentString += '</div>';
-     
+
         tableContentString += '<hr/>';
         tableContentString += '</div>';
 
 
-        table.foreignKeys.forEach(function(foreignKey) {
+        table.foreignKeys.forEach(function (foreignKey) {
             tableContentString += '<hr/>';
             tableContentString += '<div class="row">';
             tableContentString += '<div class="col-md-4">';
@@ -169,13 +176,12 @@ var parseTables = function parseTables(table) {
             tableContentString += '</div>';
         });
 
-
         tableContentString += '</div>';
-        tableContent.append(tableContentString);
 
+
+        tableContent.append(tableContentString);
         window.tableCount++;
     });
-
 
 
 
@@ -207,6 +213,33 @@ var getDatabase = function getDatabase(databaseId) {
         });
     });
 };
+
+
+var getTable = function getTable( tableName, provider) {
+    $.ajax({
+        url: 'https://localhost:44383/Database/GetTable?databaseId=' + window.databaseId
+            + '&tableName='+tableName+'&provider='+provider,
+        type: 'GET',
+        success: function (data, textStatus, xhr) {
+            console.log(data);
+        },
+        complete: function (xhr, textStatus) {
+
+        }
+    }).done(function (result) {
+
+    }).fail(function (jqXHR, textStatus, error) {
+        $('#errorModalTitle').text('Hata!');
+        $('#errorModalBodyText').text('Veritabanı yüklenirken hata oluştu lütfen daha sonra tekrar deneyiniz..!');
+        $('#errorModal').modal('show');
+        $('#errorModal').on('hidden.bs.modal', function (e) {
+            window.location.replace("https://localhost:44383/Database/");
+        });
+    });
+};
+
+
+
 
 var getDataTypes = function getDataTypes(provider) {
     $.ajax({

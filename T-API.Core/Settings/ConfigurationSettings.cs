@@ -13,7 +13,7 @@ namespace T_API.Core.Settings
             Port = "3306",
             Password = "PJvi50C7GJeo56H",
             Username = "u8206796_userTAP",
-            Database = "u8206796_dbTAPI",
+            DatabaseName = "u8206796_dbTAPI",
             Server = "94.73.170.109"
         };
 
@@ -23,7 +23,7 @@ namespace T_API.Core.Settings
             Port = "3306",
             Password = "Berkay.0535",
             Username = "root",
-            Database = "",
+            DatabaseName = "",
             Server = "localhost"
         };
         public static string SecretKey { get; } =

@@ -9,6 +9,8 @@ namespace T_API.Core.DTO.Table
     public class UpdateTableDto
     {
         public string TableName { get; set; }
+        public string DatabaseName { get; set; }
+
         public ObservableCollection<UpdateForeignKeyDto> ForeignKeys { get; set; }
         public ObservableCollection<UpdateIndexDto> Indices { get; set; }
         public ObservableCollection<UpdateKeyDto> Keys { get; set; }

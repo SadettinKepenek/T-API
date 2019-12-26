@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using T_API.Core.DAL.Concrete;
 using T_API.Core.DTO.Column;
 using T_API.Core.DTO.Database;
 using T_API.Core.DTO.ForeignKey;
@@ -81,6 +82,9 @@ namespace T_API.UI.MappingProfiles
             CreateMap<DeleteForeignKeyDto, ForeignKey>().ReverseMap();
             CreateMap<DetailForeignKeyDto, ForeignKey>().ReverseMap();
             CreateMap<ListForeignKeyDto, ForeignKey>().ReverseMap();
+
+
+            CreateMap<DetailDatabaseDto, DbInformation>().ReverseMap();
 
         }
     }

@@ -22,6 +22,11 @@ namespace T_API.BLL.Concrete
         public string CreateTable(Table table)
         {
             StringBuilder sb = new StringBuilder();
+            sb.AppendLine($"USE {table.DatabaseName}; \n");
+
+
+
+
             sb.AppendLine($"Create Table '{table.TableName}'");
             sb.AppendLine("(");
             foreach (Column column in table.Columns)
@@ -100,6 +105,9 @@ namespace T_API.BLL.Concrete
         {
 
             StringBuilder sb = new StringBuilder();
+            sb.AppendLine($"USE {table.DatabaseName}; \n");
+
+
             sb.AppendLine($"Alter Table {table.TableName}");
             foreach (Column column in table.Columns)
             {
@@ -111,9 +119,10 @@ namespace T_API.BLL.Concrete
 
             sb.Append(";\n");
 
-            sb.AppendLine($"Alter Table {table.TableName}");
             if (table.ForeignKeys != null && table.ForeignKeys.Count != 0)
             {
+                sb.AppendLine($"Alter Table {table.TableName}");
+
                 foreach (ForeignKey foreignKey in table.ForeignKeys)
                 {
                     string foreignKeyQuery = AlterRelation(foreignKey);
@@ -121,12 +130,14 @@ namespace T_API.BLL.Concrete
                     if (table.ForeignKeys.IndexOf(foreignKey) != table.ForeignKeys.Count - 1)
                         sb.Append(",\n");
                 }
-            }
-            sb.Append(";\n");
+                sb.Append(";\n");
 
-            sb.AppendLine($"Alter Table {table.TableName}");
+            }
+
             if (table.Indices != null && table.Indices.Where(x => x.IsUnique).ToList().Count != 0)
             {
+                sb.AppendLine($"Alter Table {table.TableName}");
+
                 foreach (Index index in table.Indices.Where(x => x.IsUnique))
                 {
                     string indexQuery = AlterIndex(index);
@@ -134,12 +145,14 @@ namespace T_API.BLL.Concrete
                     if (table.Indices.IndexOf(index) != table.Indices.Where(x => x.IsUnique).ToList().Count - 1)
                         sb.Append(",\n");
                 }
-            }
-            sb.Append(";\n");
+                sb.Append(";\n");
 
-            sb.AppendLine($"Alter Table {table.TableName}");
+            }
+
             if (table.Keys != null && table.Keys.Count != 0)
             {
+                sb.AppendLine($"Alter Table {table.TableName}");
+
                 if (table.Keys.Any(x => x.IsPrimary) && table.Columns.Any(x => x.PrimaryKey))
                 {
                     throw new AmbiguousMatchException($"Bir tablo sadece bir adet primary key içerebilir");
@@ -152,12 +165,14 @@ namespace T_API.BLL.Concrete
                     if (table.Keys.IndexOf(key) != table.Keys.Count - 1)
                         sb.Append(",\n");
                 }
-            }
-            sb.Append(";\n");
+                sb.Append(";\n");
 
-            sb.AppendLine($"Alter Table {table.TableName}");
+            }
+
             if (table.Indices != null && table.Indices.Where(x => x.IsUnique == false).ToList().Count != 0)
             {
+                sb.AppendLine($"Alter Table {table.TableName}");
+
                 foreach (Index index in table.Indices.Where(x => x.IsUnique == false))
                 {
                     string indexQuery = AlterIndex(index);
@@ -165,8 +180,9 @@ namespace T_API.BLL.Concrete
                     if (table.Indices.IndexOf(index) != table.Indices.Count - 1)
                         sb.Append("\n");
                 }
+                sb.Append(";\n");
+
             }
-            sb.Append(";\n");
 
 
 

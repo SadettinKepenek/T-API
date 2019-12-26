@@ -14,6 +14,7 @@ namespace T_API.Entity.Concrete
 
         }
         public string TableName { get; set; }
+        public string DatabaseName { get; set; }
         public ObservableCollection<ForeignKey> ForeignKeys { get; set; }
         public ObservableCollection<Index> Indices { get; set; }
         public ObservableCollection<Key> Keys { get; set; }

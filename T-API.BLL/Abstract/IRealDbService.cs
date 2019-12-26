@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
+using T_API.Core.DAL.Concrete;
 using T_API.Core.DTO.Column;
 using T_API.Core.DTO.Database;
 using T_API.Core.DTO.ForeignKey;
@@ -14,7 +15,7 @@ namespace T_API.BLL.Abstract
     {
         Task CreateDatabaseOnRemote(AddDatabaseDto database);
         Task CreateTableOnRemote(AddTableDto database);
-        Task CreateColumnOnRemote(AddColumnDto column);
+        Task CreateColumnOnRemote(AddColumnDto column,DbInformation dbInformation);
         Task CreateIndexOnRemote(AddIndexDto index);
         Task CreateForeignKeyOnRemote(AddForeignKeyDto foreignKey);
         Task CreateKeyOnRemote(AddKeyDto key);

@@ -155,6 +155,7 @@ namespace T_API.DAL.Concrete
                             if (tables.All(x => x.TableName != group.Key))
                             {
                                 var table = ParseTable(group);
+                                table.DatabaseName = databaseName;
                                 tables.Add(table);
                             }
                         }
@@ -335,6 +336,7 @@ namespace T_API.DAL.Concrete
                         dt.Load(sqlReader);
 
                         var table = ParseTable(dt);
+                        table.DatabaseName = databaseName;
                         return table;
                     }
                     catch (Exception ex)

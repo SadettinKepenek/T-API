@@ -1,5 +1,28 @@
 ﻿window.tableCount = 0;
 
+var init = function init(databaseId, dbProvider) {
+    window.databaseId = databaseId;
+    window.dbProvider = dbProvider;
+    $("body").on('DOMSubtreeModified',
+        "#v-pills-tab-tables",
+        function () {
+            window.tableCount = $('#v-pills-tab-tables').children().length;
+        });
+
+    getDatabase(window.databaseId);
+    $('#addColumnModal').on('shown.bs.modal',
+        function (e) {
+            $('#addColumnForm').trigger('reset');
+            getDataTypes(window.dbProvider);
+
+            window.addColumnDto = new AddColumnDto(parseInt(window.databaseId), window.dbProvider);
+            var tableName = $(e.relatedTarget).data('id');
+            window.addColumnDto.TableName = tableName;
+            $('#tableName').val(tableName);
+            $('#providerInfo').val(window.dbProvider);
+        });
+    prepareInputChangeEvents();
+};
 
 var parseTables = function parseTables(table) {
 
@@ -94,19 +117,6 @@ var parseTables = function parseTables(table) {
 
 };
 
-
-$(document).ready(function () {
-    // Change Table Count
-    $("body").on('DOMSubtreeModified', "#v-pills-tab-tables", function () {
-        window.tableCount = $('#v-pills-tab-tables').children().length;
-    });
-    prepareInputChangeEvents();
-
-
-});
-
-
-
 var getDatabase = function getDatabase(databaseId) {
     var tabTables = $('#v-pills-tab-tables');
     var tableContent = $('#v-pills-tabContent-tables');
@@ -162,12 +172,8 @@ var getDataTypes = function getDataTypes(provider) {
 
 };
 
-
-
 var prepareInputChangeEvents = function prepareInputChangeEvents() {
     $('#dataLength').fadeOut();
-
-
     $('#addColumnModalSubmit').click(function (e) {
         e.preventDefault();
         if (window.addColumnDto === null) {
@@ -175,13 +181,8 @@ var prepareInputChangeEvents = function prepareInputChangeEvents() {
             $('#errorModalBodyText').text('Herhangi bir veri gönderilmedi..!');
             $('#errorModal').modal('show');
         }
-
-
-
         addColumn(window.addColumnDto);
     });
-
-
     $('#columnName').on('input', function () {
         if (this.value.search(' ') >= 0) {
             alert('Lütfen Sütun isimlerinde boşluk bırakmayınız');
@@ -207,15 +208,12 @@ var prepareInputChangeEvents = function prepareInputChangeEvents() {
         }
 
     });
-
     $('#isPrimary').on('change', function () {
         window.addColumnDto.PrimaryKey = this.checked;
     });
-
     $('#isAutoInc').on('change', function () {
         window.addColumnDto.AutoInc = this.checked;
     });
-
     $('#isNotNull').on('change', function () {
         window.addColumnDto.NotNull = this.checked;
     });
@@ -238,23 +236,27 @@ var prepareInputChangeEvents = function prepareInputChangeEvents() {
 };
 
 var addColumn = function addColumn(columnObj) {
-    console.log(JSON.stringify(columnObj));
-
     $.ajax({
         type: 'POST',
-        beforeSend: function(request) {
+        beforeSend: function (request) {
             request.setRequestHeader("Content-Type", "application/json");
         },
         url: 'https://localhost:44383/Database/AddColumn',
         data: JSON.stringify(columnObj),
-        dataType: 'JSON',
         contentType: "application/json",
         success: function (data) {
-            console.log(data);
             getDatabase(columnObj.DatabaseId);
+            $('#addColumnModal').modal('toggle');
         },
-        failure: function (errMsg) {
-            alert(errMsg);
+        error: function (XMLHttpRequest, textStatus, errorThrown) {
+            console.log(textStatus);
+            console.log(errorThrown);
+            $('#errorModalTitle').text('Hata!');
+            $('#errorModalBodyText').text(XMLHttpRequest.responseText);
+            $('#errorModal').modal('show');
+        },
+        done: function (data) {
+            console.log(data.statusCode);
         }
     });
 };

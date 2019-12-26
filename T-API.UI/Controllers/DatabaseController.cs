@@ -151,8 +151,14 @@ namespace T_API.UI.Controllers
                 }
 
                 var dbInformation = _mapper.Map<DbInformation>(db);
+
+                if (dbInformation == null)
+                {
+                    throw new NullReferenceException("Database bulunamadı");
+                }
+
                 await _realDbService.CreateColumnOnRemote(model, dbInformation);
-                return Ok();
+                return Ok("Success");
             }
             catch (Exception e)
             {

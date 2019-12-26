@@ -166,8 +166,6 @@ var getDataTypes = function getDataTypes(provider) {
 
 var prepareInputChangeEvents = function prepareInputChangeEvents() {
     $('#dataLength').fadeOut();
-
-
     $('#addColumnModalSubmit').click(function (e) {
         e.preventDefault();
         if (window.addColumnDto === null) {
@@ -175,13 +173,8 @@ var prepareInputChangeEvents = function prepareInputChangeEvents() {
             $('#errorModalBodyText').text('Herhangi bir veri gönderilmedi..!');
             $('#errorModal').modal('show');
         }
-
-
-
         addColumn(window.addColumnDto);
     });
-
-
     $('#columnName').on('input', function () {
         if (this.value.search(' ') >= 0) {
             alert('Lütfen Sütun isimlerinde boşluk bırakmayınız');
@@ -207,15 +200,12 @@ var prepareInputChangeEvents = function prepareInputChangeEvents() {
         }
 
     });
-
     $('#isPrimary').on('change', function () {
         window.addColumnDto.PrimaryKey = this.checked;
     });
-
     $('#isAutoInc').on('change', function () {
         window.addColumnDto.AutoInc = this.checked;
     });
-
     $('#isNotNull').on('change', function () {
         window.addColumnDto.NotNull = this.checked;
     });
@@ -245,24 +235,22 @@ var addColumn = function addColumn(columnObj) {
         },
         url: 'https://localhost:44383/Database/AddColumn',
         data: JSON.stringify(columnObj),
-        dataType: 'JSON',
         contentType: "application/json",
         success: function (data) {
             getDatabase(columnObj.DatabaseId);
+            $('#addColumnModal').modal('toggle');
         },
-        statusCode: {
-            200: function(response) {
-                getDatabase(columnObj.DatabaseId);
-                $('#addColumnModal').fadeOut()
-            },
-            400: function(response) {
-                console.log(response.responseText);
-            }
+        error: function (XMLHttpRequest, textStatus, errorThrown) {
+            console.log(textStatus);
+            console.log(errorThrown);
+            $('#errorModalTitle').text('Hata!');
+            $('#errorModalBodyText').text(XMLHttpRequest.responseText);
+            $('#errorModal').modal('show');
+        },
+        done: function (data) {
+            console.log(data.statusCode);
         }
 
-    }).fail(function (jqXHR, textStatus, error) {
-        $('#errorModalTitle').text('Hata!');
-        $('#errorModalBodyText').text(jqXHR.responseText);
-        $('#errorModal').modal('show');
+
     });
 };

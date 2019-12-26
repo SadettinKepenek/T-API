@@ -14,37 +14,14 @@ namespace T_API.DAL.Concrete
         {
         }
 
-        public Task CreateDatabaseOnRemote(string query)
+
+
+        public Task ExecuteQueryOnRemote(string query, DbInformation dbInformation)
         {
             throw new System.NotImplementedException();
         }
 
-        public Task CreateTableOnRemote(string query)
-        {
-            throw new System.NotImplementedException();
-        }
-
-        public Task CreateColumnOnRemote(string query)
-        {
-            throw new System.NotImplementedException();
-        }
-
-        public Task CreateIndexOnRemote(string query)
-        {
-            throw new System.NotImplementedException();
-        }
-
-        public Task CreateForeignKeyOnRemote(string query)
-        {
-            throw new System.NotImplementedException();
-        }
-
-        public Task CreateKeyOnRemote(string query)
-        {
-            throw new System.NotImplementedException();
-        }
-
-        public Task ExecuteQueryOnRemote(string query,DbInformation dbInformation)
+        public Task ExecuteQueryOnRemote(string query)
         {
             throw new System.NotImplementedException();
         }

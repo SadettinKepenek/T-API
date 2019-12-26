@@ -56,7 +56,7 @@ namespace T_API.BLL.Concrete
                                     _realDbRepositoryFactory.CreateRepository(database.Provider) as
                                         MySqlRealDbRepository;
                                 if (realDbRepository != null)
-                                    await realDbRepository.CreateDatabaseOnRemote(createDatabaseCommand);
+                                    await realDbRepository.ExecuteQueryOnRemote(createDatabaseCommand);
                                 else
                                     throw new NullReferenceException("Mysql Real Db Repository Referansına Ulaşlamadı");
                             }
@@ -110,7 +110,7 @@ namespace T_API.BLL.Concrete
                                 if (realDbRepository != null)
                                 {
                                     using TransactionScope scope = new TransactionScope();
-                                    await realDbRepository.CreateTableOnRemote(command);
+                                    await realDbRepository.ExecuteQueryOnRemote(command);
                                     scope.Complete();
                                 }
                                 else

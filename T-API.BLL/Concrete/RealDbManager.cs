@@ -278,9 +278,9 @@ namespace T_API.BLL.Concrete
                 {
                     if (_realDbRepositoryFactory.CreateRepository(dbInformation.Provider) is MySqlRealDbRepository realDbRepository)
                     {
-                        using TransactionScope scope = new TransactionScope();
+                        //using TransactionScope scope = new TransactionScope();
                         await realDbRepository.ExecuteQueryOnRemote(query, dbInformation);
-                        scope.Complete();
+                        //scope.Complete();
                     }
                     else
                     {

@@ -87,14 +87,16 @@ var init = function init(databaseId, dbProvider) {
 
         });
 
+
+
     prepareInputChangeEvents();
 };
 
 var parseDatabase = function parseDatabase(table) {
-
     var tabTables = $('#v-pills-tab-tables');
     var tableContent = $('#v-pills-tabContent-tables');
-
+    tabTables.empty();
+    tableContent.empty();
 
     table.forEach(function (table) {
 
@@ -111,7 +113,6 @@ var parseDatabase = function parseDatabase(table) {
             'href="#v-pills-' + window.tableCount + '"' +
             'role="tab" aria-controls="v-pills-home" aria-selected="true">' + table.tableName + '</a>';
 
-
         // Add Table Content Div
 
         var tableContentString = '<div class="tab-pane fade ';
@@ -120,149 +121,147 @@ var parseDatabase = function parseDatabase(table) {
         } else {
             tableContentString += '"';
         }
-
-
         tableContentString += 'id="v-pills-' + window.tableCount + '" role="tabpanel" ' +
             'aria-labelledby="v-pills-home-tab">';
+        //Container başlangıç
         tableContentString += '<div class="container">';
-
-
         // Add Column Section
-        tableContentString += '<div class="row">';
-        tableContentString += '<h5>Columns</h5>';
-        tableContentString += '<button type="button"' +
-            ' class="btn btn-info btn-sm"' +
-            ' style="margin-bottom: 5px;margin-left:10px;"' +
-            ' data-toggle="modal" ' +
-            ' data-id=' + table.tableName +
-            ' data-target="#addColumnModal">';
-        tableContentString += 'Add';
-        tableContentString += '</button>';
-        tableContentString += '</div>';
-
-
-        tableContentString += '<div class="row">';
-        tableContentString += '<div class="col-md-4">';
-        tableContentString += 'Column Name';
-        tableContentString += '</div>';
-        tableContentString += '<div class="col-md-2">';
-        tableContentString += 'Data Type';
-        tableContentString += '</div>';
-        tableContentString += '<div class="col-md-2">';
-        tableContentString += 'Default Value';
-        tableContentString += '</div>';
-        tableContentString += '<div class="col-md-2">';
-        tableContentString += 'Is Primary';
-        tableContentString += '</div>';
-        tableContentString += '<div class="col-md-2">';
-        tableContentString += 'Is Auto Inc';
-        tableContentString += '</div>';
+        tableContentString += '<h5 class="text-center">Columns</h5>';
         tableContentString += '<hr/>';
+        tableContentString += '<div class="row">';
+        tableContentString += '<table class="table table-striped table-bordered" id="databaseTable_Columns_' + table.tableName + '"></table>';
+        tableContentString += '</div>';
+        // Add Foreign Key Section
+        tableContentString += '<h5 class="text-center">Foreign Keys</h5>';
+        tableContentString += '<hr/>';
+        tableContentString += '<div class="row">';
+        tableContentString += '<table class="table table-striped table-bordered" id="databaseTable_Foreigns_' + table.tableName + '"></table>';
+        tableContentString += '</div>';
+        // Container bitiş
         tableContentString += '</div>';
         tabTables.append(tabTablesString);
-
-        table.columns.forEach(function (column) {
-            tableContentString += '<hr/>';
-            tableContentString += '<div class="row">';
-            tableContentString += '<div class="col-md-4">';
-            tableContentString += column.columnName;
-            tableContentString += '</div>';
-            tableContentString += '<div class="col-md-2">';
-            tableContentString += column.dataType;
-            tableContentString += '</div>';
-            tableContentString += '<div class="col-md-2">';
-            tableContentString += column.defaultValue;
-            tableContentString += '</div>';
-            tableContentString += '<div class="col-md-2">';
-            tableContentString += column.primaryKey;
-            tableContentString += '</div>';
-            tableContentString += '<div class="col-md-2">';
-            tableContentString += column.autoInc;
-            tableContentString += '</div>';
-            tableContentString += '</div>';
-
-        });
-
-        // Add Foreign Key Section
+        tableContent.append(tableContentString);
+        // Initialize Datatable for Columns
+        initDataTableForColumns(table.tableName);
+        initDataTableForForeigns(table.tableName);
+        window.tableCount++;
+    });
+};
 
 
-        tableContentString += '<hr/>';
-        tableContentString += '<div class="row">';
-        tableContentString += '<h5>Foreign Keys</h5>';
-        tableContentString += '<button type="button"' +
+// Table için foreignkeylerin datatableini ayarlar.
+
+var initDataTableForForeigns = function initDataTableForForeigns(tableName) {
+
+    if (window.databaseTables === null || window.databaseTables === undefined) {
+        showCriticalError('Hata', 'Veritabanı yüklenirken hata oluştu lütfen daha sonra tekrar deneyiniz..', "https://localhost:44383/Database/")
+    }
+
+    var data = window.databaseTables.find(x => x.tableName === tableName);
+    if (data) {
+        console.log(data.columns);
+        var buttonStr = '';
+        buttonStr += '<button type="button"' +
             ' class="btn btn-info btn-sm"' +
             ' style="margin-bottom: 5px;margin-left:10px;"' +
             ' data-toggle="modal" ' +
-            ' data-id=' + table.tableName +
+            ' data-id=' + tableName +
             ' data-target="#addForeignKeyModal">';
-        tableContentString += 'Add';
-        tableContentString += '</button>';
-        tableContentString += '</div>';
+        buttonStr += 'Add';
+        buttonStr += '</button>';
 
-        tableContentString += '<br/>';
-        tableContentString += '<div class="row">';
-        tableContentString += '<div class="col-md-4">';
-        tableContentString += 'Key Name';
-        tableContentString += '</div>';
-        tableContentString += '<div class="col-md-2">';
-        tableContentString += 'Source';
-        tableContentString += '</div>';
-        tableContentString += '<div class="col-md-2">';
-        tableContentString += 'Target';
-        tableContentString += '</div>';
-        tableContentString += '<div class="col-md-2">';
-        tableContentString += 'Source';
-        tableContentString += '</div>';
-        tableContentString += '<div class="col-md-2">';
-        tableContentString += 'Target';
-        tableContentString += '</div>';
+        $('#databaseTable_Foreigns_' + tableName).DataTable({
+            processing: true,
+            data: data.foreignKeys,
+            destroy: true,
+            columns: [
+                { data: "foreignKeyName", title: "Key Name" },
+                { data: "targetTable", title: "Target Table" },
+                { data: "targetColumn", title: "Target Column" },
+                { data: "sourceTable", title: "Source Table" },
+                { data: "sourceColumn", title: "Source Column" },
+                { data: "onUpdateAction", title: "OnUpdate Action" },
+                { data: "onDeleteAction", title: "OnDelete Action" },
+                {
+                    data: null,
+                    title: buttonStr,
+                    className: "center",
+                    defaultContent: '<a href="" class="editor_edit">Edit</a> / <a href="" class="editor_remove">Delete</a>'
+                }
+            ],
+            "oLanguage": {
+                "sEmptyTable": "Your custom message for empty table"
+            },
+            "paging": false,
+            "ordering": false,
+            "info": false,
+            "searching": false
 
-        tableContentString += '<hr/>';
-        tableContentString += '</div>';
-
-
-        table.foreignKeys.forEach(function (foreignKey) {
-            tableContentString += '<hr/>';
-            tableContentString += '<div class="row">';
-            tableContentString += '<div class="col-md-4">';
-            tableContentString += foreignKey.foreignKeyName;
-            tableContentString += '</div>';
-            tableContentString += '<div class="col-md-2">';
-            tableContentString += foreignKey.sourceTable;
-            tableContentString += '</div>';
-            tableContentString += '<div class="col-md-2">';
-            tableContentString += foreignKey.targetTable;
-            tableContentString += '</div>';
-            tableContentString += '<div class="col-md-2">';
-            tableContentString += foreignKey.sourceColumn;
-            tableContentString += '</div>';
-            tableContentString += '<div class="col-md-2">';
-            tableContentString += foreignKey.targetColumn;
-            tableContentString += '</div>';
-            tableContentString += '</div>';
         });
-
-        tableContentString += '</div>';
-
-
-        tableContent.append(tableContentString);
-        window.tableCount++;
-    });
-
+    } else {
+        showCriticalError('Hata', 'Veritabanı yüklenirken hata oluştu lütfen daha sonra tekrar deneyiniz..', "https://localhost:44383/Database/")
+    }
 
 
 };
 
-var initForeignKeyFeature = function initForeignKeyFeature() {
-    window.databaseTables.forEach(function (d) {
-        $('#foreignKeySourceTable').append($('<option>',
-            {
-                value: d.tableName,
-                text: d.tableName
-            }));
-    });
+// Table için sütunların datatableını ayarlar.
+
+var initDataTableForColumns = function initDataTableForColumns(tableName) {
+
+    if (window.databaseTables === null || window.databaseTables === undefined) {
+        showCriticalError('Hata', 'Veritabanı yüklenirken hata oluştu lütfen daha sonra tekrar deneyiniz..', "https://localhost:44383/Database/")
+    }
+
+    var data = window.databaseTables.find(x => x.tableName === tableName);
+    if (data) {
+        console.log(data.columns);
+        var buttonStr = '';
+        buttonStr += '<button type="button"' +
+            ' class="btn btn-info btn-sm"' +
+            ' style="margin-bottom: 5px;margin-left:10px;"' +
+            ' data-toggle="modal" ' +
+            ' data-id=' + data.tableName +
+            ' data-target="#addColumnModal">';
+        buttonStr += 'Add';
+        buttonStr += '</button>';
+
+        $('#databaseTable_Columns_' + tableName).DataTable({
+            processing: true,
+            data: data.columns,
+            destroy: true,
+            columns: [
+                { data: "columnName", title: "Column Name" },
+                { data: "dataType", title: "Data Type" },
+                { data: "dataLength", title: "Data Length" },
+                { data: "primaryKey", title: "Primary Key?" },
+                { data: "unique", title: "Unique?" },
+                { data: "autoInc", title: "Auto Increment?" },
+                { data: "notNull", title: "Not Null?" },
+                {
+                    data: null,
+                    title: buttonStr,
+                    className: "center",
+                    defaultContent: '<a href="" class="editor_edit">Edit</a> / <a href="" class="editor_remove">Delete</a>'
+                }
+            ],
+            "oLanguage": {
+                "sEmptyTable": "Your custom message for empty table"
+            },
+            "paging": false,
+            "ordering": false,
+            "info": false,
+            "searching": false
+
+        });
+    } else {
+        showCriticalError('Hata', 'Veritabanı yüklenirken hata oluştu lütfen daha sonra tekrar deneyiniz..', "https://localhost:44383/Database/")
+    }
+
+
 };
 
+// Tablo ismine göre tableın sütunlarını getirir.
 var getColumnsByTableName = function getColumns(tableName) {
     if (window.databaseTables) {
         let found = window.databaseTables.find(x => x.tableName === tableName);
@@ -279,7 +278,7 @@ var getColumnsByTableName = function getColumns(tableName) {
     }
 };
 
-
+// Sitenin kapatılacağı hatayı dinamik şekilde gösterir
 var showCriticalError = function showCriticialError(title, body, href) {
     $('#errorModalTitle').text(title);
     $('#errorModalBodyText').text(body);
@@ -289,6 +288,7 @@ var showCriticalError = function showCriticialError(title, body, href) {
     });
 }
 
+// Source Column için kullanılacak sütunun uygunluğuna bakılır.
 var checkRelationColumnAvailability = function checkRelationColumnAvailability(columnName, tableName) {
     var targetCheck = true;
 
@@ -314,6 +314,7 @@ var checkRelationColumnAvailability = function checkRelationColumnAvailability(c
 
 };
 
+// Veritabanı Idsine göre server-side işlem yapılır.
 var getDatabase = function getDatabase(databaseId) {
     var tabTables = $('#v-pills-tab-tables');
     var tableContent = $('#v-pills-tabContent-tables');
@@ -326,7 +327,6 @@ var getDatabase = function getDatabase(databaseId) {
         success: function (data, textStatus, xhr) {
             window.databaseTables = data.tables;
             parseDatabase(data.tables);
-            initForeignKeyFeature();
         },
         complete: function (xhr, textStatus) {
 
@@ -343,6 +343,7 @@ var getDatabase = function getDatabase(databaseId) {
     });
 };
 
+// Tablo ismine ve providere göre tablo getirilir.
 var getTable = function getTable(tableName, provider) {
     $.ajax({
         url: 'https://localhost:44383/Database/GetTable?databaseId=' + window.databaseId
@@ -366,6 +367,7 @@ var getTable = function getTable(tableName, provider) {
     });
 };
 
+// Kullanılabilir veri tipi providere bağlı olarak getirilir.
 var getDataTypes = function getDataTypes(provider) {
     $.ajax({
         url: 'https://localhost:44383/Database/GetDataTypes?provider=' + provider,
@@ -395,6 +397,7 @@ var getDataTypes = function getDataTypes(provider) {
 
 };
 
+// Sistem üzerinde property change eventleri initialize edilir.
 var prepareInputChangeEvents = function prepareInputChangeEvents() {
 
     // Add Column Modal
@@ -499,7 +502,7 @@ var prepareInputChangeEvents = function prepareInputChangeEvents() {
 
 };
 
-
+// Sütun ekleme (Server-Side) 
 var addColumn = function addColumn(columnObj) {
     $.ajax({
         type: 'POST',
@@ -523,6 +526,7 @@ var addColumn = function addColumn(columnObj) {
     });
 };
 
+// Relationship ekleme (Server-Side)
 var addForeignKey = function addForeignKey(foreignKey) {
     $.ajax({
         type: 'POST',
@@ -537,7 +541,7 @@ var addForeignKey = function addForeignKey(foreignKey) {
             $('#addForeignKeyModal').modal('toggle');
         },
         error: function (XMLHttpRequest, textStatus, errorThrown) {
-         
+
             $('#errorModalTitle').text('Hata!');
             $('#errorModalBodyText').text(XMLHttpRequest.responseText);
             $('#errorModal').modal('show');

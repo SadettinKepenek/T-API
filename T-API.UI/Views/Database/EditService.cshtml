@@ -64,6 +64,7 @@
     <div class="row">
         <div class="col-3">
             <div class="nav flex-column nav-pills" id="v-pills-tab-tables" role="tablist" aria-orientation="vertical">
+               
             </div>
         </div>
         <div class="col-9">
@@ -71,6 +72,8 @@
             </div>
         </div>
     </div>
+
+
 </div>
 
 
@@ -156,7 +159,7 @@
                 <form id="addForeignKeyForm">
                     <h5>Info</h5>
                     <input class="form-control" id="foreignKeyName" placeholder="Foreign Key Name"
-                           required="required"  />
+                           required="required" />
                     <hr />
 
                     <h5>Source Information</h5>
@@ -209,6 +212,7 @@
 <script type="text/javascript">
     $(document).ready(function () {
         init(parseInt(@Model.DatabaseId), '@Model.Provider');
+
     });
 
 

@@ -16,6 +16,10 @@
     {
       "library": "jqueryui@1.12.1",
       "destination": "wwwroot/lib/jquery-ui/"
+    },
+    {
+      "library": "datatables@1.10.19",
+      "destination": "wwwroot/lib/datatables/"
     }
   ]
 }

@@ -29,7 +29,7 @@ var init = function init(databaseId, dbProvider) {
 
     $('#addForeignKeyModal').on('shown.bs.modal',
         function (e) {
-            if (window.databaseTables === null) {
+            if (window.databaseTables === null || window.foreignKeys===null) {
                 showCriticalError('Hata', 'Veritabanı yüklenirken hata oluştu lütfen daha sonra tekrar deneyiniz..', "https://localhost:44383/Database/")
                 return;
             }
@@ -44,17 +44,38 @@ var init = function init(databaseId, dbProvider) {
 
             $('#foreignKeySourceTable').val(tableName);
             var found = getColumnsByTableName(tableName);
+            var columnCount = 0;
             found.columns.forEach(function (d) {
+                let data = found.foreignKeys.find(x => x.sourceColumn === d.columnName);
+                console.log(d.unique);
+                console.log(d.primaryKey);
+                console.log(d.columnName);
 
-                $('#foreignKeySourceColumn').append($('<option>',
-                    {
-                        value: d.columnName,
-                        text: d.columnName
-                    }));
+                if (data === null) {
+                    if(d.primaryKey || d.unique) {
+                        $('#foreignKeySourceColumn').append($('<option>',
+                            {
+                                value: d.columnName,
+                                text: d.columnName
+                            }));
+                        columnCount++;
+                    }
+                }
             });
+            console.log(columnCount);
+            if (columnCount === 0) {
+                //
+                $('#errorModalTitle').text('Hata!');
+                $('#errorModalBodyText').text('Hiçbir sütun ilişkilendirme için kullanılabilir değil..!');
+                $('#errorModal').modal('show');
+                $('#errorModal').on('hidden.bs.modal', function (e) {
+                    $('#addForeignKeyModal').modal('toggle');
+
+                });
+            }
 
             var otherTables = window.databaseTables.filter(x => x.tableName !== tableName);
-            otherTables.forEach(function(table) {
+            otherTables.forEach(function (table) {
                 $('#foreignKeyTargetTable').append($('<option>',
                     {
                         value: table.tableName,
@@ -67,7 +88,7 @@ var init = function init(databaseId, dbProvider) {
     prepareInputChangeEvents();
 };
 
-var parseTables = function parseTables(table) {
+var parseDatabase = function parseDatabase(table) {
 
     var tabTables = $('#v-pills-tab-tables');
     var tableContent = $('#v-pills-tabContent-tables');
@@ -278,7 +299,7 @@ var getDatabase = function getDatabase(databaseId) {
         type: 'GET',
         success: function (data, textStatus, xhr) {
             window.databaseTables = data.tables;
-            parseTables(data.tables);
+            parseDatabase(data.tables);
             initForeignKeyFeature();
         },
         complete: function (xhr, textStatus) {
@@ -485,7 +506,7 @@ var addForeignKey = function addForeignKey(foreignKey) {
         data: JSON.stringify(foreignKey),
         contentType: "application/json",
         success: function (data) {
-            
+
             $('#addForeignKeyModal').modal('toggle');
         },
         error: function (XMLHttpRequest, textStatus, errorThrown) {

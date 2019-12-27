@@ -18,14 +18,14 @@ namespace T_API.DAL.Concrete
 
 
 
-        
+
         /// <summary>
         /// Veritabanında istenilen sorguyu çalıştırır.
         /// </summary>
         /// <param name="query">Çalıştırılmak istenilen sorgu</param>
         /// <param name="dbInformation">Bağlantı bilgileri</param>
         /// <returns></returns>
-        public async Task ExecuteQueryOnRemote(string query,DbInformation dbInformation)
+        public async Task ExecuteQueryOnRemote(string query, DbInformation dbInformation)
         {
             using (var conn = DbConnectionFactory.CreateConnection(dbInformation))
             {
@@ -34,17 +34,25 @@ namespace T_API.DAL.Concrete
 
                 using (cmd)
                 {
-                    try
-                    {
-                        cmd.ExecuteNonQuery();
-                    }
-                    catch (Exception ex)
-                    {
-                        Console.WriteLine("Commit Exception Type: {0}", ex.GetType());
-                        Console.WriteLine("  Message: {0}", ex.Message);
-                        throw ExceptionHandler.HandleException(ex);
 
+                    using (var transaction = conn.BeginTransaction())
+                    {
+                        try
+                        {
+                            cmd.Transaction = transaction;
+                            cmd.ExecuteNonQuery();
+                            transaction.Commit();
+                        }
+                        catch (Exception ex)
+                        {
+                            Console.WriteLine("Commit Exception Type: {0}", ex.GetType());
+                            Console.WriteLine("  Message: {0}", ex.Message);
+                            transaction.Rollback();
+                            throw ExceptionHandler.HandleException(ex);
+
+                        }
                     }
+
                 }
 
             }
@@ -205,7 +213,7 @@ namespace T_API.DAL.Concrete
 
                 #region ForeignKeys
 
-                var foreignKeys = groupedColumn.Where(x => x.Field<Int64>("IsForeignKey")==1);
+                var foreignKeys = groupedColumn.Where(x => x.Field<Int64>("IsForeignKey") == 1);
                 foreach (DataRow key in foreignKeys)
                 {
                     if (table.ForeignKeys.All(x => x.ForeignKeyName != key["CONSTRAINT_NAME"] as string))
@@ -281,7 +289,7 @@ namespace T_API.DAL.Concrete
             using (var conn = DbConnectionFactory.CreateConnection(ConfigurationSettings.ServerDbInformation))
             {
 
-                var cmd = conn.CreateCommand(MySqlQueryTemplates.GetTable(databaseName,tableName));
+                var cmd = conn.CreateCommand(MySqlQueryTemplates.GetTable(databaseName, tableName));
 
                 using (cmd)
                 {

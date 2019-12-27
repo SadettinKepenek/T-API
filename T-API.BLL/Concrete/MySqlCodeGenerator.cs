@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Reflection;
 using System.Text;
@@ -31,6 +32,22 @@ namespace T_API.BLL.Concrete
             sb.AppendLine("(");
             foreach (Column column in table.Columns)
             {
+
+                if (table.Indices == null) table.Indices = new ObservableCollection<Index>();
+
+
+                if (column.Unique)
+                    table.Indices.Add(new Index
+                    {
+                        TableName = table.TableName,
+                        IndexColumn = column.ColumnName,
+                        IndexName = $"Unique_Index_{table.TableName}_{column.ColumnName}",
+                        IsUnique = column.Unique,
+
+                    });
+
+
+
                 string columnQuery = CreateColumn(column);
                 sb.Append(columnQuery);
                 if (table.Columns.IndexOf(column) != table.Columns.Count - 1)
@@ -103,15 +120,30 @@ namespace T_API.BLL.Concrete
 
         public string AlterTable(Table table)
         {
+            if (table.Indices == null) table.Indices = new ObservableCollection<Index>();
 
             StringBuilder sb = new StringBuilder();
             sb.AppendLine($"USE {table.DatabaseName}; \n");
+
 
             if (table.Columns != null && table.Columns.Count != 0)
             {
                 sb.AppendLine($"Alter Table {table.TableName}");
                 foreach (Column column in table.Columns)
                 {
+
+
+
+                    if (column.Unique)
+                        table.Indices.Add(new Index
+                        {
+                            TableName = table.TableName,
+                            IndexColumn = column.ColumnName,
+                            IndexName = $"Unique_Index_{table.TableName}_{column.ColumnName}",
+                            IsUnique = column.Unique,
+
+                        });
+
                     string columnQuery = AlterColumn(column);
                     sb.Append($"{columnQuery}");
                     if (table.Columns.IndexOf(column) != table.Columns.Count - 1)
@@ -120,7 +152,7 @@ namespace T_API.BLL.Concrete
 
                 sb.Append(";\n");
             }
-           
+
 
             if (table.ForeignKeys != null && table.ForeignKeys.Count != 0)
             {
@@ -139,8 +171,8 @@ namespace T_API.BLL.Concrete
 
             if (table.Indices != null && table.Indices.Where(x => x.IsUnique).ToList().Count != 0)
             {
-                sb.AppendLine($"Alter Table {table.TableName}");
-
+                //sb.AppendLine($"Alter Table {table.TableName}");
+                sb.AppendLine($"\n");
                 foreach (Index index in table.Indices.Where(x => x.IsUnique))
                 {
                     string indexQuery = AlterIndex(index);
@@ -148,7 +180,7 @@ namespace T_API.BLL.Concrete
                     if (table.Indices.IndexOf(index) != table.Indices.Where(x => x.IsUnique).ToList().Count - 1)
                         sb.Append(",\n");
                 }
-                sb.Append(";\n");
+                sb.Append("\n");
 
             }
 
@@ -174,7 +206,8 @@ namespace T_API.BLL.Concrete
 
             if (table.Indices != null && table.Indices.Where(x => x.IsUnique == false).ToList().Count != 0)
             {
-                sb.AppendLine($"Alter Table {table.TableName}");
+                //sb.AppendLine($"Alter Table {table.TableName}");
+                sb.AppendLine($"\n");
 
                 foreach (Index index in table.Indices.Where(x => x.IsUnique == false))
                 {
@@ -183,7 +216,7 @@ namespace T_API.BLL.Concrete
                     if (table.Indices.IndexOf(index) != table.Indices.Count - 1)
                         sb.Append("\n");
                 }
-                sb.Append(";\n");
+                sb.Append("\n");
 
             }
 

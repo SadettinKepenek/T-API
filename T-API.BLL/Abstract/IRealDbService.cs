@@ -20,6 +20,11 @@ namespace T_API.BLL.Abstract
         Task CreateForeignKeyOnRemote(AddForeignKeyDto foreignKey, DbInformation dbInformation);
         Task CreateKeyOnRemote(AddKeyDto key, DbInformation dbInformation);
 
+
+        Task ExecuteQueryOnRemote(string query, DbInformation dbInformation);
+        Task ExecuteQueryOnRemote(string query);
+
+
         Task<List<DetailTableDto>> GetTables(string databaseName,string provider);
         Task<DetailTableDto> GetTable(string tableName, string databaseName, string provider);
 

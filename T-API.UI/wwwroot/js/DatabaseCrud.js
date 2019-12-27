@@ -16,6 +16,7 @@ var init = function init(databaseId, dbProvider) {
     $('#addColumnModal').on('shown.bs.modal',
         function (e) {
             $('#addColumnForm').trigger('reset');
+            $('#dataLength').fadeOut();
             getDataTypes(window.dbProvider);
 
             window.addColumnDto = new AddColumnDto(parseInt(window.databaseId), window.dbProvider);
@@ -29,13 +30,20 @@ var init = function init(databaseId, dbProvider) {
 
     $('#addForeignKeyModal').on('shown.bs.modal',
         function (e) {
-            if (window.databaseTables === null || window.foreignKeys===null) {
+            if (window.databaseTables === null || window.foreignKeys === null) {
                 showCriticalError('Hata', 'Veritabanı yüklenirken hata oluştu lütfen daha sonra tekrar deneyiniz..', "https://localhost:44383/Database/")
                 return;
             }
 
 
             $('#addForeignKeyForm').trigger('reset');
+            $('#foreignKeySourceColumn').find('option').not(':first').remove();
+            $('#foreignKeyTargetTable').find('option').not(':first').remove();
+            $('#foreignKeyTargetColumn').find('option').not(':first').remove();
+
+
+
+
             window.addForeignKeyDto = new AddForeignKey(parseInt(window.databaseId), window.dbProvider);
             var tableName = $(e.relatedTarget).data('id');
             window.addForeignKeyDto.TableName = tableName;
@@ -46,23 +54,17 @@ var init = function init(databaseId, dbProvider) {
             var found = getColumnsByTableName(tableName);
             var columnCount = 0;
             found.columns.forEach(function (d) {
-                let data = found.foreignKeys.find(x => x.sourceColumn === d.columnName);
-                console.log(d.unique);
-                console.log(d.primaryKey);
-                console.log(d.columnName);
 
-                if (data === null) {
-                    if(d.primaryKey || d.unique) {
-                        $('#foreignKeySourceColumn').append($('<option>',
-                            {
-                                value: d.columnName,
-                                text: d.columnName
-                            }));
-                        columnCount++;
-                    }
+                if (checkRelationColumnAvailability(d.columnName, found.tableName)) {
+                    $('#foreignKeySourceColumn').append($('<option>',
+                        {
+                            value: d.columnName,
+                            text: d.columnName
+                        }));
+                    columnCount++;
                 }
+
             });
-            console.log(columnCount);
             if (columnCount === 0) {
                 //
                 $('#errorModalTitle').text('Hata!');
@@ -287,6 +289,30 @@ var showCriticalError = function showCriticialError(title, body, href) {
     });
 }
 
+var checkRelationColumnAvailability = function checkRelationColumnAvailability(columnName, tableName) {
+    var targetCheck = true;
+
+    window.databaseTables.forEach(function (table) {
+        var result = table.foreignKeys.find(x =>
+            x.targetColumn === columnName && x.targetTable === tableName);
+        if (result !== null && result !== undefined) {
+            targetCheck = false;
+            return;
+        }
+    });
+    var checkPoint2 = window.databaseTables.find(x => x.tableName == tableName);
+    if (checkPoint2 === null || checkPoint2 === undefined) {
+        return false;
+    }
+    var sourceCheck = checkPoint2.foreignKeys.find(x =>
+        x.sourceColumn === columnName && x.sourceTable === tableName);
+
+
+
+    return targetCheck && (sourceCheck === null || sourceCheck === undefined);
+
+
+};
 
 var getDatabase = function getDatabase(databaseId) {
     var tabTables = $('#v-pills-tab-tables');
@@ -345,6 +371,7 @@ var getDataTypes = function getDataTypes(provider) {
         url: 'https://localhost:44383/Database/GetDataTypes?provider=' + provider,
         type: 'GET',
         success: function (data, textStatus, xhr) {
+            $('#columnTypesSelect').find('option').not(':first').remove();
             data.forEach(function (d) {
                 $('#columnTypesSelect').append($('<option>',
                     {
@@ -437,11 +464,14 @@ var prepareInputChangeEvents = function prepareInputChangeEvents() {
         window.addForeignKeyDto.TargetTable = this.value;
         var found = getColumnsByTableName(this.value);
         found.columns.forEach(function (d) {
-            $('#foreignKeyTargetColumn').append($('<option>',
-                {
-                    value: d.columnName,
-                    text: d.columnName
-                }));
+            if (checkRelationColumnAvailability(d.columnName, found.tableName)) {
+                $('#foreignKeyTargetColumn').append($('<option>',
+                    {
+                        value: d.columnName,
+                        text: d.columnName
+                    }));
+            }
+
         });
 
 
@@ -484,14 +514,11 @@ var addColumn = function addColumn(columnObj) {
             $('#addColumnModal').modal('toggle');
         },
         error: function (XMLHttpRequest, textStatus, errorThrown) {
-            console.log(textStatus);
-            console.log(errorThrown);
             $('#errorModalTitle').text('Hata!');
             $('#errorModalBodyText').text(XMLHttpRequest.responseText);
             $('#errorModal').modal('show');
         },
         done: function (data) {
-            console.log(data.statusCode);
         }
     });
 };
@@ -510,14 +537,12 @@ var addForeignKey = function addForeignKey(foreignKey) {
             $('#addForeignKeyModal').modal('toggle');
         },
         error: function (XMLHttpRequest, textStatus, errorThrown) {
-            console.log(textStatus);
-            console.log(errorThrown);
+         
             $('#errorModalTitle').text('Hata!');
             $('#errorModalBodyText').text(XMLHttpRequest.responseText);
             $('#errorModal').modal('show');
         },
         done: function (data) {
-            console.log(data.statusCode);
         }
     });
 }

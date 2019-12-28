@@ -11,6 +11,8 @@ using T_API.Core.DAL.Concrete;
 using T_API.Core.DTO.Column;
 using T_API.Core.DTO.Database;
 using T_API.Core.DTO.ForeignKey;
+using T_API.Core.DTO.Index;
+using T_API.Core.DTO.Key;
 using T_API.Core.DTO.Table;
 using T_API.Core.Exception;
 using T_API.Core.Settings;
@@ -276,20 +278,46 @@ namespace T_API.UI.Controllers
 
 
         [HttpGet]
+        public async Task<IActionResult> AddTable(int databaseId)
+        {
+            try
+            {
+                var db = await _databaseService.GetById(databaseId);
+                if (db==null)
+                {
+                    TempData["Message"] = $"{databaseId} numaralı veritabanı bulunamadı";
+                    return RedirectToAction("Index", "Database");
+                }
+
+                AddTableViewModel addTableViewModel = new AddTableViewModel
+                {
+                    Indices = new List<AddIndexDto>(),
+                    Columns = new List<AddColumnDto>(),
+                    Keys = new List<AddKeyDto>(),
+                    ForeignKeys = new List<AddForeignKeyDto>(),
+                    TableName = "",
+                    Provider = db.Provider,
+                    DatabaseName = db.DatabaseName,
+                    DatabaseId = db.DatabaseId
+                };
+                return View(addTableViewModel);
+            }
+            catch (Exception e)
+            {
+                throw ExceptionHandler.HandleException(e);
+            }
+
+        }
+
+        [HttpPost]
         public async Task<IActionResult> AddTable(AddTableViewModel model)
         {
             if (!ModelState.IsValid)
             {
                 return View(model);
             }
-            else
-            {
-                var mappedEntity = _mapper.Map<AddTableDto>(model);
-                return View();
-            }
-
+            return RedirectToAction("Index", "Database");
         }
-
 
         // TODO Add Table AJax yapılacak
     }

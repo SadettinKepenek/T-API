@@ -275,6 +275,22 @@ namespace T_API.UI.Controllers
         }
 
 
+        [HttpGet]
+        public async Task<IActionResult> AddTable(AddTableViewModel model)
+        {
+            if (!ModelState.IsValid)
+            {
+                return View(model);
+            }
+            else
+            {
+                var mappedEntity = _mapper.Map<AddTableDto>(model);
+                return View();
+            }
+
+        }
+
+
         // TODO Add Table AJax yapılacak
     }
 }

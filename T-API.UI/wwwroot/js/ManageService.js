@@ -316,7 +316,7 @@ var checkRelationColumnAvailability = function checkRelationColumnAvailability(c
             return;
         }
     });
-    var checkPoint2 = window.databaseTables.find(x => x.tableName == tableName);
+    var checkPoint2 = window.databaseTables.find(x => x.tableName === tableName);
     if (checkPoint2 === null || checkPoint2 === undefined) {
         return false;
     }

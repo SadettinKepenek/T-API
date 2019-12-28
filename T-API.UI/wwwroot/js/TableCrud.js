@@ -1,5 +1,6 @@
 ﻿var init = function init(databaseId, databaseName, provider) {
     var table = $('#addTableColumns').DataTable({
+        destroy: true,
         columns: [
             { title: "Column Name" },
             { title: "Data Type" },
@@ -10,9 +11,21 @@
             { title: "Is Not Null?" },
             { title: "Is Auto Inc?" },
             { title: "Has Length?" },
-        ]
+            { title: '<button id="btn_AddNewColumn" type="button" class="btn btn-primary btn-sm">Add</button>' },
+        ],
+        "paging": false,
+        "ordering": false,
+        "info": false,
+        "searching": false,
+        columnDefs: [{
+            orderable: false,
+            targets: [0,1, 2, 3,4,5,6,7,8,9],
+            "className":"text-center"
+        }],
+        "createdRow": function(row, data, index) {
+        },
+        
     });
-    window.addColumnTable = table;
     window.columnCount = 0;
     window.provider = provider;
     window.databaseName = databaseName;
@@ -28,6 +41,16 @@
             window.columnCount++;
         });
 
+    $('#addTableColumns tbody').on('click', 'tr', function () {
+        if ($(this).hasClass('selected')) {
+            $(this).removeClass('selected');
+        }
+        else {
+            table.$('tr.selected').removeClass('selected');
+            $(this).addClass('selected');
+        }
+    });
+
 };
 
 var getColumnNameString = function getColumnNameString() {
@@ -36,7 +59,7 @@ var getColumnNameString = function getColumnNameString() {
 };
 
 var getIndexString = function getIndexString() {
-    var indexStr = '<input type="hidden" class="form-control" name="Columns.Index"/>';
+    var indexStr = '<button type="button" onclick="removeColumn()" class="btn btn-danger btn-sm">Delete</button>';
     return indexStr;
 };
 var getDataTypeString = function getDataTypeString() {
@@ -54,7 +77,7 @@ var getDataTypeString = function getDataTypeString() {
 
 
 var getDataLengthString = function getDataLengthString() {
-    var dataLengthString = '<input type="text" class="form-control" id="DataLength_Column_' + window.columnCount + '" name="Columns[' + window.columnCount + '].DataLength"/>';
+    var dataLengthString = '<input type="number" class="form-control" id="DataLength_Column_' + window.columnCount + '" name="Columns[' + window.columnCount + '].DataLength"/>';
     return dataLengthString;
 };
 
@@ -101,14 +124,15 @@ var dataTypeChanged = function dataTypeChanged(selectInput) {
         console.log($('#' + hasLengthId));
         $('#' + hasLengthId).prop("checked", true);
         $('#' + dataLengthId).prop("required", true);
+        $('#' + dataLengthId).prop("disabled", false);
+
     } else {
         $('#' + hasLengthId).prop("checked", false);
         $('#' + dataLengthId).prop("required", false);
+        $('#' + dataLengthId).prop("disabled", true);
 
     }
 };
-
-
 var getDataTypes = function getDataTypes(provider, selectName) {
     $.ajax({
         url: 'https://localhost:44383/Database/GetDataTypes?provider=' + provider,
@@ -130,3 +154,11 @@ var getDataTypes = function getDataTypes(provider, selectName) {
     });
 
 };
+
+var removeColumn = function removeColumn() {
+    console.log($('#addTableColumns', 'tbody tr'));
+    $('#addTableColumns').DataTable().row('.selected').remove().draw(false);
+
+    //window.columnCount--;
+
+}

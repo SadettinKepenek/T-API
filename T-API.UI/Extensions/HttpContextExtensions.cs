@@ -1,4 +1,7 @@
-﻿using Microsoft.AspNetCore.Antiforgery;
+﻿using System;
+using System.Linq;
+using System.Security.Claims;
+using Microsoft.AspNetCore.Antiforgery;
 using Microsoft.AspNetCore.Http;
 
 namespace T_API.UI.Extensions
@@ -13,6 +16,13 @@ namespace T_API.UI.Extensions
             string requestToken = tokenSet.RequestToken;
             
             return requestToken;
+        }
+
+        public static int GetNameIdentifier(this HttpContext httpContext)
+        {
+            var nameIdentifier =
+                httpContext.User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value;
+            return Convert.ToInt32(nameIdentifier);
         }
     }
 }

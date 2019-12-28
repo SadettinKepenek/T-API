@@ -17,7 +17,6 @@ namespace T_API.UI.Models.Database
         public int DatabaseId { get; set; }
         [Required]
         public string Provider { get; set; }
-        [Required]
         public List<AddColumnDto> Columns { get; set; }
         public List<AddForeignKeyDto> ForeignKeys { get; set; }
         public List<AddIndexDto> Indices { get; set; }

@@ -1,5 +1,7 @@
 ﻿window.tableCount = 0;
 
+
+// JS Dosyasını Initialize eder
 var init = function init(databaseId, dbProvider) {
     window.databaseId = databaseId;
     window.dbProvider = dbProvider;
@@ -86,11 +88,26 @@ var init = function init(databaseId, dbProvider) {
             });
 
         });
-
-
-
     prepareInputChangeEvents();
+
+    //Loading barı kapatır.
+    $('#loadingSpinner').fadeOut();
+
+    // Sistemi belirtilen sürede bir yeniler. ex.10dk
+    setInterval(systemCheck, 600000);
 };
+
+
+var systemCheck = function systemCheck() {
+    $('#loadingSpinner').fadeIn(500);
+    getDatabase(window.databaseId);
+    $('#loadingSpinner').fadeOut(500);
+};
+
+
+
+
+
 
 var parseDatabase = function parseDatabase(table) {
     var tabTables = $('#v-pills-tab-tables');
@@ -147,7 +164,6 @@ var parseDatabase = function parseDatabase(table) {
         window.tableCount++;
     });
 };
-
 
 // Table için foreignkeylerin datatableini ayarlar.
 

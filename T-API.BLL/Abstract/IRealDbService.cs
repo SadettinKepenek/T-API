@@ -17,6 +17,7 @@ namespace T_API.BLL.Abstract
         Task CreateTableOnRemote(AddTableDto database, DbInformation dbInformation);
         Task CreateColumnOnRemote(AddColumnDto column,DbInformation dbInformation);
         Task AlterColumnOnRemote(UpdateColumnDto column, DbInformation dbInformation);
+        Task DropColumnOnRemote(DeleteColumnDto column, DbInformation dbInformation);
 
         Task CreateIndexOnRemote(AddIndexDto index, DbInformation dbInformation);
         Task CreateForeignKeyOnRemote(AddForeignKeyDto foreignKey, DbInformation dbInformation);

@@ -291,6 +291,66 @@ namespace T_API.BLL.Concrete
 
         }
 
+        public async Task DropColumnOnRemote(DeleteColumnDto column, DbInformation dbInformation)
+        {
+            try
+            {
+                if (column.Provider.Equals("MySql"))
+                {
+                    using MySqlCodeGenerator codeGenerator =
+                        (MySqlCodeGenerator)SqlCodeGeneratorFactory.CreateGenerator(column.Provider);
+                    if (codeGenerator != null)
+                    {
+                        DeleteColumnValidator validator = new DeleteColumnValidator();
+                        var validationResult = validator.Validate(column);
+                        if (validationResult.IsValid)
+                        {
+                            var databaseEntity = await GetTable(column.TableName, dbInformation.DatabaseName, dbInformation.Provider);
+                            if (databaseEntity != null)
+                            {
+
+
+                                var mappedEntity = _mapper.Map<Column>(column);
+
+                               
+                                string command = codeGenerator.DropColumn(mappedEntity);
+
+                                if (!String.IsNullOrEmpty(command))
+                                {
+                                    await ExecuteQueryOnRemote(command, dbInformation);
+                                }
+                                else
+                                {
+                                    throw new NullReferenceException("Create Table Sql Referansı Bulunamadı");
+                                }
+                            }
+                            else
+                            {
+                                throw new ArgumentNullException("Database", "Database Entity Null");
+                            }
+                        }
+                        else
+                        {
+                            throw new ValidationException(validationResult.ToString());
+                        }
+                    }
+                    else
+                    {
+                        throw new NullReferenceException("Code Generator Referansına Ulaşlamadı");
+                    }
+                }
+                else
+                {
+                    throw new AmbiguousMatchException("Desteklenen Provider Verilmedi.");
+                }
+            }
+            catch (Exception e)
+            {
+                throw ExceptionHandler.HandleException(e);
+            }
+
+        }
+
         public Task CreateIndexOnRemote(AddIndexDto index, DbInformation dbInformation)
         {
             throw new NotImplementedException();

@@ -195,7 +195,7 @@ namespace T_API.UI.Controllers
                     throw new NullReferenceException("Database bulunamadı");
                 }
 
-                await _realDbService.CreateColumnOnRemote(model, dbInformation);
+                await _realDbService.AlterColumnOnRemote(model, dbInformation);
                 return Ok("Success");
             }
             catch (Exception e)

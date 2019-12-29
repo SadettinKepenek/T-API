@@ -133,7 +133,6 @@ namespace T_API.BLL.Concrete
                 {
 
 
-
                     if (column.Unique)
                         table.Indices.Add(new Index
                         {

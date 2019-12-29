@@ -17,5 +17,7 @@
         public string Provider { get; set; }
         public int DatabaseId { get; set; }
 
+        public DetailColumnDto OldColumn { get; set; }
+
     }
 }

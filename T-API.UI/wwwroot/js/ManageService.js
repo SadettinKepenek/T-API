@@ -102,7 +102,7 @@ var init = function init(databaseId, dbProvider) {
                 $('#updateDataLength').fadeOut();
                 getDataTypes(window.dbProvider, 'updateDataType');
                 window.updateColumnDto = null;
-                window.updateColumnDto = new AddColumnDto(parseInt(window.databaseId), window.dbProvider);
+                window.updateColumnDto = new UpdateColumnDto(parseInt(window.databaseId), window.dbProvider);
                 var tableName = $(e.relatedTarget).data('id');
                 var columnName = $(e.relatedTarget).data('columnname');
                 var column = window.databaseTables.find(x => x.tableName === tableName).columns.find(y => y.columnName === columnName);
@@ -124,6 +124,7 @@ var init = function init(databaseId, dbProvider) {
                 window.updateColumnDto.HasLength = column.hasLength;
                 window.updateColumnDto.databaseId = databaseId;
                 window.updateColumnDto.Provider = dbProvider;
+                window.updateColumnDto.OldColumn = column;
 
                 setTimeout(function () {
                     $('#updateTableName').val(tableName);

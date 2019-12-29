@@ -11,9 +11,12 @@ using T_API.Core.DAL.Concrete;
 using T_API.Core.DTO.Column;
 using T_API.Core.DTO.Database;
 using T_API.Core.DTO.ForeignKey;
+using T_API.Core.DTO.Index;
+using T_API.Core.DTO.Key;
 using T_API.Core.DTO.Table;
 using T_API.Core.Exception;
 using T_API.Core.Settings;
+using T_API.UI.Extensions;
 using T_API.UI.Models.Database;
 
 namespace T_API.UI.Controllers
@@ -274,6 +277,90 @@ namespace T_API.UI.Controllers
 
         }
 
+
+        [HttpGet]
+        public async Task<IActionResult> AddTable(int databaseId)
+        {
+            try
+            {
+                var db = await _databaseService.GetById(databaseId);
+                if (db == null)
+                {
+                    TempData["Message"] = $"{databaseId} numaralı veritabanı bulunamadı";
+                    return RedirectToAction("Index", "Database");
+                }
+
+                var userId = HttpContext.GetNameIdentifier();
+                if (userId != db.UserId)
+                {
+                    TempData["Message"] = $"{databaseId} numaralı veritabanı bulunamadı";
+                    return RedirectToAction("Index", "Database");
+                }
+
+                AddTableViewModel addTableViewModel = new AddTableViewModel
+                {
+                    Indices = new List<AddIndexDto>(),
+                    Columns = new List<AddColumnDto>(),
+                    Keys = new List<AddKeyDto>(),
+                    ForeignKeys = new List<AddForeignKeyDto>(),
+                    TableName = "",
+                    Provider = db.Provider,
+                    DatabaseName = db.DatabaseName,
+                    DatabaseId = db.DatabaseId
+                };
+                //addTableViewModel.Columns.Add(new AddColumnDto());
+                return View(addTableViewModel);
+            }
+            catch (Exception e)
+            {
+                throw ExceptionHandler.HandleException(e);
+            }
+
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> AddTable(AddTableViewModel model)
+        {
+            if (!ModelState.IsValid)
+            {
+                return View(model);
+            }
+            else
+            {
+                var db = await _databaseService.GetById(model.DatabaseId);
+                if (db == null)
+                {
+                    TempData["Message"] = $"{model.DatabaseId} numaralı veritabanı bulunamadı";
+                    return RedirectToAction("Index", "Database");
+                }
+
+                var userId = HttpContext.GetNameIdentifier();
+                if (userId != db.UserId)
+                {
+                    TempData["Message"] = $"{model.DatabaseId} numaralı veritabanı bulunamadı";
+                    return RedirectToAction("Index", "Database");
+                }
+
+
+                if (model.Columns == null || model.Columns.Count == 0)
+                {
+                    TempData["Message"] = "Herhangi bir sütun eklenmedi";
+                    return View(model);
+                }
+
+                foreach (AddColumnDto addColumnDto in model.Columns)
+                {
+                    addColumnDto.TableName = model.TableName;
+                    addColumnDto.DatabaseId = model.DatabaseId;
+                    addColumnDto.Provider = model.Provider;
+                }
+                var mappedEntity = _mapper.Map<AddTableDto>(model);
+                var dbInfo = _mapper.Map<DbInformation>(db);
+                await _realDbService.CreateTableOnRemote(mappedEntity, dbInfo);
+            }
+            return RedirectToAction("EditService", "Database",new {serviceId=model.DatabaseId});
+        }
 
         // TODO Add Table AJax yapılacak
     }

@@ -1,0 +1,49 @@
+﻿@model T_API.UI.Models.Database.AddTableViewModel
+@{
+    ViewData["Title"] = "AddTable";
+}
+<script src="~/js/TableCrud.js" type="text/javascript"></script>
+<form asp-action="AddTable" asp-controller="Database" asp-antiforgery="true" method="post">
+    <div class="form-group">
+        <span class="text-danger">@TempData["Message"]</span>
+    </div>
+    <div class="form-group">
+        <label asp-for="DatabaseId">Service Number</label>
+        <input type="text" class="form-control" placeholder="Enter Service Number" readonly="readonly" asp-for="DatabaseId">
+        <span class="text-danger" asp-validation-for="DatabaseId"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="DatabaseName">Database Name</label>
+        <input type="text" class="form-control" placeholder="Enter Database Name" readonly="readonly" asp-for="DatabaseName">
+        <span class="text-danger" asp-validation-for="DatabaseName"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="Provider">Database Provider</label>
+        <input type="text" class="form-control" placeholder="Enter Provider Name" readonly="readonly" asp-for="Provider">
+        <span class="text-danger" asp-validation-for="Provider"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="TableName">Table Name</label>
+        <input type="text" class="form-control" placeholder="Enter Table Name" asp-for="TableName">
+        <span class="text-danger" asp-validation-for="TableName"></span>
+    </div>
+    <div class="container">
+        <table id="addTableColumns">
+            <thead>
+                <tr>
+                </tr>
+            </thead>
+            <tbody>
+            </tbody>
+        </table>
+    </div>
+
+
+    <button type="reset" class="btn btn-danger">Discard</button>
+    <button type="submit" class="btn btn-success">Submit</button>
+</form>
+<script type="text/javascript">
+    $(document).ready(function() {
+        init(parseInt(@Model.DatabaseId), '@Model.DatabaseName', '@Model.Provider');
+    });
+</script>

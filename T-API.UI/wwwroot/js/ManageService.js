@@ -152,7 +152,7 @@ var parseDatabase = function parseDatabase(table) {
         tableContentString += '<h5 class="text-center">Foreign Keys</h5>';
         tableContentString += '<hr/>';
         tableContentString += '<div class="row">';
-        tableContentString += '<table class="table table-striped table-bordered" id="databaseTable_Foreigns_' + table.tableName + '"></table>';
+        tableContentString += '<table class="table table-striped  table-bordered" id="databaseTable_Foreigns_' + table.tableName + '"></table>';
         tableContentString += '</div>';
         // Container bitiş
         tableContentString += '</div>';
@@ -205,14 +205,11 @@ var initDataTableForForeigns = function initDataTableForForeigns(tableName) {
                     defaultContent: '<a href="" class="editor_edit">Edit</a> / <a href="" class="editor_remove">Delete</a>'
                 }
             ],
-            "oLanguage": {
-                "sEmptyTable": "Your custom message for empty table"
-            },
             "paging": false,
             "ordering": false,
             "info": false,
-            "searching": false
-
+            "searching": false,
+           
         });
     } else {
         showCriticalError('Hata', 'Veritabanı yüklenirken hata oluştu lütfen daha sonra tekrar deneyiniz..', "https://localhost:44383/Database/")
@@ -316,7 +313,7 @@ var checkRelationColumnAvailability = function checkRelationColumnAvailability(c
             return;
         }
     });
-    var checkPoint2 = window.databaseTables.find(x => x.tableName == tableName);
+    var checkPoint2 = window.databaseTables.find(x => x.tableName === tableName);
     if (checkPoint2 === null || checkPoint2 === undefined) {
         return false;
     }

@@ -20,6 +20,10 @@
     {
       "library": "datatables@1.10.19",
       "destination": "wwwroot/lib/datatables/"
+    },
+    {
+      "library": "popper.js@1.16.0",
+      "destination": "wwwroot/lib/popper.js/"
     }
   ]
 }

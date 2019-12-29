@@ -17,6 +17,25 @@
     }
 }
 
+class UpdateColumnDto {
+    TableName = '';
+    ColumnName = '';
+    DataType = '';
+    DataLength = 0;
+    NotNull = false;
+    AutoInc = false;
+    Unique = false;
+    PrimaryKey = false;
+    DefaultValue = null;
+    HasLength = false;
+    DatabaseId = 0;
+    Provider = '';
+    OldColumn=null;
+    constructor(databaseId, provider) {
+        this.DatabaseId = databaseId;
+        this.Provider = provider;
+    }
+}
 class AddForeignKey {
     SourceTable = '';
     SourceColumn = '';

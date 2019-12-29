@@ -14,5 +14,10 @@
         public object DefaultValue { get; set; }
 
         public bool HasLength { get; set; }
+        public string Provider { get; set; }
+        public int DatabaseId { get; set; }
+
+        public DetailColumnDto OldColumn { get; set; }
+
     }
 }

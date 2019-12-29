@@ -108,7 +108,7 @@ namespace T_API.BLL.Concrete
 
 
             Console.WriteLine(sb.ToString());
-            return sb.ToString();;
+            return sb.ToString(); ;
         }
 
         public string DropTable(Table table)
@@ -131,7 +131,6 @@ namespace T_API.BLL.Concrete
                 sb.AppendLine($"Alter Table {table.TableName}");
                 foreach (Column column in table.Columns)
                 {
-
 
 
                     if (column.Unique)
@@ -232,7 +231,7 @@ namespace T_API.BLL.Concrete
             column.DataType = column.DataType.ToUpperInvariant();
             CheckColumnIsValid(column);
 
-            stringBuilder.Append($"\t{column.ColumnName}\t");
+            stringBuilder.Append($"\t add {column.ColumnName}\t");
             if (!String.IsNullOrEmpty(column.DataType)) stringBuilder.Append($"{column.DataType}");
             if (column.HasLength) stringBuilder.Append($"({column.DataLength})");
             else stringBuilder.Append(" ");
@@ -367,7 +366,7 @@ namespace T_API.BLL.Concrete
             CheckColumnIsValid(column);
 
 
-            stringBuilder.Append($"\t add {column.ColumnName}\t");
+            stringBuilder.Append($"\t modify {column.ColumnName}\t");
             if (!String.IsNullOrEmpty(column.DataType)) stringBuilder.Append($"{column.DataType}");
             if (column.HasLength) stringBuilder.Append($"({column.DataLength})");
             else stringBuilder.Append(" ");

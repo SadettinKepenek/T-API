@@ -16,12 +16,15 @@ namespace T_API.BLL.Abstract
         Task CreateDatabaseOnRemote(AddDatabaseDto database);
         Task CreateTableOnRemote(AddTableDto database, DbInformation dbInformation);
         Task CreateColumnOnRemote(AddColumnDto column,DbInformation dbInformation);
+        Task AlterColumnOnRemote(UpdateColumnDto column, DbInformation dbInformation);
+
         Task CreateIndexOnRemote(AddIndexDto index, DbInformation dbInformation);
         Task CreateForeignKeyOnRemote(AddForeignKeyDto foreignKey, DbInformation dbInformation);
         Task CreateKeyOnRemote(AddKeyDto key, DbInformation dbInformation);
 
 
         Task ExecuteQueryOnRemote(string query, DbInformation dbInformation);
+        Task ExecuteQueryOnRemote(List<string> queries, DbInformation dbInformation);
         Task ExecuteQueryOnRemote(string query);
 
 

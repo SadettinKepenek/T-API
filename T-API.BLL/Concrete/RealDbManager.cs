@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 using System.Transactions;
@@ -21,6 +22,7 @@ using T_API.Core.Settings;
 using T_API.DAL.Abstract;
 using T_API.DAL.Concrete;
 using T_API.Entity.Concrete;
+using Index = T_API.Entity.Concrete.Index;
 
 namespace T_API.BLL.Concrete
 {
@@ -204,6 +206,91 @@ namespace T_API.BLL.Concrete
 
         }
 
+        public async Task AlterColumnOnRemote(UpdateColumnDto column, DbInformation dbInformation)
+        {
+            try
+            {
+                if (column.Provider.Equals("MySql"))
+                {
+                    using MySqlCodeGenerator codeGenerator =
+                        (MySqlCodeGenerator)SqlCodeGeneratorFactory.CreateGenerator(column.Provider);
+                    if (codeGenerator != null)
+                    {
+                        UpdateColumnValidator validator = new UpdateColumnValidator();
+                        var validationResult = validator.Validate(column);
+                        if (validationResult.IsValid)
+                        {
+                            var databaseEntity = await GetTable(column.TableName, dbInformation.DatabaseName, dbInformation.Provider);
+                            if (databaseEntity != null)
+                            {
+
+                                List<string> queries = new List<string>();
+
+                                if (column.OldColumn != null)
+                                {
+                                    if (column.OldColumn.Unique && column.Unique == false)
+                                    {
+                                        var idx = databaseEntity.Keys.FirstOrDefault(x =>
+                                            x.KeyColumn == column.ColumnName && x.TableName == column.TableName);
+                                        queries.Add(codeGenerator.DropKey(_mapper.Map<Key>(idx)));
+                                    }
+                                    if (column.OldColumn.PrimaryKey && column.PrimaryKey == false)
+                                    {
+                                        var idx = databaseEntity.Keys.FirstOrDefault(x =>
+                                            x.KeyColumn == column.ColumnName && x.TableName == column.TableName);
+                                        queries.Add(codeGenerator.DropKey(_mapper.Map<Key>(idx)));
+                                    }
+                                }
+
+                                column.DefaultValue = null;
+                                var mappedEntity = _mapper.Map<Column>(column);
+
+                                Table table = new Table
+                                {
+                                    TableName = column.TableName,
+                                    DatabaseName = dbInformation.DatabaseName
+                                };
+                                table.Columns.Add(mappedEntity);
+                                string command = codeGenerator.AlterTable(table);
+                                queries.Add(command);
+
+
+                                if (!String.IsNullOrEmpty(command))
+                                {
+                                    await ExecuteQueryOnRemote(queries, dbInformation);
+                                }
+                                else
+                                {
+                                    throw new NullReferenceException("Create Table Sql Referansı Bulunamadı");
+                                }
+                            }
+                            else
+                            {
+                                throw new ArgumentNullException("Database", "Database Entity Null");
+                            }
+                        }
+                        else
+                        {
+                            throw new ValidationException(validationResult.ToString());
+                        }
+                    }
+                    else
+                    {
+                        throw new NullReferenceException("Code Generator Referansına Ulaşlamadı");
+                    }
+                }
+                else
+                {
+                    throw new AmbiguousMatchException("Desteklenen Provider Verilmedi.");
+                }
+            }
+            catch (Exception e)
+            {
+                throw ExceptionHandler.HandleException(e);
+            }
+
+        }
+
         public Task CreateIndexOnRemote(AddIndexDto index, DbInformation dbInformation)
         {
             throw new NotImplementedException();
@@ -278,9 +365,40 @@ namespace T_API.BLL.Concrete
                 {
                     if (_realDbRepositoryFactory.CreateRepository(dbInformation.Provider) is MySqlRealDbRepository realDbRepository)
                     {
-                        //using TransactionScope scope = new TransactionScope();
+                        using TransactionScope scope = new TransactionScope();
                         await realDbRepository.ExecuteQueryOnRemote(query, dbInformation);
-                        //scope.Complete();
+                        scope.Complete();
+                    }
+                    else
+                    {
+                        throw new NullReferenceException("Db Repository Referansına Ulaşlamadı");
+                    }
+                }
+                else
+                {
+                    throw new AmbiguousMatchException("Desteklenen Provider Verilmedi.");
+                }
+            }
+            catch (Exception e)
+            {
+                throw ExceptionHandler.HandleException(e);
+            }
+
+        }
+        public async Task ExecuteQueryOnRemote(List<string> queries, DbInformation dbInformation)
+        {
+            try
+            {
+                if (dbInformation.Provider.Equals("MySql"))
+                {
+                    if (_realDbRepositoryFactory.CreateRepository(dbInformation.Provider) is MySqlRealDbRepository realDbRepository)
+                    {
+                        using TransactionScope scope = new TransactionScope();
+                        foreach (var query in queries)
+                        {
+                            await realDbRepository.ExecuteQueryOnRemote(query, dbInformation);
+                        }
+                        scope.Complete();
                     }
                     else
                     {

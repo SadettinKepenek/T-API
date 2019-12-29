@@ -11,90 +11,157 @@ var init = function init(databaseId, dbProvider) {
             window.tableCount = $('#v-pills-tab-tables').children().length;
         });
 
-    getDatabase(window.databaseId);
-
-    // addColumnModal Shown Event
-
-    $('#addColumnModal').on('shown.bs.modal',
-        function (e) {
-            $('#addColumnForm').trigger('reset');
-            $('#dataLength').fadeOut();
-            getDataTypes(window.dbProvider);
-
-            window.addColumnDto = new AddColumnDto(parseInt(window.databaseId), window.dbProvider);
-            var tableName = $(e.relatedTarget).data('id');
-            window.addColumnDto.TableName = tableName;
-            $('#tableName').val(tableName);
-            $('#providerInfo').val(window.dbProvider);
-        });
-
-    // addForeignKeyModal Shown Event
-
-    $('#addForeignKeyModal').on('shown.bs.modal',
-        function (e) {
-            if (window.databaseTables === null || window.foreignKeys === null) {
-                showCriticalError('Hata', 'Veritabanı yüklenirken hata oluştu lütfen daha sonra tekrar deneyiniz..', "https://localhost:44383/Database/")
-                return;
-            }
+    getDatabase(window.databaseId, 'columnTypesSelect');
 
 
-            $('#addForeignKeyForm').trigger('reset');
-            $('#foreignKeySourceColumn').find('option').not(':first').remove();
-            $('#foreignKeyTargetTable').find('option').not(':first').remove();
-            $('#foreignKeyTargetColumn').find('option').not(':first').remove();
+    setTimeout(function () {
+        $('#addColumnModal').on('shown.bs.modal',
+            function (e) {
+                $('#addColumnForm').trigger('reset');
+                $('#dataLength').fadeOut();
+                getDataTypes(window.dbProvider, 'columnTypesSelect');
 
+                window.addColumnDto = new AddColumnDto(parseInt(window.databaseId), window.dbProvider);
+                var tableName = $(e.relatedTarget).data('id');
+                window.addColumnDto.TableName = tableName;
+                $('#tableName').val(tableName);
+                $('#providerInfo').val(window.dbProvider);
+            });
 
+        // addForeignKeyModal Shown Event
 
-
-            window.addForeignKeyDto = new AddForeignKey(parseInt(window.databaseId), window.dbProvider);
-            var tableName = $(e.relatedTarget).data('id');
-            window.addForeignKeyDto.TableName = tableName;
-            window.addForeignKeyDto.SourceTable = tableName;
-            window.addForeignKeyDto.Provider = window.dbProvider;
-
-            $('#foreignKeySourceTable').val(tableName);
-            var found = getColumnsByTableName(tableName);
-            var columnCount = 0;
-            found.columns.forEach(function (d) {
-
-                if (checkRelationColumnAvailability(d.columnName, found.tableName)) {
-                    $('#foreignKeySourceColumn').append($('<option>',
-                        {
-                            value: d.columnName,
-                            text: d.columnName
-                        }));
-                    columnCount++;
+        $('#addForeignKeyModal').on('shown.bs.modal',
+            function (e) {
+                if (window.databaseTables === null || window.foreignKeys === null) {
+                    showCriticalError('Hata', 'Veritabanı yüklenirken hata oluştu lütfen daha sonra tekrar deneyiniz..', "https://localhost:44383/Database/")
+                    return;
                 }
 
-            });
-            if (columnCount === 0) {
-                //
-                $('#errorModalTitle').text('Hata!');
-                $('#errorModalBodyText').text('Hiçbir sütun ilişkilendirme için kullanılabilir değil..!');
-                $('#errorModal').modal('show');
-                $('#errorModal').on('hidden.bs.modal', function (e) {
-                    $('#addForeignKeyModal').modal('toggle');
+
+                $('#addForeignKeyForm').trigger('reset');
+                $('#foreignKeySourceColumn').find('option').not(':first').remove();
+                $('#foreignKeyTargetTable').find('option').not(':first').remove();
+                $('#foreignKeyTargetColumn').find('option').not(':first').remove();
+
+
+
+
+                window.addForeignKeyDto = new AddForeignKey(parseInt(window.databaseId), window.dbProvider);
+                var tableName = $(e.relatedTarget).data('id');
+                window.addForeignKeyDto.TableName = tableName;
+                window.addForeignKeyDto.SourceTable = tableName;
+                window.addForeignKeyDto.Provider = window.dbProvider;
+
+                $('#foreignKeySourceTable').val(tableName);
+                var found = getColumnsByTableName(tableName);
+                var columnCount = 0;
+                found.columns.forEach(function (d) {
+
+                    if (checkRelationColumnAvailability(d.columnName, found.tableName)) {
+                        $('#foreignKeySourceColumn').append($('<option>',
+                            {
+                                value: d.columnName,
+                                text: d.columnName
+                            }));
+                        columnCount++;
+                    }
 
                 });
-            }
+                if (columnCount === 0) {
+                    //
+                    $('#errorModalTitle').text('Hata!');
+                    $('#errorModalBodyText').text('Hiçbir sütun ilişkilendirme için kullanılabilir değil..!');
+                    $('#errorModal').modal('show');
+                    $('#errorModal').on('hidden.bs.modal', function (e) {
+                        $('#addForeignKeyModal').modal('toggle');
 
-            var otherTables = window.databaseTables.filter(x => x.tableName !== tableName);
-            otherTables.forEach(function (table) {
-                $('#foreignKeyTargetTable').append($('<option>',
-                    {
-                        value: table.tableName,
-                        text: table.tableName
-                    }));
+                    });
+                }
+
+                var otherTables = window.databaseTables.filter(x => x.tableName !== tableName);
+                otherTables.forEach(function (table) {
+                    $('#foreignKeyTargetTable').append($('<option>',
+                        {
+                            value: table.tableName,
+                            text: table.tableName
+                        }));
+                });
+
+            });
+        prepareInputChangeEvents();
+
+        // updateColumnModal Shown Event
+        $('#updateColumnModal').on('shown.bs.modal',
+            function (e) {
+
+                if (window.databaseTables === null || window.databaseTables === undefined)
+                    showCriticalError('Hata',
+                        'Veritabanı yüklenirken hata oluştu lütfen daha sonra tekrar deneyiniz..',
+                        "https://localhost:44383/Database/");
+                $('#updateColumnForm').trigger('reset');
+                $('#updateDataLength').fadeOut();
+                getDataTypes(window.dbProvider, 'updateDataType');
+                window.updateColumnDto = null;
+                window.updateColumnDto = new UpdateColumnDto(parseInt(window.databaseId), window.dbProvider);
+                var tableName = $(e.relatedTarget).data('id');
+                var columnName = $(e.relatedTarget).data('columnname');
+                var column = window.databaseTables.find(x => x.tableName === tableName).columns.find(y => y.columnName === columnName);
+
+                window.updateColumnDto.TableName = tableName;
+                window.updateColumnDto.ColumnName = column.columnName;
+                var dataType = column.dataType.replace(/[()]/g, '');
+                dataType = dataType.replace(/[0-9]/g, '');;
+                console.log(dataType);
+                window.updateColumnDto.DataType = dataType;
+
+
+                window.updateColumnDto.DataLength = column.dataLength;
+                window.updateColumnDto.NotNull = column.notNull;
+                window.updateColumnDto.AutoInc = column.autoInc;
+                window.updateColumnDto.Unique = column.unique;
+                window.updateColumnDto.PrimaryKey = column.primaryKey;
+                window.updateColumnDto.DefaultValue = column.defaultValue;
+                window.updateColumnDto.HasLength = column.hasLength;
+                window.updateColumnDto.databaseId = databaseId;
+                window.updateColumnDto.Provider = dbProvider;
+                window.updateColumnDto.OldColumn = column;
+
+                setTimeout(function () {
+                    $('#updateTableName').val(tableName);
+                    $('#updateProviderInfo').val(window.dbProvider);
+                    $("#updateDataType").val(dataType).change();
+                    $('#updateColumnName').prop('readonly', true);
+                    $('#updateColumnName').val(columnName);
+                    $('#updateDataLength').val(column.dataLength);
+
+                    $('#updateIsAutoInc').prop('checked', column.autoInc);
+                    $('#updateIsAutoInc').val(column.autoInc);
+
+                    $('#updateIsNotNull').prop('checked', column.notNull);
+                    $('#updateIsNotNull').val(column.notNull);
+
+                    $('#updateIsUnique').prop('checked', column.unique);
+                    $('#updateIsUnique').val(column.unique);
+
+                    $('#updateIsPrimary').prop('checked', column.primaryKey);
+                    $('#updateIsPrimary').val(column.primaryKey);
+
+                }, 300);
+
+
+
             });
 
-        });
-    prepareInputChangeEvents();
 
-    //Loading barı kapatır.
-    $('#loadingSpinner').fadeOut();
+        //Loading barı kapatır.
+        $('#loadingSpinner').fadeOut();
 
-    // Sistemi belirtilen sürede bir yeniler. ex.10dk
-    setInterval(systemCheck, 600000);
+        // Sistemi belirtilen sürede bir yeniler. ex.10dk
+        setInterval(systemCheck, 600000);
+    }, 1500);
+    // addColumnModal Shown Event
+
+
 };
 
 
@@ -175,7 +242,6 @@ var initDataTableForForeigns = function initDataTableForForeigns(tableName) {
 
     var data = window.databaseTables.find(x => x.tableName === tableName);
     if (data) {
-        console.log(data.columns);
         var buttonStr = '';
         buttonStr += '<button type="button"' +
             ' class="btn btn-info btn-sm"' +
@@ -209,7 +275,7 @@ var initDataTableForForeigns = function initDataTableForForeigns(tableName) {
             "ordering": false,
             "info": false,
             "searching": false,
-           
+
         });
     } else {
         showCriticalError('Hata', 'Veritabanı yüklenirken hata oluştu lütfen daha sonra tekrar deneyiniz..', "https://localhost:44383/Database/")
@@ -220,6 +286,31 @@ var initDataTableForForeigns = function initDataTableForForeigns(tableName) {
 
 // Table için sütunların datatableını ayarlar.
 
+var getColumnEditButtonString = function getColumnEditButtonString(data) {
+    var buttonStr = '';
+    buttonStr += '<button type="button"' +
+        ' class="btn btn-info btn-sm"' +
+        ' style="margin-bottom: 5px;margin-left:10px;"' +
+        ' data-toggle="modal" ' +
+        ' data-columnName=' + data.columnName +
+        ' data-id=' +
+        data.tableName +
+        ' data-target="#updateColumnModal">';
+    buttonStr += 'Edit';
+    buttonStr += '</button>';
+    buttonStr += '<button type="button"' +
+        ' class="btn btn-danger btn-sm"' +
+        ' style="margin-bottom: 5px;margin-left:10px;"' +
+        ' data-toggle="modal" ' +
+        ' data-columnName=' + data.columnName +
+        ' data-id=' +
+        data.tableName +
+        ' data-target="#deleteColumnModal">';
+    buttonStr += 'Delete';
+    buttonStr += '</button>';
+    return buttonStr;
+};
+
 var initDataTableForColumns = function initDataTableForColumns(tableName) {
 
     if (window.databaseTables === null || window.databaseTables === undefined) {
@@ -228,7 +319,6 @@ var initDataTableForColumns = function initDataTableForColumns(tableName) {
 
     var data = window.databaseTables.find(x => x.tableName === tableName);
     if (data) {
-        console.log(data.columns);
         var buttonStr = '';
         buttonStr += '<button type="button"' +
             ' class="btn btn-info btn-sm"' +
@@ -238,6 +328,7 @@ var initDataTableForColumns = function initDataTableForColumns(tableName) {
             ' data-target="#addColumnModal">';
         buttonStr += 'Add';
         buttonStr += '</button>';
+
 
         $('#databaseTable_Columns_' + tableName).DataTable({
             processing: true,
@@ -253,9 +344,11 @@ var initDataTableForColumns = function initDataTableForColumns(tableName) {
                 { data: "notNull", title: "Not Null?" },
                 {
                     data: null,
+                    render: function (data, type, row, meta) {
+                        return type === 'display' ? getColumnEditButtonString(data) : data;
+                    },
                     title: buttonStr,
-                    className: "center",
-                    defaultContent: '<a href="" class="editor_edit">Edit</a> / <a href="" class="editor_remove">Delete</a>'
+                    className: "center"
                 }
             ],
             "oLanguage": {
@@ -381,14 +474,14 @@ var getTable = function getTable(tableName, provider) {
 };
 
 // Kullanılabilir veri tipi providere bağlı olarak getirilir.
-var getDataTypes = function getDataTypes(provider) {
+var getDataTypes = function getDataTypes(provider, selectId) {
     $.ajax({
         url: 'https://localhost:44383/Database/GetDataTypes?provider=' + provider,
         type: 'GET',
         success: function (data, textStatus, xhr) {
-            $('#columnTypesSelect').find('option').not(':first').remove();
+            $('#' + selectId).find('option').not(':first').remove();
             data.forEach(function (d) {
-                $('#columnTypesSelect').append($('<option>',
+                $('#' + selectId).append($('<option>',
                     {
                         value: d,
                         text: d
@@ -415,6 +508,7 @@ var prepareInputChangeEvents = function prepareInputChangeEvents() {
 
     // Add Column Modal
     $('#dataLength').fadeOut();
+
     $('#addColumnModalSubmit').click(function (e) {
         e.preventDefault();
         if (window.addColumnDto === null) {
@@ -472,6 +566,65 @@ var prepareInputChangeEvents = function prepareInputChangeEvents() {
         }
     });
 
+    // Update Column Modal
+
+    $('#updateDataLength').fadeOut();
+
+    $('#updateColumnModalSubmit').click(function (e) {
+        e.preventDefault();
+        if (window.updateColumnDto === null) {
+            $('#errorModalTitle').text('Hata!');
+            $('#errorModalBodyText').text('Herhangi bir veri gönderilmedi..!');
+            $('#errorModal').modal('show');
+        }
+        updateColumn(window.updateColumnDto);
+    });
+    $('#updateColumnName').on('input', function () {
+        if (this.value.search(' ') >= 0) {
+            alert('Lütfen Sütun isimlerinde boşluk bırakmayınız');
+
+            $('#columnName').val(this.value.replace(/\s/g, ''));
+            window.updateColumnDto.ColumnName = $('#updateColumnName').val();
+        } else {
+            window.updateColumnDto.ColumnName = $('#updateColumnName').val();
+        }
+    });
+    $('#updateDataType').on('change', function (e) {
+        window.updateColumnDto.DataType = this.value;
+        if (this.value === 'char' ||
+            this.value === 'varchar' ||
+            this.value.search('text') >= 0) {
+            $('#updateDataLength').fadeIn();
+            window.updateColumnDto.HasLength = true;
+            //
+        } else {
+            $('#updateDataLength').fadeOut();
+            window.updateColumnDto.HasLength = false;
+        }
+
+    });
+    $('#updateIsPrimary').on('change', function () {
+        window.updateColumnDto.PrimaryKey = this.checked;
+    });
+    $('#updateIsAutoInc').on('change', function () {
+        window.updateColumnDto.AutoInc = this.checked;
+    });
+    $('#updateIsNotNull').on('change', function () {
+        window.updateColumnDto.NotNull = this.checked;
+    });
+    $('#updateIsUnique').on('change', function () {
+        window.updateColumnDto.Unique = this.checked;
+    });
+    $('#updateDefaultValue').on('change', function () {
+        window.updateColumnDto.DefaultValue = this.value;
+    });
+    $('#updateDataLength').on('change', function () {
+        if (window.updateColumnDto.HasLength === false) {
+            alert('Bu tip için length girilemez');
+        } else {
+            window.updateColumnDto.DataLength = parseInt(this.value);
+        }
+    });
 
     // Add Foreign Key Modal
 
@@ -563,3 +716,27 @@ var addForeignKey = function addForeignKey(foreignKey) {
         }
     });
 }
+
+var updateColumn = function updateColumn(columnObj) {
+    $.ajax({
+        type: 'POST',
+        beforeSend: function (request) {
+            request.setRequestHeader("Content-Type", "application/json");
+        },
+        url: 'https://localhost:44383/Database/UpdateColumn',
+        data: JSON.stringify(columnObj),
+        contentType: "application/json",
+        success: function (data) {
+            getDatabase(columnObj.DatabaseId);
+            $('#updateColumnModal').modal('toggle');
+        },
+        error: function (XMLHttpRequest, textStatus, errorThrown) {
+            showCriticalError('Hata', 'Veritabanı yüklenirken hata oluştu lütfen daha sonra tekrar deneyiniz..', "https://localhost:44383/Database/")
+        },
+        done: function (data) {
+
+        }
+    });
+
+
+};

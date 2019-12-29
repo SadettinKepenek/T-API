@@ -35,23 +35,18 @@ namespace T_API.DAL.Concrete
                 using (cmd)
                 {
 
-                    using (var transaction = conn.BeginTransaction())
-                    {
                         try
                         {
-                            cmd.Transaction = transaction;
                             cmd.ExecuteNonQuery();
-                            transaction.Commit();
                         }
                         catch (Exception ex)
                         {
                             Console.WriteLine("Commit Exception Type: {0}", ex.GetType());
                             Console.WriteLine("  Message: {0}", ex.Message);
-                            transaction.Rollback();
+                            //transaction.Rollback();
                             throw ExceptionHandler.HandleException(ex);
 
                         }
-                    }
 
                 }
 

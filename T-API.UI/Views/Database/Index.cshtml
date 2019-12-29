@@ -38,7 +38,7 @@
                             <span class="sr-only">Manage</span>
                         </button>
                         <div class="dropdown-menu">
-                            <a class="dropdown-item" href="#">Edit Service</a>
+                            <a class="dropdown-item" asp-action="EditService" asp-controller="Database" asp-route-serviceId="@database.DatabaseId">Edit Service</a>
                             <a class="dropdown-item" href="#">Suspend Service</a>
                             <a class="dropdown-item" href="#">Remove Service</a>
                             <!-- Dropdown menu links -->

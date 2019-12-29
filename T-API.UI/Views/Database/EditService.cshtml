@@ -68,7 +68,7 @@
         <div class="col-md-8">
             <div class="row justify-content-end">
                 <button type="button" onclick="systemCheck();" class="ml-1 mr-1 btn btn-info btn-sm">Refresh</button>
-                <button type="button" onclick="" class="ml-1 mr-1 btn btn-info btn-sm">Add Table</button>
+                <a  asp-action="AddTable" asp-controller="Database" asp-route-databaseId="@Model.DatabaseId" class="ml-1 mr-1 btn btn-info btn-sm">Add Table</a>
                 <button type="button" onclick="" class="ml-1 mr-1 btn btn-info btn-sm">Show API End Points</button>
                 <button type="button" onclick="" class="ml-1 mr-1 btn btn-danger btn-sm">Drop Table</button>
             </div>

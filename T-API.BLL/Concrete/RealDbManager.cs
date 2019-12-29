@@ -204,6 +204,61 @@ namespace T_API.BLL.Concrete
 
         }
 
+        public async Task AlterColumnOnRemote(UpdateColumnDto column, DbInformation dbInformation)
+        {
+            try
+            {
+                if (column.Provider.Equals("MySql"))
+                {
+                    using MySqlCodeGenerator codeGenerator =
+                        (MySqlCodeGenerator)SqlCodeGeneratorFactory.CreateGenerator(column.Provider);
+                    if (codeGenerator != null)
+                    {
+                        UpdateColumnValidator validator = new UpdateColumnValidator();
+                        var validationResult = validator.Validate(column);
+                        if (validationResult.IsValid)
+                        {
+                            var mappedEntity = _mapper.Map<Column>(column);
+
+                            Table table = new Table
+                            {
+                                TableName = column.TableName,
+                                DatabaseName = dbInformation.DatabaseName
+                            };
+
+                            table.Columns.Add(mappedEntity);
+                            string command = codeGenerator.AlterTable(table);
+                            if (!String.IsNullOrEmpty(command))
+                            {
+                                await ExecuteQueryOnRemote(command, dbInformation);
+                            }
+                            else
+                            {
+                                throw new NullReferenceException("Create Table Sql Referansı Bulunamadı");
+                            }
+                        }
+                        else
+                        {
+                            throw new ValidationException(validationResult.ToString());
+                        }
+                    }
+                    else
+                    {
+                        throw new NullReferenceException("Code Generator Referansına Ulaşlamadı");
+                    }
+                }
+                else
+                {
+                    throw new AmbiguousMatchException("Desteklenen Provider Verilmedi.");
+                }
+            }
+            catch (Exception e)
+            {
+                throw ExceptionHandler.HandleException(e);
+            }
+
+        }
+
         public Task CreateIndexOnRemote(AddIndexDto index, DbInformation dbInformation)
         {
             throw new NotImplementedException();

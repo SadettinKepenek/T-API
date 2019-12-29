@@ -15,6 +15,7 @@
 
         public bool HasLength { get; set; }
         public string Provider { get; set; }
+        public int DatabaseId { get; set; }
 
     }
 }

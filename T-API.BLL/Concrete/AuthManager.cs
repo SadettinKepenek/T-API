@@ -19,7 +19,7 @@ using T_API.Entity.Concrete;
 
 namespace T_API.BLL.Concrete
 {
-    public class AuthManager:IAuthService
+    public class AuthManager : IAuthService
     {
         private IHttpContextAccessor _httpContextAccessor;
         private IUserRepository _userRepository;
@@ -32,8 +32,8 @@ namespace T_API.BLL.Concrete
             _mapper = mapper;
         }
 
-      
-        private string GenerateToken(UserEntity user)
+
+        private Tuple<string, DateTime> GenerateToken(UserEntity user)
         {
             var tokenHandler = new JwtSecurityTokenHandler();
             var key = Encoding.ASCII.GetBytes(ConfigurationSettings.SecretKey);
@@ -58,20 +58,20 @@ namespace T_API.BLL.Concrete
 
             var token = tokenHandler.CreateToken(tokenDescriptor);
             //_httpContextAccessor.HttpContext.SignInAsync(new ClaimsPrincipal(claimsIdentity));
-            return tokenHandler.WriteToken(token);
+            return new Tuple<string, DateTime>(tokenHandler.WriteToken(token), DateTime.Now.AddYears(10));
         }
 
         public async Task Register(AddUserDto addUserDto)
         {
             try
             {
-                AddUserValidator addUserValidator=new AddUserValidator();
+                AddUserValidator addUserValidator = new AddUserValidator();
                 var result = addUserValidator.Validate(addUserDto);
                 if (result.IsValid)
                 {
                     var mappedEntity = _mapper.Map<UserEntity>(addUserDto);
                     int Id = await _userRepository.AddUser(mappedEntity);
-                    if (Id==-1)
+                    if (Id == -1)
                     {
                         throw new Exception("Kullanıcı kayıt işlemi başarısız");
                     }
@@ -88,25 +88,55 @@ namespace T_API.BLL.Concrete
             }
         }
 
-        public async Task Login(LoginUserDto loginUser)
+        public async Task<LoginResponseDto> Login(LoginUserDto loginUser)
         {
             try
             {
-                LoginUserValidator loginUserValidator=new LoginUserValidator();
+                LoginUserValidator loginUserValidator = new LoginUserValidator();
                 var result = loginUserValidator.Validate(loginUser);
                 if (result.IsValid)
                 {
                     var user = await _userRepository.GetByUsername(loginUser.Username);
-                    if (user==null)
+                    if (user != null)
+                    {
+                        if (user.Password.Equals(loginUser.Password))
+                        {
+                            var claims = new List<Claim>
+                            {
+                                new Claim(ClaimTypes.Name, user.Username),
+                                new Claim(ClaimTypes.Email, user.Email),
+                                new Claim(ClaimTypes.Role, user.Role),
+                            };
+                            claims.Add(new Claim(ClaimTypes.NameIdentifier, user.UserId.ToString()));
+
+                            var claimsIdentity = new ClaimsIdentity(
+                                claims, CookieAuthenticationDefaults.AuthenticationScheme);
+                            var authProperties = new AuthenticationProperties
+                            {
+                                AllowRefresh = true,
+                                IsPersistent = true,
+                                ExpiresUtc = DateTime.Now.AddYears(1),
+                            };
+                            await _httpContextAccessor.HttpContext.SignInAsync(
+                                CookieAuthenticationDefaults.AuthenticationScheme,
+                                new ClaimsPrincipal(claimsIdentity),
+                                null);
+                            var token = GenerateToken(user);
+                            return new LoginResponseDto()
+                            {
+                                Token = token.Item1,
+                                ExpireDate = token.Item2
+                            };
+                        }
+                        else
+                        {
+                            throw new UnauthorizedAccessException("Kullanıcı adı veya şifre doğru gönderilmedi");
+                        }
+                    }
+                    else
                     {
                         throw new NullReferenceException($"{loginUser.Username} Kullancısının verisine ulaşılamadı");
                     }
-
-                    if (user.Password.Equals(loginUser.Password))
-                    {
-                        await DoLogin(user);
-                    }
-
                 }
                 else
                 {
@@ -118,7 +148,6 @@ namespace T_API.BLL.Concrete
                 throw ExceptionHandler.HandleException(e);
 
             }
-
         }
 
         public async Task Logout()
@@ -133,38 +162,6 @@ namespace T_API.BLL.Concrete
             }
         }
 
-        private async Task DoLogin(UserEntity user)
-        {
-            try
-            {
-                var claims = new List<Claim>
-                {
-                    new Claim(ClaimTypes.Name, user.Username),
-                    new Claim(ClaimTypes.Email, user.Email),
-                    new Claim(ClaimTypes.Role, user.Role),
-                };
-                claims.Add(new Claim(ClaimTypes.NameIdentifier,user.UserId.ToString()));
 
-                var claimsIdentity = new ClaimsIdentity(
-                    claims, CookieAuthenticationDefaults.AuthenticationScheme);
-
-                var authProperties = new AuthenticationProperties
-                {
-                    AllowRefresh = true,
-                    IsPersistent = true,
-                    ExpiresUtc = DateTime.Now.AddYears(1),
-
-                };
-
-                await _httpContextAccessor.HttpContext.SignInAsync(
-                    CookieAuthenticationDefaults.AuthenticationScheme,
-                    new ClaimsPrincipal(claimsIdentity),
-                    null);
-            }
-            catch (Exception e)
-            {
-                throw ExceptionHandler.HandleException(e);
-            }
-        }
     }
 }

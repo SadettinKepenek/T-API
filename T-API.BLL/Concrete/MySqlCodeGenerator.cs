@@ -28,7 +28,7 @@ namespace T_API.BLL.Concrete
 
 
 
-            sb.AppendLine($"Create Table '{table.TableName}'");
+            sb.AppendLine($"Create Table {table.TableName}");
             sb.AppendLine("(");
             foreach (Column column in table.Columns)
             {
@@ -108,7 +108,7 @@ namespace T_API.BLL.Concrete
 
 
             Console.WriteLine(sb.ToString());
-            return String.Empty;
+            return sb.ToString();;
         }
 
         public string DropTable(Table table)

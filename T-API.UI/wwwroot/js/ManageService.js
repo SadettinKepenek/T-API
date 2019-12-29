@@ -205,9 +205,6 @@ var initDataTableForForeigns = function initDataTableForForeigns(tableName) {
                     defaultContent: '<a href="" class="editor_edit">Edit</a> / <a href="" class="editor_remove">Delete</a>'
                 }
             ],
-            "oLanguage": {
-                "sEmptyTable": "Your custom message for empty table"
-            },
             "paging": false,
             "ordering": false,
             "info": false,

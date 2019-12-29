@@ -64,6 +64,7 @@ namespace T_API.UI.MappingProfiles
 
 
             CreateMap<AddTableDto, Table>().ReverseMap();
+            CreateMap<AddTableViewModel, AddTableDto>().ReverseMap();
             CreateMap<UpdateDatabaseDto, Table>().ReverseMap();
             CreateMap<DeleteTableDto, Table>().ReverseMap();
             CreateMap<DetailTableDto, Table>().ReverseMap();

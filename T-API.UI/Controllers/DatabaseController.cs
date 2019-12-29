@@ -308,6 +308,7 @@ namespace T_API.UI.Controllers
                     DatabaseName = db.DatabaseName,
                     DatabaseId = db.DatabaseId
                 };
+                //addTableViewModel.Columns.Add(new AddColumnDto());
                 return View(addTableViewModel);
             }
             catch (Exception e)
@@ -358,7 +359,7 @@ namespace T_API.UI.Controllers
                 var dbInfo = _mapper.Map<DbInformation>(db);
                 await _realDbService.CreateTableOnRemote(mappedEntity, dbInfo);
             }
-            return RedirectToAction("Index", "Database");
+            return RedirectToAction("EditService", "Database",new {serviceId=model.DatabaseId});
         }
 
         // TODO Add Table AJax yapılacak

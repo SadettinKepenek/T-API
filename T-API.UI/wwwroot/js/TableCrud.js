@@ -19,12 +19,12 @@
         "searching": false,
         columnDefs: [{
             orderable: false,
-            targets: [0,1, 2, 3,4,5,6,7,8,9],
-            "className":"text-center"
+            targets: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
+            "className": "text-center"
         }],
-        "createdRow": function(row, data, index) {
+        "createdRow": function (row, data, index) {
         },
-        
+
     });
     window.columnCount = 0;
     window.provider = provider;
@@ -87,24 +87,24 @@ var getDefaultValueString = function getDefaultValueString() {
 };
 
 var getHasLengthString = function getHasLengthString() {
-    var hasLengthString = '<input type="checkbox" id="HasLength_' + window.columnCount + '"  name="Columns[' + window.columnCount + '].HasLength" disabled="true"/>';
+    var hasLengthString = '<input type="checkbox" id="HasLength_' + window.columnCount + '"  name="Columns[' + window.columnCount + '].HasLength" value="true" />';
     return hasLengthString;
 };
 
 var getIsUniqueString = function getIsUniqueString() {
-    var isUniqueString = '<input type="checkbox"  name="Columns[' + window.columnCount + '].Unique" />';
+    var isUniqueString = '<input type="checkbox"  name="Columns[' + window.columnCount + '].Unique" value="true"/>';
     return isUniqueString;
 };
 var getIsPrimaryString = function getIsPrimaryString() {
-    var isPrimaryStr = '<input type="checkbox"  name="Columns[' + window.columnCount + '].PrimaryKey" />';
+    var isPrimaryStr = '<input type="checkbox"  name="Columns[' + window.columnCount + '].PrimaryKey" value="true"/>';
     return isPrimaryStr;
 };
 var getNotNullString = function getIsPrimaryString() {
-    var notNullStr = '<input type="checkbox"  name="Columns[' + window.columnCount + '].NotNull" />';
+    var notNullStr = '<input type="checkbox"  name="Columns[' + window.columnCount + '].NotNull" value="true"/>';
     return notNullStr;
 };
 var getAutoIncString = function getAutoIncString() {
-    var autoIncStr = '<input type="checkbox"  name="Columns[' + window.columnCount + '].AutoInc" />';
+    var autoIncStr = '<input type="checkbox"  name="Columns[' + window.columnCount + '].AutoInc" value="true" />';
     return autoIncStr;
 };
 var dataTypeChanged = function dataTypeChanged(selectInput) {
@@ -123,11 +123,13 @@ var dataTypeChanged = function dataTypeChanged(selectInput) {
 
         console.log($('#' + hasLengthId));
         $('#' + hasLengthId).prop("checked", true);
+        $('#' + hasLengthId).val(true);
         $('#' + dataLengthId).prop("required", true);
         $('#' + dataLengthId).prop("disabled", false);
 
     } else {
         $('#' + hasLengthId).prop("checked", false);
+        $('#' + hasLengthId).val(false);
         $('#' + dataLengthId).prop("required", false);
         $('#' + dataLengthId).prop("disabled", true);
 

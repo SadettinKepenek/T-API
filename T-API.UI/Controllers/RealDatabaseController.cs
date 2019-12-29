@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -14,7 +15,7 @@ namespace T_API.UI.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize]
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     public class RealDatabaseController : ControllerBase
     {
         private IRealDbService _realDbService;
@@ -60,12 +61,27 @@ namespace T_API.UI.Controllers
 
 
         [AllowAnonymous]
-        [HttpPost]
+        [HttpPost("Login")]
         public async Task<IActionResult> Login(LoginUserDto loginUserDto)
         {
-            var mapped = _mapper.Map<LoginUserDto>(loginUserDto);
-            LoginResponseDto loginResponseDto = await _authService.Login(mapped);
-        }
 
+            try
+            {
+                var mapped = _mapper.Map<LoginUserDto>(loginUserDto);
+                LoginResponseDto loginResponseDto = await _authService.Login(mapped,true);
+                return Ok(loginResponseDto);
+            }
+            catch (Exception e)
+            {
+                return BadRequest();
+            }
+        }
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+        [HttpGet("Logout")]
+        public async Task<IActionResult> Logout()
+        {
+            await _authService.Logout();
+            return Ok();
+        }
     }
 }

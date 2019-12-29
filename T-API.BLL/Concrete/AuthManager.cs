@@ -43,6 +43,7 @@ namespace T_API.BLL.Concrete
                 new Claim(ClaimTypes.Name, user.Username),
                 new Claim(ClaimTypes.Email, user.Email),
                 new Claim(ClaimTypes.Role, user.Role),
+                new Claim(ClaimTypes.NameIdentifier, user.UserId.ToString()),
             };
 
 
@@ -88,7 +89,7 @@ namespace T_API.BLL.Concrete
             }
         }
 
-        public async Task<LoginResponseDto> Login(LoginUserDto loginUser)
+        public async Task<LoginResponseDto> Login(LoginUserDto loginUser, bool jwt)
         {
             try
             {
@@ -106,8 +107,8 @@ namespace T_API.BLL.Concrete
                                 new Claim(ClaimTypes.Name, user.Username),
                                 new Claim(ClaimTypes.Email, user.Email),
                                 new Claim(ClaimTypes.Role, user.Role),
+                                new Claim(ClaimTypes.NameIdentifier,user.UserId.ToString())
                             };
-                            claims.Add(new Claim(ClaimTypes.NameIdentifier, user.UserId.ToString()));
 
                             var claimsIdentity = new ClaimsIdentity(
                                 claims, CookieAuthenticationDefaults.AuthenticationScheme);
@@ -117,10 +118,11 @@ namespace T_API.BLL.Concrete
                                 IsPersistent = true,
                                 ExpiresUtc = DateTime.Now.AddYears(1),
                             };
-                            await _httpContextAccessor.HttpContext.SignInAsync(
-                                CookieAuthenticationDefaults.AuthenticationScheme,
-                                new ClaimsPrincipal(claimsIdentity),
-                                null);
+                            if (!jwt)
+                                await _httpContextAccessor.HttpContext.SignInAsync(
+                                    CookieAuthenticationDefaults.AuthenticationScheme,
+                                    new ClaimsPrincipal(claimsIdentity),
+                                    null);
                             var token = GenerateToken(user);
                             return new LoginResponseDto()
                             {

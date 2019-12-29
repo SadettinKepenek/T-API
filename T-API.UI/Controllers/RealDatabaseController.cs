@@ -31,29 +31,20 @@ namespace T_API.UI.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> ShowEndpoints(int? databaseId)
+        public async Task<IActionResult> ShowEndpoints(int databaseId)
         {
             int userIdentifier = HttpContext.GetNameIdentifier();
-            if (databaseId == null)
             {
-                var entities = await _databaseService.GetByUser(userIdentifier);
-                if (entities == null)
-                {
-                    return NoContent();
-                }
-
-                return Ok(entities);
-            }
-            else
-            {
-                var entity = await _databaseService.GetById((int)databaseId);
+                var entity = await _databaseService.GetById(databaseId);
                 if (entity == null)
                 {
                     return NoContent();
                 }
 
                 if (entity.UserId == userIdentifier)
+                {
                     return Ok(entity);
+                }
                 else
                     return Unauthorized("Ulaşılmak istenilen veritabanı belirtilen kullanıcıya ait değil.");
             }

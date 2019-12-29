@@ -728,11 +728,10 @@ var updateColumn = function updateColumn(columnObj) {
         contentType: "application/json",
         success: function (data) {
             getDatabase(columnObj.DatabaseId);
-            $('#addColumnModal').modal('toggle');
+            $('#updateColumnModal').modal('toggle');
         },
         error: function (XMLHttpRequest, textStatus, errorThrown) {
             showCriticalError('Hata', 'Veritabanı yüklenirken hata oluştu lütfen daha sonra tekrar deneyiniz..', "https://localhost:44383/Database/")
-
         },
         done: function (data) {
 

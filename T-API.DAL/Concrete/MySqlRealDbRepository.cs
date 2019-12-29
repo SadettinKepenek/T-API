@@ -35,13 +35,9 @@ namespace T_API.DAL.Concrete
                 using (cmd)
                 {
 
-                    //using (var transaction = conn.BeginTransaction())
-                    //{
                         try
                         {
-                            //cmd.Transaction = transaction;
                             cmd.ExecuteNonQuery();
-                            //transaction.Commit();
                         }
                         catch (Exception ex)
                         {
@@ -51,7 +47,6 @@ namespace T_API.DAL.Concrete
                             throw ExceptionHandler.HandleException(ex);
 
                         }
-                    //}
 
                 }
 

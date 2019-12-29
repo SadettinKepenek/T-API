@@ -230,19 +230,19 @@ namespace T_API.BLL.Concrete
                                 {
                                     if (column.OldColumn.Unique && column.Unique == false)
                                     {
-                                        var idx = databaseEntity.Indices.Where(x =>
-                                            x.IndexColumn == column.ColumnName && x.TableName == column.TableName);
-                                        queries.Add(codeGenerator.DropIndex(_mapper.Map<Index>(idx)));
+                                        var idx = databaseEntity.Keys.FirstOrDefault(x =>
+                                            x.KeyColumn == column.ColumnName && x.TableName == column.TableName);
+                                        queries.Add(codeGenerator.DropKey(_mapper.Map<Key>(idx)));
                                     }
-
                                     if (column.OldColumn.PrimaryKey && column.PrimaryKey == false)
                                     {
-                                        var idx = databaseEntity.Keys.Where(x =>
+                                        var idx = databaseEntity.Keys.FirstOrDefault(x =>
                                             x.KeyColumn == column.ColumnName && x.TableName == column.TableName);
                                         queries.Add(codeGenerator.DropKey(_mapper.Map<Key>(idx)));
                                     }
                                 }
 
+                                column.DefaultValue = null;
                                 var mappedEntity = _mapper.Map<Column>(column);
 
                                 Table table = new Table

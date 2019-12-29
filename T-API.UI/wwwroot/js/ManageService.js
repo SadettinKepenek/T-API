@@ -152,7 +152,7 @@ var parseDatabase = function parseDatabase(table) {
         tableContentString += '<h5 class="text-center">Foreign Keys</h5>';
         tableContentString += '<hr/>';
         tableContentString += '<div class="row">';
-        tableContentString += '<table class="table table-striped table-bordered" id="databaseTable_Foreigns_' + table.tableName + '"></table>';
+        tableContentString += '<table class="table table-striped  table-bordered" id="databaseTable_Foreigns_' + table.tableName + '"></table>';
         tableContentString += '</div>';
         // Container bitiş
         tableContentString += '</div>';
@@ -208,8 +208,8 @@ var initDataTableForForeigns = function initDataTableForForeigns(tableName) {
             "paging": false,
             "ordering": false,
             "info": false,
-            "searching": false
-
+            "searching": false,
+           
         });
     } else {
         showCriticalError('Hata', 'Veritabanı yüklenirken hata oluştu lütfen daha sonra tekrar deneyiniz..', "https://localhost:44383/Database/")

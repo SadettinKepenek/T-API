@@ -68,7 +68,7 @@
         <div class="col-md-8">
             <div class="row justify-content-end">
                 <button type="button" onclick="systemCheck();" class="ml-1 mr-1 btn btn-info btn-sm">Refresh</button>
-                <a  asp-action="AddTable" asp-controller="Database" asp-route-databaseId="@Model.DatabaseId" class="ml-1 mr-1 btn btn-info btn-sm">Add Table</a>
+                <a asp-action="AddTable" asp-controller="Database" asp-route-databaseId="@Model.DatabaseId" class="ml-1 mr-1 btn btn-info btn-sm">Add Table</a>
                 <button type="button" onclick="" class="ml-1 mr-1 btn btn-info btn-sm">Show API End Points</button>
                 <button type="button" onclick="" class="ml-1 mr-1 btn btn-danger btn-sm">Drop Table</button>
             </div>
@@ -219,6 +219,73 @@
 <!--End Of Add Foreign Modal-->
 
 
+<!-- Update Column Modal -->
+<div class="modal fade" id="updateColumnModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="updateColumnModalTitle">Update Column</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="updateColumnForm">
+
+                    <h5>Provider Info</h5>
+                    <input id="updateProviderInfo" placeholder="Provider Info" readonly="readonly" class="form-control" />
+                    <hr />
+
+
+                    <h5>Table Info</h5>
+                    <input id="updateTableName" placeholder="Table Name" readonly="readonly" class="form-control" />
+                    <hr />
+
+                    <h5>Column Info</h5>
+                    <div class="form-group">
+                        <input id="updateColumnName" placeholder="Column Name" class="form-control" required="required" />
+                    </div>
+                    <div class="form-group">
+                        <select class="custom-select" required="required" id="updateDataType">
+                            <option selected disabled="disabled">Column Data Type</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <input id="updateDataLength" placeholder="Data Length" type="number" class="form-control" required="required" />
+                    </div>
+                    <div class="form-group">
+                        <input id="updateDefaultValue" placeholder="Default Value" class="form-control" />
+                    </div>
+                    <hr />
+                    <h5>Column Attributes</h5>
+                    <div class=" custom-control custom-checkbox">
+                        <input type="checkbox" class="custom-control-input form-control" id="updateIsPrimary">
+                        <label class="custom-control-label" for="isPrimary">Is Primary</label>
+                    </div>
+                    <div class=" custom-control custom-checkbox">
+                        <input type="checkbox" class="custom-control-input form-control" id="updateIsAutoInc">
+                        <label class="custom-control-label" for="isAutoInc">Is Auto Increment</label>
+                    </div>
+                    <div class="custom-control custom-checkbox">
+                        <input type="checkbox" class="custom-control-input form-control" id="updateIsUnique">
+                        <label class="custom-control-label" for="isUnique">Is Unique</label>
+                    </div>
+                    <div class="custom-control custom-checkbox">
+                        <input type="checkbox" class="custom-control-input form-control" id="updateIsNotNull">
+                        <label class="custom-control-label" for="isNotNull">Is Not Null</label>
+                    </div>
+
+                </form>
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" id="updateColumnModalSubmit">Save changes</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!--End Of Add Column Modal-->
 
 
 <script type="text/javascript">

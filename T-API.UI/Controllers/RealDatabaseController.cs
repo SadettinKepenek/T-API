@@ -8,7 +8,6 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Distributed;
-using Microsoft.Extensions.Caching.Memory;
 using T_API.BLL.Abstract;
 using T_API.Core.DTO.Table;
 using T_API.Core.DTO.User;
@@ -26,52 +25,15 @@ namespace T_API.UI.Controllers
         private IDatabaseService _databaseService;
         private IAuthService _authService;
         private IMapper _mapper;
-        private IMemoryCache _cache;
-        private IEndPointService _endPointService;
 
-        public RealDatabaseController(IRealDbService realDbService, IDatabaseService databaseService, IAuthService authService, IMapper mapper, IMemoryCache cache, IEndPointService endPointService)
+        public RealDatabaseController(IRealDbService realDbService, IDatabaseService databaseService, IAuthService authService, IMapper mapper)
         {
             _realDbService = realDbService;
             _databaseService = databaseService;
             _authService = authService;
             _mapper = mapper;
-            _cache = cache;
-            _endPointService = endPointService;
         }
 
-        [HttpGet]
-        public async Task<IActionResult> ShowEndpoints(int databaseId,string tableName)
-        {
-            int userIdentifier = HttpContext.GetNameIdentifier();
-            {
-                var entity = await _databaseService.GetById(databaseId);
-                if (entity == null)
-                {
-                    return NoContent();
-                }
-
-                if (entity.UserId == userIdentifier)
-                {
-
-                    DetailTableDto table;
-                    var cacheKey = $"User_{userIdentifier}_Database_{entity.DatabaseId}_Table_{tableName}";
-                    // Cache de var ise getiriliyor yoksa db den çekiliyor.
-                    var cacheEntry = await _cache.GetOrCreateAsync(cacheKey, async entry =>
-                    {
-                        entry.SlidingExpiration = TimeSpan.FromMinutes(10);
-                        entry.SetPriority(CacheItemPriority.Low);
-                        table = await _realDbService.GetTable(tableName,entity.DatabaseName, entity.Provider);
-                        return await Task.FromResult(table);
-                    });
-                    
-                    
-
-                    return Ok(_endPointService.GetEndPoints(cacheEntry,entity.UserId,entity.DatabaseId));
-                }
-                else
-                    return Unauthorized("Ulaşılmak istenilen veritabanı belirtilen kullanıcıya ait değil.");
-            }
-        }
 
 
         [AllowAnonymous]

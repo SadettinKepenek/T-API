@@ -28,11 +28,13 @@ namespace T_API.UI.Controllers
         private IDatabaseService _databaseService;
         private IMapper _mapper;
         private IRealDbService _realDbService;
-        public DatabaseController(IDatabaseService databaseService, IMapper mapper, IRealDbService realDbService)
+        private IEndPointService _endPointService;
+        public DatabaseController(IDatabaseService databaseService, IMapper mapper, IRealDbService realDbService, IEndPointService endPointService)
         {
             _databaseService = databaseService;
             _mapper = mapper;
             _realDbService = realDbService;
+            _endPointService = endPointService;
         }
 
 
@@ -120,6 +122,7 @@ namespace T_API.UI.Controllers
             }
 
             EditServiceViewModel model = _mapper.Map<EditServiceViewModel>(database);
+            
             //model.UserId = Convert.ToInt32(HttpContext.User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value);
 
             return View(model);

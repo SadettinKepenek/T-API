@@ -8,32 +8,49 @@ using T_API.Core.DTO.Table;
 
 namespace T_API.BLL.Concrete
 {
-    public class EndPointManager:IEndPointService
+    public class EndPointManager : IEndPointService
     {
-       
 
-        public List<EndPointModel> GetEndPoints(DetailTableDto table,int userId,int databaseId)
+
+        public List<EndPointModel> GetEndPoints(DetailTableDto table, int userId, int databaseId)
         {
 
-            List<EndPointModel> endPointModels=new List<EndPointModel>();
+            List<EndPointModel> endPointModels = new List<EndPointModel>();
             endPointModels.Add(new EndPointModel
             {
                 Type = "GET",
                 Url = $"api/RealDatabase/Get?UserId={userId}&DatabaseId={databaseId}&Table={table.TableName}",
             });
-            endPointModels.Add(GeneratePostEndpoint(table,userId,databaseId));
+            endPointModels.Add(GeneratePostEndpoint(table, userId, databaseId));
 
             return endPointModels;
         }
 
         private EndPointModel GeneratePostEndpoint(DetailTableDto table, int userId, int databaseId)
         {
-            EndPointModel model=new EndPointModel();
+            EndPointModel model = new EndPointModel();
             model.Url = $"api/RealDatabase/Add?UserId={userId}&DatabaseId={databaseId}&Table={table.TableName}";
             model.Type = "POST";
 
-
-
+            model.Params = new List<ParamModel>();
+            model.Params.Add(new ParamModel()
+            {
+                Example = "Kullanıcı Adınız",
+                ParamName = "UserId",
+                ParamType = typeof(int).ToString()
+            });
+            model.Params.Add(new ParamModel()
+            {
+                Example = "Servis Numaranız",
+                ParamName = "DatabaseId",
+                ParamType = typeof(int).ToString()
+            });
+            model.Params.Add(new ParamModel()
+            {
+                Example = "Veri eklemek istediğiniz tablo ismi",
+                ParamName = "Table",
+                ParamType = typeof(string).ToString()
+            });
 
             StringBuilder stringBuilder = new StringBuilder();
             stringBuilder.AppendLine("\nPOST REQUEST JSON DATA EXAMPLE\n\n");

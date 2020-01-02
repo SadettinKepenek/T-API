@@ -7,6 +7,7 @@ using AutoMapper;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Caching.Memory;
 using T_API.BLL.Abstract;
 using T_API.Core.DAL.Concrete;
 using T_API.Core.DTO.Column;
@@ -28,11 +29,14 @@ namespace T_API.UI.Controllers
         private IDatabaseService _databaseService;
         private IMapper _mapper;
         private IRealDbService _realDbService;
-        public DatabaseController(IDatabaseService databaseService, IMapper mapper, IRealDbService realDbService)
+        private IMemoryCache _cache;
+        public DatabaseController(IDatabaseService databaseService, IMapper mapper, IRealDbService realDbService,  IMemoryCache cache)
         {
             _databaseService = databaseService;
             _mapper = mapper;
             _realDbService = realDbService;
+            
+            _cache = cache;
         }
 
 
@@ -119,8 +123,17 @@ namespace T_API.UI.Controllers
                 return RedirectToAction("Index", "Database");
             }
 
+            int nameIdentifier = HttpContext.GetNameIdentifier();
+            if (database.UserId != nameIdentifier)
+            {
+                TempData["Message"] = "İstenilen database'e ulaşılamadı";
+                return RedirectToAction("Index", "Database");
+            }
             EditServiceViewModel model = _mapper.Map<EditServiceViewModel>(database);
-            //model.UserId = Convert.ToInt32(HttpContext.User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value);
+
+
+
+
 
             return View(model);
         }
@@ -394,7 +407,7 @@ namespace T_API.UI.Controllers
                 var dbInfo = _mapper.Map<DbInformation>(db);
                 await _realDbService.CreateTableOnRemote(mappedEntity, dbInfo);
             }
-            return RedirectToAction("EditService", "Database",new {serviceId=model.DatabaseId});
+            return RedirectToAction("EditService", "Database", new { serviceId = model.DatabaseId });
         }
 
         // TODO Add Table AJax yapılacak

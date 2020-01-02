@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.ObjectModel;
 using System.ComponentModel.DataAnnotations;
+using T_API.Core.DTO.EndPoint;
 using T_API.Core.DTO.Table;
 
 namespace T_API.UI.Models.Database
@@ -30,5 +31,7 @@ namespace T_API.UI.Models.Database
         public DateTime EndDate { get; set; }
 
         public ObservableCollection<DetailTableDto> Tables { get; set; }
+
+        public ObservableCollection<EndPointModel> EndPointModels { get; set; }
     }
 }

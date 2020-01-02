@@ -52,12 +52,28 @@ namespace T_API.UI.Controllers
                 return BadRequest();
             }
         }
-        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         [HttpGet("Logout")]
         public async Task<IActionResult> Logout()
         {
             await _authService.Logout();
             return Ok();
         }
+
+        [HttpGet("Get")]
+        public async Task<IActionResult> Get(int serviceNumber)
+        {
+            int userId = HttpContext.GetNameIdentifier();
+            var db = await _databaseService.GetById(serviceNumber);
+            if (db.UserId!=userId)
+            {
+                return Unauthorized("Kullanıcı ve Database Sahibi Eşleşmedi");
+            }
+
+
+            return Ok();
+        }
+
+
+
     }
 }

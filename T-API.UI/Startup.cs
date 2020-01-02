@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using AutoMapper;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
@@ -49,25 +50,18 @@ namespace T_API.UI
             services.AddScoped<IUserRepository, UserRepository>();
             services.AddTransient<IRealDbRepositoryFactory, RealDbRepositoryFactory>();
             services.AddTransient<IRealDbService, RealDbManager>();
+            services.AddTransient<IEndPointService, EndPointManager>();
 
 
             services.AddControllersWithViews().AddRazorRuntimeCompilation();
-            var key = Encoding.ASCII.GetBytes(ConfigurationSettings.SecretKey);
-            services.AddAuthentication(o =>
-                {
-                    o.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
-                    
-                })
 
+
+
+
+            var key = Encoding.ASCII.GetBytes(ConfigurationSettings.SecretKey);
+            services.AddAuthentication()
                 .AddCookie(options =>
                 {
-                    options.ForwardDefaultSelector = ctx =>
-                        {
-                            return ctx.Request.Path.StartsWithSegments("/api")
-                                ? JwtBearerDefaults.AuthenticationScheme
-                                : null;
-                        };
-                    
                     options.LoginPath = "/Security/Login";
                     options.LogoutPath = "/Security/Logout";
                     options.AccessDeniedPath = "/Security/Login";
@@ -80,8 +74,7 @@ namespace T_API.UI
                         SameSite = SameSiteMode.Lax,
                         SecurePolicy = CookieSecurePolicy.SameAsRequest
                     };
-                })
-                .AddJwtBearer(x =>
+                }).AddJwtBearer(x =>
                 {
                     x.RequireHttpsMetadata = false;
                     x.SaveToken = true;
@@ -98,21 +91,9 @@ namespace T_API.UI
                 });
             services.AddAuthorization(options =>
             {
-                var defaultPoliceBuilder = new AuthorizationPolicyBuilder(CookieAuthenticationDefaults.AuthenticationScheme);
+                var defaultPoliceBuilder = new AuthorizationPolicyBuilder(CookieAuthenticationDefaults.AuthenticationScheme, JwtBearerDefaults.AuthenticationScheme);
                 defaultPoliceBuilder = defaultPoliceBuilder.RequireAuthenticatedUser();
                 options.DefaultPolicy = defaultPoliceBuilder.Build();
-
-                //options.AddPolicy("AdminOnly", authorizationPolicyBuilder =>
-                //{
-                //    authorizationPolicyBuilder.AuthenticationSchemes.Add(JwtBearerDefaults.AuthenticationScheme);
-                //    authorizationPolicyBuilder.AuthenticationSchemes.Add(CookieAuthenticationDefaults.AuthenticationScheme);
-                //    authorizationPolicyBuilder.RequireRole("Admin");
-                //    authorizationPolicyBuilder.RequireAuthenticatedUser();
-                //    authorizationPolicyBuilder.Build();
-                //});
-
-
-
             });
 
             services.AddSession(opt =>
@@ -121,7 +102,7 @@ namespace T_API.UI
                 opt.Cookie.IsEssential = true;
             });
             services.AddDistributedMemoryCache();
-
+            services.AddMemoryCache();
 
             services.AddScoped<IAuthService, AuthManager>();
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
@@ -145,6 +126,18 @@ namespace T_API.UI
             app.UseSession();
 
             app.UseAuthentication();
+            app.Use(async (context, next) =>
+            {
+                await next();
+                var bearerAuth = context.Request.Headers["Authorization"]
+                                     .FirstOrDefault()?.StartsWith("Bearer ") ?? false;
+                if (context.Response.StatusCode == 401
+                    && !context.User.Identity.IsAuthenticated
+                    && !bearerAuth)
+                {
+                    await context.ChallengeAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+                }
+            });
 
             app.UseRouting();
 

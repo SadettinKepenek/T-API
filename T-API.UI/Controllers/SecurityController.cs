@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using T_API.BLL.Abstract;
@@ -23,7 +24,7 @@ namespace T_API.UI.Controllers
             _mapper = mapper;
         }
 
-        [Authorize]
+        [Authorize(AuthenticationSchemes = CookieAuthenticationDefaults.AuthenticationScheme)]
         [HttpGet]
         public async Task<IActionResult> Logout()
         {
@@ -47,7 +48,7 @@ namespace T_API.UI.Controllers
                 if (ModelState.IsValid)
                 {
                     var mapped = _mapper.Map<LoginUserDto>(model);
-                    await _authService.Login(mapped);
+                    await _authService.Login(mapped,false);
                     return RedirectToAction("Index", "Home");
                 }
                 else

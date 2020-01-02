@@ -172,10 +172,6 @@ var systemCheck = function systemCheck() {
 };
 
 
-
-
-
-
 var parseDatabase = function parseDatabase(table) {
     var tabTables = $('#v-pills-tab-tables');
     var tableContent = $('#v-pills-tabContent-tables');
@@ -194,7 +190,8 @@ var parseDatabase = function parseDatabase(table) {
         }
         tabTablesString += ' id="v-pills-table_' + window.tableCount + '-tab" ' +
             'data-toggle="pill"' +
-            'href="#v-pills-' + window.tableCount + '"' +
+            'data-id=' + table.tableName +
+            ' href="#v-pills-' + window.tableCount + '"' +
             'role="tab" aria-controls="v-pills-home" aria-selected="true">' + table.tableName + '</a>';
 
         // Add Table Content Div
@@ -739,4 +736,59 @@ var updateColumn = function updateColumn(columnObj) {
     });
 
 
+};
+
+var getApiEndPoints = function getApiEndPoints() {
+    var activeItem = $("#v-pills-tab-tables .nav-link.active")[0];
+    if (activeItem) {
+        var tableName = $('#' + activeItem.id).attr("data-id");
+        window.endPointCount = 0;
+        $.ajax({
+            url: 'https://localhost:44383/api/RealDatabase?databaseId=' + window.databaseId
+                + '&tableName=' + tableName,
+            type: 'GET',
+            success: function (data, textStatus, xhr) {
+                console.log(data);
+                
+
+                $('#endPointsModal').modal('toggle');
+                data.forEach(function (point) {
+                    var $card = $('#endPointCard').clone();
+                    $card.attr("id", 'endPointCard_' + window.endPointCount);
+                    $card.removeAttr("hidden");
+                    $('#accordion').append($card);
+
+                    var $cardHeaderButton = $('#endPointCard_' + window.endPointCount).children('.card-header').find("button");
+                    $cardHeaderButton.attr("data-target", "#endPointCardContent_" + window.endPointCount);
+                    $cardHeaderButton.html(point.type);
+
+                    var $cardBody = $('#endPointCard_' + window.endPointCount).find('.card-body');
+                    var $cardContent = $cardBody.parent();
+                    $cardContent.attr("id", 'endPointCardContent_' + window.endPointCount);
+
+                    $cardBody.html(point.example);
+
+                    if (window.endPointCount === 0) {
+                        $cardContent.addClass("show");
+                    }
+
+                    window.endPointCount++;
+                });
+
+
+            },
+            complete: function (xhr, textStatus) {
+
+            }
+        }).done(function (result) {
+
+        }).fail(function (jqXHR, textStatus, error) {
+            $('#errorModalTitle').text('Hata!');
+            $('#errorModalBodyText').text('Veritabanı yüklenirken hata oluştu lütfen daha sonra tekrar deneyiniz..!');
+            $('#errorModal').modal('show');
+            $('#errorModal').on('hidden.bs.modal', function (e) {
+                window.location.replace("https://localhost:44383/Database/");
+            });
+        });
+    }
 };

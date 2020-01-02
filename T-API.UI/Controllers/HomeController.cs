@@ -11,7 +11,7 @@ using T_API.UI.Models;
 
 namespace T_API.UI.Controllers
 {
-    [Authorize]
+    [Authorize(AuthenticationSchemes = CookieAuthenticationDefaults.AuthenticationScheme)]
     public class HomeController : Controller
     {
 

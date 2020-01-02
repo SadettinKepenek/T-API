@@ -172,10 +172,6 @@ var systemCheck = function systemCheck() {
 };
 
 
-
-
-
-
 var parseDatabase = function parseDatabase(table) {
     var tabTables = $('#v-pills-tab-tables');
     var tableContent = $('#v-pills-tabContent-tables');
@@ -194,7 +190,8 @@ var parseDatabase = function parseDatabase(table) {
         }
         tabTablesString += ' id="v-pills-table_' + window.tableCount + '-tab" ' +
             'data-toggle="pill"' +
-            'href="#v-pills-' + window.tableCount + '"' +
+            'data-id='+table.tableName+
+            ' href="#v-pills-' + window.tableCount + '"' +
             'role="tab" aria-controls="v-pills-home" aria-selected="true">' + table.tableName + '</a>';
 
         // Add Table Content Div
@@ -739,4 +736,31 @@ var updateColumn = function updateColumn(columnObj) {
     });
 
 
+};
+
+var getApiEndPoints = function getApiEndPoints() {
+    var activeItem = $("#v-pills-tab-tables .nav-link.active")[0];
+    if (activeItem) {
+        var tableName = $('#' + activeItem.id).attr("data-id");
+        $.ajax({
+            url: 'https://localhost:44383/api/RealDatabase?databaseId=' + window.databaseId
+                + '&tableName=' + tableName,
+            type: 'GET',
+            success: function (data, textStatus, xhr) {
+                console.log(data);
+            },
+            complete: function (xhr, textStatus) {
+
+            }
+        }).done(function (result) {
+
+        }).fail(function (jqXHR, textStatus, error) {
+            $('#errorModalTitle').text('Hata!');
+            $('#errorModalBodyText').text('Veritabanı yüklenirken hata oluştu lütfen daha sonra tekrar deneyiniz..!');
+            $('#errorModal').modal('show');
+            $('#errorModal').on('hidden.bs.modal', function (e) {
+                window.location.replace("https://localhost:44383/Database/");
+            });
+        });
+    }
 };

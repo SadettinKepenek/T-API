@@ -50,6 +50,7 @@ namespace T_API.UI
             services.AddScoped<IUserRepository, UserRepository>();
             services.AddTransient<IRealDbRepositoryFactory, RealDbRepositoryFactory>();
             services.AddTransient<IRealDbService, RealDbManager>();
+            services.AddTransient<IEndPointService, EndPointManager>();
 
 
             services.AddControllersWithViews().AddRazorRuntimeCompilation();
@@ -101,7 +102,7 @@ namespace T_API.UI
                 opt.Cookie.IsEssential = true;
             });
             services.AddDistributedMemoryCache();
-
+            services.AddMemoryCache();
 
             services.AddScoped<IAuthService, AuthManager>();
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();

@@ -70,22 +70,22 @@ namespace T_API.BLL.Concrete
             throw new NotImplementedException();
         }
 
-        public string GenerateDropColumnQuery(Column column)
+        public string GenerateDropColumnQuery(Column column, Table table)
         {
             throw new NotImplementedException();
         }
 
-        public string GenerateDropRelationQuery(ForeignKey foreignKey)
+        public string GenerateDropRelationQuery(ForeignKey foreignKey, Table table)
         {
             throw new NotImplementedException();
         }
 
-        public string GenerateDropKeyQuery(Key key)
+        public string GenerateDropKeyQuery(Key key, Table table)
         {
             throw new NotImplementedException();
         }
 
-        public string GenerateDropIndexQuery(Index index)
+        public string GenerateDropIndexQuery(Index index, Table table)
         {
             throw new NotImplementedException();
         }

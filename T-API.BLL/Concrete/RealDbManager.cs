@@ -398,6 +398,40 @@ namespace T_API.BLL.Concrete
 
         }
 
+        public async  Task DropForeignKeyOnRemote(DeleteForeignKeyDto foreignKey, DbInformation dbInformation)
+        {
+            try
+            {
+                if (SqlCodeGeneratorFactory.CreateGenerator(dbInformation.Provider) is MySqlCodeGenerator codeGenerator)
+                {
+                    DeleteForeignKeyValidator validator = new DeleteForeignKeyValidator();
+                    var validationResult = validator.Validate(foreignKey);
+                    if (validationResult.IsValid)
+                    {
+                        var mappedNew = _mapper.Map<ForeignKey>(foreignKey);
+                        
+
+                        List<string> queries = new List<string>
+                        {
+                            codeGenerator.GenerateDropRelationQuery(mappedNew)
+                        };
+                        await ExecuteQueryOnRemote(queries, dbInformation);
+
+                    }
+                    else
+                    {
+                        throw new ValidationException(validationResult.ToString());
+                    }
+                }
+
+
+            }
+            catch (Exception e)
+            {
+                throw ExceptionHandler.HandleException(e);
+            }
+        }
+
         public async Task ExecuteQueryOnRemote(string query, DbInformation dbInformation)
         {
             try

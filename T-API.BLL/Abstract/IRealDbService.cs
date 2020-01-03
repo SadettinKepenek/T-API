@@ -25,7 +25,7 @@ namespace T_API.BLL.Abstract
 
 
         Task ExecuteQueryOnRemote(string query, DbInformation dbInformation);
-        Task ExecuteQueryOnRemote(List<string> queries, DbInformation dbInformation);
+        Task ExecuteQueryOnRemote(List<string> queries,DbInformation dbInformation);
         Task ExecuteQueryOnRemote(string query);
 
 

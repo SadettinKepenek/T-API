@@ -151,7 +151,96 @@ var init = function init(databaseId, dbProvider) {
 
 
             });
+        $('#updateForeignKeyModal').on('shown.bs.modal', function(e) {
+            if (window.databaseTables === null || window.databaseTables === undefined)
+                showCriticalError('Hata',
+                    'Veritabanı yüklenirken hata oluştu lütfen daha sonra tekrar deneyiniz..',
+                    "https://localhost:44383/Database/");
+            $('#updateForeignKeyForm').trigger('reset');
 
+            $('#updateForeignKeySourceColumn').find('option').not(':first').remove();
+            $('#updateForeignKeyTargetTable').find('option').not(':first').remove();
+            $('#updateForeignKeyTargetColumn').find('option').not(':first').remove();
+
+
+            window.updateForeignKeyDto = new UpdateForeignKey(parseInt(window.databaseId), window.dbProvider);
+            var tableName = $(e.relatedTarget).data('id');
+            var foreignKeyName = $(e.relatedTarget).data('foreignKeyName');
+     
+            var existingKey = window.databaseTables.find(x => x.tableName === tableName).foreignKeys
+                .find(x => x.ForeignKeyName === foreignKeyName);
+
+
+
+
+            window.updateForeignKeyDto.TableName = tableName;
+            window.updateForeignKeyDto.SourceTable = tableName;
+            window.updateForeignKeyDto.SourceColumn = existingKey.sourceColumn;
+            window.updateForeignKeyDto.TargetColumn = existingKey.targetColumn;
+            window.updateForeignKeyDto.TargetTable = existingKey.targetTable;
+            window.updateForeignKeyDto.ForeignKeyName = existingKey.foreignKeyName;
+            window.updateForeignKeyDto.Provider = window.dbProvider;
+            window.updateForeignKeyDto.OldForeignKey = existingKey;
+
+            $('#updateForeignKeySourceTable').val(tableName);
+            var found = getColumnsByTableName(tableName);
+            var columnCount = 0;
+
+
+            $('#updateForeignKeySourceColumn').append($('<option>',
+                {
+                    value: existingKey.sourceColumn,
+                    text: existingKey.sourceColumn
+                }));
+            
+            $('#updateForeignKeyTargetColumn').append($('<option>',
+                {
+                    value: existingKey.targetColumn,
+                    text: existingKey.targetColumn
+                }));
+            columnCount++;
+
+
+            found.columns.forEach(function (d) {
+
+                if (checkRelationColumnAvailability(d.columnName, found.tableName)) {
+                    $('#updateForeignKeySourceColumn').append($('<option>',
+                        {
+                            value: d.columnName,
+                            text: d.columnName
+                        }));
+                    columnCount++;
+                }
+
+            });
+
+
+            var otherTables = window.databaseTables.filter(x => x.tableName !== tableName);
+            otherTables.forEach(function (table) {
+                $('#updateForeignKeyTargetTable').append($('<option>',
+                    {
+                        value: table.tableName,
+                        text: table.tableName
+                    }));
+            });
+
+            if (columnCount === 0) {
+                //
+                $('#errorModalTitle').text('Hata!');
+                $('#errorModalBodyText').text('Hiçbir sütun ilişkilendirme için kullanılabilir değil..!');
+                $('#errorModal').modal('show');
+                $('#errorModal').on('hidden.bs.modal', function (e) {
+                    $('#addForeignKeyModal').modal('toggle');
+                });
+            }
+
+            $("#updateForeignKeySourceColumn").val(existingKey.sourceColumn).change();
+            $("#updateForeignKeyTargetColumn").val(existingKey.targetColumn).change();
+            $("#updateForeignKeyTargetTable").val(existingKey.targetTable).change();
+            $('#updateForeignKeyName').val(existingKey.foreignKeyName);
+
+
+        });
 
         //Loading barı kapatır.
         $('#loadingSpinner').fadeOut();
@@ -263,9 +352,11 @@ var initDataTableForForeigns = function initDataTableForForeigns(tableName) {
                 { data: "onDeleteAction", title: "OnDelete Action" },
                 {
                     data: null,
+                    render: function (data, type, row, meta) {
+                        return type === 'display' ? getForeignKeyButtonString(data) : data;
+                    },
                     title: buttonStr,
-                    className: "center",
-                    defaultContent: '<a href="" class="editor_edit">Edit</a> / <a href="" class="editor_remove">Delete</a>'
+                    className: "center"
                 }
             ],
             "paging": false,
@@ -307,7 +398,30 @@ var getColumnEditButtonString = function getColumnEditButtonString(data) {
     buttonStr += '</button>';
     return buttonStr;
 };
-
+var getForeignKeyButtonString = function getForeignKeyButtonString(data) {
+    var buttonStr = '';
+    buttonStr += '<button type="button"' +
+        ' class="btn btn-info btn-sm"' +
+        ' style="margin-bottom: 5px;margin-left:10px;"' +
+        ' data-toggle="modal" ' +
+        ' data-foreignKeyName=' + data.foreignKeyName +
+        ' data-id=' +
+        data.sourceTable +
+        ' data-target="#updateForeignKeyModal">';
+    buttonStr += 'Edit';
+    buttonStr += '</button>';
+    buttonStr += '<button type="button"' +
+        ' class="btn btn-danger btn-sm"' +
+        ' style="margin-bottom: 5px;margin-left:10px;"' +
+        ' data-toggle="modal" ' +
+        ' data-foreignKeyName=' + data.foreignKeyName +
+        ' data-id=' +
+        data.sourceTable +
+        ' data-target="#deleteForeignKeyModal">';
+    buttonStr += 'Delete';
+    buttonStr += '</button>';
+    return buttonStr;
+};
 var initDataTableForColumns = function initDataTableForColumns(tableName) {
 
     if (window.databaseTables === null || window.databaseTables === undefined) {
@@ -651,8 +765,6 @@ var prepareInputChangeEvents = function prepareInputChangeEvents() {
     $('#foreignKeyName').on('change', function (e) {
         window.addForeignKeyDto.ForeignKeyName = this.value;
     });
-
-
     $('#addForeignKeySubmit').click(function (e) {
         e.preventDefault();
         if (window.addForeignKeyDto === null) {
@@ -661,6 +773,56 @@ var prepareInputChangeEvents = function prepareInputChangeEvents() {
             $('#errorModal').modal('show');
         }
         addForeignKey(window.addForeignKeyDto);
+    });
+
+    // Update Foreign Key Modal
+
+
+    $('#updateForeignKeyTargetTable').on('change', function (e) {
+        window.updateForeignKeyDto.TargetTable = this.value;
+        $('#updateForeignKeyTargetColumn').find('option').not(':first').remove();
+        var found = getColumnsByTableName(this.value);
+        found.columns.forEach(function (d) {
+            if (checkRelationColumnAvailability(d.columnName, found.tableName)) {
+                $('#updateForeignKeyTargetColumn').append($('<option>',
+                    {
+                        value: d.columnName,
+                        text: d.columnName
+                    }));
+            }
+
+        });
+        if (this.value===window.updateForeignKeyDto.OldForeignKey.targetTable) {
+            $('#updateForeignKeyTargetColumn').append($('<option>',
+                {
+                    value: updateForeignKeyDto.OldForeignKey.targetColumn,
+                    text: updateForeignKeyDto.OldForeignKey.targetColumn
+                }));
+
+            $("#updateForeignKeyTargetColumn").val(updateForeignKeyDto.OldForeignKey.targetColumn).change();
+
+        }
+
+
+    });
+    $('#updateForeignKeyTargetColumn').on('change', function (e) {
+        window.updateForeignKeyDto.TargetColumn = this.value;
+    });
+    $('#updateForeignKeySourceColumn').on('change', function (e) {
+        window.updateForeignKeyDto.SourceColumn = this.value;
+    });
+    $('#updateForeignKeyName').on('change', function (e) {
+        window.updateForeignKeyDto.ForeignKeyName = this.value;
+    });
+
+    $('#updateForeignKeySubmit').click(function (e) {
+        e.preventDefault();
+        if (window.updateForeignKeyDto === null) {
+            $('#errorModalTitle').text('Hata!');
+            $('#errorModalBodyText').text('Herhangi bir veri gönderilmedi..!');
+            $('#errorModal').modal('show');
+        }
+        updateForeignKey(window.updateForeignKeyDto);
     });
 
 };
@@ -693,26 +855,26 @@ var addColumn = function addColumn(columnObj) {
 var addForeignKey = function addForeignKey(foreignKey) {
     $.ajax({
         type: 'POST',
-        beforeSend: function (request) {
+        beforeSend: function(request) {
             request.setRequestHeader("Content-Type", "application/json");
         },
         url: 'https://localhost:44383/Database/AddForeignKey',
         data: JSON.stringify(foreignKey),
         contentType: "application/json",
-        success: function (data) {
+        success: function(data) {
 
             $('#addForeignKeyModal').modal('toggle');
         },
-        error: function (XMLHttpRequest, textStatus, errorThrown) {
+        error: function(XMLHttpRequest, textStatus, errorThrown) {
 
             $('#errorModalTitle').text('Hata!');
             $('#errorModalBodyText').text(XMLHttpRequest.responseText);
             $('#errorModal').modal('show');
         },
-        done: function (data) {
+        done: function(data) {
         }
     });
-}
+};
 
 var updateColumn = function updateColumn(columnObj) {
     $.ajax({
@@ -738,3 +900,28 @@ var updateColumn = function updateColumn(columnObj) {
 
 };
 
+
+// Update Relation
+var updateForeignKey = function updateForeignKey(foreignKey) {
+    $.ajax({
+        type: 'POST',
+        beforeSend: function (request) {
+            request.setRequestHeader("Content-Type", "application/json");
+        },
+        url: 'https://localhost:44383/Database/UpdateForeignKey',
+        data: JSON.stringify(foreignKey),
+        contentType: "application/json",
+        success: function (data) {
+            getDatabase(foreignKey.DatabaseId);
+            $('#updateForeignKeyModal').modal('toggle');
+        },
+        error: function (XMLHttpRequest, textStatus, errorThrown) {
+
+            $('#errorModalTitle').text('Hata!');
+            $('#errorModalBodyText').text(XMLHttpRequest.responseText);
+            $('#errorModal').modal('show');
+        },
+        done: function (data) {
+        }
+    });
+};

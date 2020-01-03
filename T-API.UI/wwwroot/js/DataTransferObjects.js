@@ -49,3 +49,18 @@ class AddForeignKey {
         this.Provider = provider;
     }
 }
+
+class UpdateForeignKey {
+    SourceTable = '';
+    SourceColumn = '';
+    TargetTable = '';
+    TargetColumn = '';
+    Provider = '';
+    DatabaseId = 0;
+    ForeignKeyName = '';
+    OldForeignKey=null;
+    constructor(databaseId, provider) {
+        this.DatabaseId = databaseId;
+        this.Provider = provider;
+    }
+}

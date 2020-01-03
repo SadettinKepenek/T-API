@@ -9,6 +9,7 @@ using System.Transactions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Primitives;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using T_API.BLL.Abstract;
 using T_API.Core.DAL.Concrete;
 using T_API.Core.Exception;
@@ -57,7 +58,7 @@ namespace T_API.BLL.Concrete
 
         }
 
-        public async Task Add(string tableName, DbInformation dbInformation, IFormCollection form)
+        public async Task Add(string tableName, DbInformation dbInformation, JObject jObject)
         {
             try
             {
@@ -80,8 +81,11 @@ namespace T_API.BLL.Concrete
                         {
                             stringBuilder.Append($"{column.ColumnName}");
 
-                            valuesString += form[column.ColumnName];
-                            
+                            if (jObject[column.ColumnName].Type == JTokenType.String)
+                                valuesString += $"'{jObject[column.ColumnName]}'";
+                            else
+                                valuesString += jObject[column.ColumnName];
+
                             if (columns.IndexOf(column) != columns.Count - 1)
                             {
                                 valuesString += ",";

@@ -151,7 +151,7 @@ var init = function init(databaseId, dbProvider) {
 
 
             });
-        $('#updateForeignKeyModal').on('shown.bs.modal', function(e) {
+        $('#updateForeignKeyModal').on('shown.bs.modal', function (e) {
             if (window.databaseTables === null || window.databaseTables === undefined)
                 showCriticalError('Hata',
                     'Veritabanı yüklenirken hata oluştu lütfen daha sonra tekrar deneyiniz..',
@@ -166,7 +166,7 @@ var init = function init(databaseId, dbProvider) {
             window.updateForeignKeyDto = new UpdateForeignKey(parseInt(window.databaseId), window.dbProvider);
             var tableName = $(e.relatedTarget).data('id');
             var foreignKeyName = $(e.relatedTarget).data('foreignKeyName');
-     
+
             var existingKey = window.databaseTables.find(x => x.tableName === tableName).foreignKeys
                 .find(x => x.ForeignKeyName === foreignKeyName);
 
@@ -192,7 +192,7 @@ var init = function init(databaseId, dbProvider) {
                     value: existingKey.sourceColumn,
                     text: existingKey.sourceColumn
                 }));
-            
+
             $('#updateForeignKeyTargetColumn').append($('<option>',
                 {
                     value: existingKey.targetColumn,
@@ -389,11 +389,7 @@ var getColumnEditButtonString = function getColumnEditButtonString(data) {
     buttonStr += '<button type="button"' +
         ' class="btn btn-danger btn-sm"' +
         ' style="margin-bottom: 5px;margin-left:10px;"' +
-        ' data-toggle="modal" ' +
-        ' data-columnName=' + data.columnName +
-        ' data-id=' +
-        data.tableName +
-        ' data-target="#deleteColumnModal">';
+        ' onclick="deleteColumn(\'' + data.columnName + '\',\'' + data.tableName + '\')">';
     buttonStr += 'Delete';
     buttonStr += '</button>';
     return buttonStr;
@@ -412,7 +408,7 @@ var getForeignKeyButtonString = function getForeignKeyButtonString(data) {
     buttonStr += '</button>';
     buttonStr += '<button type="button"' +
         ' class="btn btn-danger btn-sm"' +
-        ' onclick="deleteForeignKey(\'' + data.foreignKeyName +'\',\''+data.sourceTable+'\')"'+
+        ' onclick="deleteForeignKey(\'' + data.foreignKeyName + '\',\'' + data.sourceTable + '\')"' +
         ' style="margin-bottom: 5px;margin-left:10px;">';
     buttonStr += 'Delete';
     buttonStr += '</button>';
@@ -788,7 +784,7 @@ var prepareInputChangeEvents = function prepareInputChangeEvents() {
             }
 
         });
-        if (this.value===window.updateForeignKeyDto.OldForeignKey.targetTable) {
+        if (this.value === window.updateForeignKeyDto.OldForeignKey.targetTable) {
             $('#updateForeignKeyTargetColumn').append($('<option>',
                 {
                     value: updateForeignKeyDto.OldForeignKey.targetColumn,
@@ -851,23 +847,23 @@ var addColumn = function addColumn(columnObj) {
 var addForeignKey = function addForeignKey(foreignKey) {
     $.ajax({
         type: 'POST',
-        beforeSend: function(request) {
+        beforeSend: function (request) {
             request.setRequestHeader("Content-Type", "application/json");
         },
         url: 'https://localhost:44383/Database/AddForeignKey',
         data: JSON.stringify(foreignKey),
         contentType: "application/json",
-        success: function(data) {
+        success: function (data) {
 
             $('#addForeignKeyModal').modal('toggle');
         },
-        error: function(XMLHttpRequest, textStatus, errorThrown) {
+        error: function (XMLHttpRequest, textStatus, errorThrown) {
 
             $('#errorModalTitle').text('Hata!');
             $('#errorModalBodyText').text(XMLHttpRequest.responseText);
             $('#errorModal').modal('show');
         },
-        done: function(data) {
+        done: function (data) {
         }
     });
 };
@@ -896,6 +892,43 @@ var updateColumn = function updateColumn(columnObj) {
 
 };
 
+var deleteColumn = function deleteColumn(columnName, tableName) {
+
+    var key = window.databaseTables.find(x => x.tableName === tableName).columns
+        .find(y => y.columnName === columnName);
+
+    var data = {
+        "ColumnName": key.columnName,
+        "TableName": tableName,
+        "Provider": window.dbProvider,
+        "DatabaseId": window.databaseId
+
+    };
+
+
+    $.ajax({
+        type: 'DELETE',
+        beforeSend: function (request) {
+            request.setRequestHeader("Content-Type", "application/json");
+        },
+        url: 'https://localhost:44383/Database/DeleteColumn',
+        data: JSON.stringify(data),
+        contentType: "application/json",
+        success: function (data) {
+            getDatabase(window.databaseId);
+        },
+        error: function (XMLHttpRequest, textStatus, errorThrown) {
+
+            $('#errorModalTitle').text('Hata!');
+            $('#errorModalBodyText').text(XMLHttpRequest.responseText);
+            $('#errorModal').modal('show');
+        },
+        done: function (data) {
+        }
+    });
+};
+
+
 
 // Update Relation
 var updateForeignKey = function updateForeignKey(foreignKey) {
@@ -923,7 +956,7 @@ var updateForeignKey = function updateForeignKey(foreignKey) {
 };
 
 // Delete Relation
-var deleteForeignKey = function deleteForeignKey(foreignKey,tableName) {
+var deleteForeignKey = function deleteForeignKey(foreignKey, tableName) {
 
     var key = window.databaseTables.find(x => x.tableName === tableName).foreignKeys
         .find(y => y.foreignKeyName === foreignKey);
@@ -931,7 +964,7 @@ var deleteForeignKey = function deleteForeignKey(foreignKey,tableName) {
     var data = {
         "ForeignKeyName": key.foreignKeyName,
         "SourceTable": key.sourceTable,
-        "DatabaseId":window.databaseId
+        "DatabaseId": window.databaseId
     };
 
 

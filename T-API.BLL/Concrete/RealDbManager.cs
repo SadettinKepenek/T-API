@@ -181,7 +181,11 @@ namespace T_API.BLL.Concrete
                             dbInformation.Provider);
                         if (databaseEntity != null)
                         {
-
+                            var table = new Table
+                            {
+                                TableName = column.TableName,
+                                DatabaseName = dbInformation.DatabaseName
+                            };
                             List<string> queries = new List<string>();
 
                             if (column.OldColumn != null)
@@ -190,25 +194,21 @@ namespace T_API.BLL.Concrete
                                 {
                                     var idx = databaseEntity.Keys.FirstOrDefault(x =>
                                         x.KeyColumn == column.ColumnName && x.TableName == column.TableName);
-                                    queries.Add(codeGenerator.GenerateDropKeyQuery(_mapper.Map<Key>(idx)));
+                                    queries.Add(codeGenerator.GenerateDropKeyQuery(_mapper.Map<Key>(idx),table));
                                 }
 
                                 if (column.OldColumn.PrimaryKey && column.PrimaryKey == false)
                                 {
                                     var idx = databaseEntity.Keys.FirstOrDefault(x =>
                                         x.KeyColumn == column.ColumnName && x.TableName == column.TableName);
-                                    queries.Add(codeGenerator.GenerateDropKeyQuery(_mapper.Map<Key>(idx)));
+                                    queries.Add(codeGenerator.GenerateDropKeyQuery(_mapper.Map<Key>(idx),table));
                                 }
                             }
 
                             column.DefaultValue = null;
                             var mappedEntity = _mapper.Map<Column>(column);
 
-                            var table = new Table
-                            {
-                                TableName = column.TableName,
-                                DatabaseName = dbInformation.DatabaseName
-                            };
+                         
                             string command = codeGenerator.GenerateModifyColumnQuery(mappedEntity, table);
                             queries.Add(command);
 
@@ -260,9 +260,12 @@ namespace T_API.BLL.Concrete
 
 
                                 var mappedEntity = _mapper.Map<Column>(column);
+                                Table table = new Table
+                                {
+                                    TableName = column.TableName,
+                                };
 
-
-                                string command = codeGenerator.GenerateDropColumnQuery(mappedEntity);
+                                string command = codeGenerator.GenerateDropColumnQuery(mappedEntity,table);
 
                                 if (!String.IsNullOrEmpty(command))
                                 {
@@ -376,7 +379,7 @@ namespace T_API.BLL.Concrete
 
                         List<string> queries = new List<string>
                         {
-                            codeGenerator.GenerateDropRelationQuery(mappedOld),
+                            codeGenerator.GenerateDropRelationQuery(mappedOld,table),
                             codeGenerator.GenerateAddForeignKeyQuery(mappedNew, table)
                         };
 

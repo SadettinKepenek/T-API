@@ -412,12 +412,8 @@ var getForeignKeyButtonString = function getForeignKeyButtonString(data) {
     buttonStr += '</button>';
     buttonStr += '<button type="button"' +
         ' class="btn btn-danger btn-sm"' +
-        ' style="margin-bottom: 5px;margin-left:10px;"' +
-        ' data-toggle="modal" ' +
-        ' data-foreignKeyName=' + data.foreignKeyName +
-        ' data-id=' +
-        data.sourceTable +
-        ' data-target="#deleteForeignKeyModal">';
+        ' onclick="deleteForeignKey(\'' + data.foreignKeyName +'\',\''+data.sourceTable+'\')"'+
+        ' style="margin-bottom: 5px;margin-left:10px;">';
     buttonStr += 'Delete';
     buttonStr += '</button>';
     return buttonStr;
@@ -914,6 +910,41 @@ var updateForeignKey = function updateForeignKey(foreignKey) {
         success: function (data) {
             getDatabase(foreignKey.DatabaseId);
             $('#updateForeignKeyModal').modal('toggle');
+        },
+        error: function (XMLHttpRequest, textStatus, errorThrown) {
+
+            $('#errorModalTitle').text('Hata!');
+            $('#errorModalBodyText').text(XMLHttpRequest.responseText);
+            $('#errorModal').modal('show');
+        },
+        done: function (data) {
+        }
+    });
+};
+
+// Delete Relation
+var deleteForeignKey = function deleteForeignKey(foreignKey,tableName) {
+
+    var key = window.databaseTables.find(x => x.tableName === tableName).foreignKeys
+        .find(y => y.foreignKeyName === foreignKey);
+
+    var data = {
+        "ForeignKeyName": key.foreignKeyName,
+        "SourceTable": key.sourceTable,
+        "DatabaseId":window.databaseId
+    };
+
+
+    $.ajax({
+        type: 'DELETE',
+        beforeSend: function (request) {
+            request.setRequestHeader("Content-Type", "application/json");
+        },
+        url: 'https://localhost:44383/Database/DeleteForeignKey',
+        data: JSON.stringify(data),
+        contentType: "application/json",
+        success: function (data) {
+            getDatabase(window.databaseId);
         },
         error: function (XMLHttpRequest, textStatus, errorThrown) {
 

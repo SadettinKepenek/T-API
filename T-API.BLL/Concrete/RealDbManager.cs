@@ -259,6 +259,7 @@ namespace T_API.BLL.Concrete
                             Table table = new Table
                             {
                                 TableName = column.TableName,
+                                DatabaseName = dbInformation.DatabaseName
                             };
 
                             string command = codeGenerator.GenerateDropColumnQuery(mappedEntity, table);

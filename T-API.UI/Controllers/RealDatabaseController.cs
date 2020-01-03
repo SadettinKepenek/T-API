@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Distributed;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using T_API.BLL.Abstract;
 using T_API.Core.DAL.Concrete;
@@ -80,7 +81,7 @@ namespace T_API.UI.Controllers
             return Ok(data);
         }
         [HttpPost("Add/{serviceNumber}/{tableName}")]
-        public async Task<IActionResult> Add(int serviceNumber, string tableName, [FromBody] JObject jObject)
+        public async Task<IActionResult> Add(int serviceNumber, string tableName, [FromForm] IFormCollection formCollection)
         {
             int userId = HttpContext.GetNameIdentifier();
             var db = await _databaseService.GetById(serviceNumber);
@@ -90,9 +91,9 @@ namespace T_API.UI.Controllers
             }
 
             var dbInfo = _mapper.Map<DbInformation>(db);
-            //var data = await _dataService.Get(tableName, dbInfo);
+            await _dataService.Add(tableName, dbInfo, formCollection);
 
-            return Ok(jObject);
+            return Ok(formCollection);
         }
 
 

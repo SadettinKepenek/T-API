@@ -58,7 +58,7 @@ namespace T_API.BLL.Concrete
                         if (result.IsValid)
                         {
                             var mappedEntity = _mapper.Map<Database>(database);
-                            string createDatabaseCommand = generator.CreateDatabase(mappedEntity);
+                            string createDatabaseCommand = generator.GenerateCreateDatabaseQuery(mappedEntity);
                             if (!String.IsNullOrEmpty(createDatabaseCommand))
                             {
                                 await ExecuteQueryOnRemote(createDatabaseCommand);
@@ -111,7 +111,7 @@ namespace T_API.BLL.Concrete
                         if (validationResult.IsValid)
                         {
                             var mappedEntity = _mapper.Map<Table>(table);
-                            string command = codeGenerator.CreateTable(mappedEntity);
+                            string command = codeGenerator.GenerateCreateTableQuery(mappedEntity);
                             if (!String.IsNullOrEmpty(command))
                             {
 
@@ -174,7 +174,7 @@ namespace T_API.BLL.Concrete
                             };
 
                             table.Columns.Add(mappedEntity);
-                            string command = codeGenerator.AlterTable(table);
+                            string command = codeGenerator.GenerateAddColumnQuery(mappedEntity,table);
                             if (!String.IsNullOrEmpty(command))
                             {
                                 await ExecuteQueryOnRemote(command, dbInformation);
@@ -232,26 +232,25 @@ namespace T_API.BLL.Concrete
                                     {
                                         var idx = databaseEntity.Keys.FirstOrDefault(x =>
                                             x.KeyColumn == column.ColumnName && x.TableName == column.TableName);
-                                        queries.Add(codeGenerator.DropKey(_mapper.Map<Key>(idx)));
+                                        queries.Add(codeGenerator.GenerateDropKeyQuery(_mapper.Map<Key>(idx)));
                                     }
                                     if (column.OldColumn.PrimaryKey && column.PrimaryKey == false)
                                     {
                                         var idx = databaseEntity.Keys.FirstOrDefault(x =>
                                             x.KeyColumn == column.ColumnName && x.TableName == column.TableName);
-                                        queries.Add(codeGenerator.DropKey(_mapper.Map<Key>(idx)));
+                                        queries.Add(codeGenerator.GenerateDropKeyQuery(_mapper.Map<Key>(idx)));
                                     }
                                 }
 
                                 column.DefaultValue = null;
                                 var mappedEntity = _mapper.Map<Column>(column);
 
-                                Table table = new Table
+                                var table = new Table
                                 {
                                     TableName = column.TableName,
                                     DatabaseName = dbInformation.DatabaseName
                                 };
-                                table.Columns.Add(mappedEntity);
-                                string command = codeGenerator.AlterTable(table);
+                                string command = codeGenerator.GenerateModifyColumnQuery(mappedEntity,table);
                                 queries.Add(command);
 
 
@@ -313,7 +312,7 @@ namespace T_API.BLL.Concrete
                                 var mappedEntity = _mapper.Map<Column>(column);
 
                                
-                                string command = codeGenerator.DropColumn(mappedEntity);
+                                string command = codeGenerator.GenerateDropColumnQuery(mappedEntity);
 
                                 if (!String.IsNullOrEmpty(command))
                                 {
@@ -380,7 +379,7 @@ namespace T_API.BLL.Concrete
                             table.ForeignKeys.Add(mappedEntity);
 
 
-                            string command = codeGenerator.AlterTable(table);
+                            string command = codeGenerator.GenerateAddForeignKeyQuery(mappedEntity,table);
                             if (!String.IsNullOrEmpty(command))
                             {
                                 await ExecuteQueryOnRemote(command, dbInformation);

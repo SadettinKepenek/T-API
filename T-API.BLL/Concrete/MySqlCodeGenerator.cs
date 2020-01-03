@@ -11,7 +11,7 @@ namespace T_API.BLL.Concrete
 {
     public class MySqlCodeGenerator : ISqlCodeGenerator
     {
-        public string CreateDatabase(Database database)
+        public string GenerateCreateDatabaseQuery(Database database)
         {
             string s = $"CREATE DATABASE {database.DatabaseName};" +
             $"USE {database.DatabaseName};" +
@@ -19,17 +19,15 @@ namespace T_API.BLL.Concrete
             $"GRANT ALL PRIVILEGES ON {database.DatabaseName}.* to '{database.Username}'@'localhost';";
             return s;
         }
-
-        public string CreateTable(Table table)
+        public string GenerateCreateTableQuery(Table table)
         {
             StringBuilder sb = new StringBuilder();
             sb.AppendLine($"USE {table.DatabaseName}; \n");
-
-
-
-
             sb.AppendLine($"Create Table {table.TableName}");
             sb.AppendLine("(");
+
+            #region Columns
+
             foreach (Column column in table.Columns)
             {
 
@@ -47,35 +45,87 @@ namespace T_API.BLL.Concrete
                     });
 
 
+                StringBuilder stringBuilder = new StringBuilder();
+                column.DataType = column.DataType.ToUpperInvariant();
+                CheckColumnIsValid(column);
 
-                string columnQuery = CreateColumn(column);
+                stringBuilder.Append($"\t  {column.ColumnName}\t");
+                if (!String.IsNullOrEmpty(column.DataType)) stringBuilder.Append($"{column.DataType}");
+                if (column.HasLength) stringBuilder.Append($"({column.DataLength})");
+                else stringBuilder.Append(" ");
+
+                if (column.DefaultValue != null)
+                    stringBuilder.Append($"\tdefault {column.DefaultValue}");
+
+                if (column.AutoInc)
+                {
+                    if (column.DefaultValue == null)
+                    {
+                        stringBuilder.Append(" auto_increment");
+                    }
+                    else
+                    {
+                        throw new AmbiguousMatchException("Auto Increment mevcut iken Default value verilemez");
+                    }
+                }
+                if (column.PrimaryKey)
+                {
+                    stringBuilder.Append("\tprimary key");
+                }
+                else
+                {
+                    stringBuilder.Append(column.NotNull ? "\tnot null" : "\t null");
+                }
+
+                string columnQuery = stringBuilder.ToString();
                 sb.Append(columnQuery);
                 if (table.Columns.IndexOf(column) != table.Columns.Count - 1)
                     sb.Append(",\n");
             }
 
+            #endregion
+
+            #region ForeignKeys
+
             if (table.ForeignKeys != null && table.ForeignKeys.Count != 0)
             {
                 sb.AppendLine(",");
                 foreach (ForeignKey foreignKey in table.ForeignKeys)
                 {
-                    string foreignKeyQuery = CreateRelation(foreignKey);
+                    StringBuilder sb1 = new StringBuilder();
+                    sb1.Append($"\tconstraint {foreignKey.ForeignKeyName} foreign key ({foreignKey.SourceColumn}) " +
+                               $"references {foreignKey.TargetTable} ({foreignKey.TargetColumn})");
+                    string foreignKeyQuery = sb1.ToString();
                     sb.Append(foreignKeyQuery);
                     if (table.ForeignKeys.IndexOf(foreignKey) != table.ForeignKeys.Count - 1)
                         sb.Append(",\n");
                 }
             }
+
+            #endregion
+
+            #region Indices
+
             if (table.Indices != null && table.Indices.Where(x => x.IsUnique).ToList().Count != 0)
             {
                 sb.AppendLine(",");
                 foreach (Index index in table.Indices.Where(x => x.IsUnique))
                 {
-                    string indexQuery = CreateIndex(index);
+                    StringBuilder sb1 = new StringBuilder();
+
+                    sb1.Append(index.IsUnique
+                        ? $"\tconstraint {index.IndexName} unique ({index.IndexColumn})"
+                        : $"\tcreate index {index.IndexName} on {index.TableName} ({index.IndexColumn});");
+                    string indexQuery = sb1.ToString();
                     sb.Append(indexQuery);
                     if (table.Indices.IndexOf(index) != table.Indices.Where(x => x.IsUnique).ToList().Count - 1)
                         sb.Append(",\n");
                 }
             }
+
+            #endregion
+
+            #region Keys
 
             if (table.Keys != null && table.Keys.Count != 0)
             {
@@ -87,158 +137,168 @@ namespace T_API.BLL.Concrete
                 sb.AppendLine(",");
                 foreach (Key key in table.Keys)
                 {
-                    string keyQuery = CreateKey(key);
+                    StringBuilder sb1 = new StringBuilder();
+                    if (!key.IsPrimary)
+                        sb1.Append($"\tconstraint {key.KeyName} unique ({key.KeyColumn})");
+                    string keyQuery = sb1.ToString();
                     sb.Append(keyQuery);
                     if (table.Keys.IndexOf(key) != table.Keys.Count - 1)
                         sb.Append(",\n");
                 }
             }
 
+            #endregion
+
             sb.AppendLine("\n);");
+
+            #region NonUniqueIndices
+
             if (table.Indices != null && table.Indices.Where(x => x.IsUnique == false).ToList().Count != 0)
             {
                 foreach (Index index in table.Indices.Where(x => x.IsUnique == false))
                 {
-                    string indexQuery = CreateIndex(index);
+                    StringBuilder sb1 = new StringBuilder();
+
+                    sb1.Append(index.IsUnique
+                        ? $"\tconstraint {index.IndexName} unique ({index.IndexColumn})"
+                        : $"\tcreate index {index.IndexName} on {index.TableName} ({index.IndexColumn});");
+                    string indexQuery = sb1.ToString();
                     sb.Append(indexQuery);
                     if (table.Indices.IndexOf(index) != table.Indices.Count - 1)
                         sb.Append("\n");
                 }
             }
 
+            #endregion
 
-            Console.WriteLine(sb.ToString());
             return sb.ToString(); ;
         }
-
-        public string DropTable(Table table)
+        public string GenerateDropTableQuery(Table table)
         {
             StringBuilder sb = new StringBuilder();
             sb.AppendLine($"drop table if exists {table.TableName} cascade;");
             return sb.ToString();
         }
-
-        public string AlterTable(Table table)
+        public string GenerateAddColumnQuery(Column column, Table table)
         {
-            if (table.Indices == null) table.Indices = new ObservableCollection<Index>();
+            #region AddColumnStringGenerator
 
+            StringBuilder stringBuilder = new StringBuilder();
+            column.DataType = column.DataType.ToUpperInvariant();
+            CheckColumnIsValid(column);
+            stringBuilder.Append($"\t add {column.ColumnName}\t");
+            if (!String.IsNullOrEmpty(column.DataType)) stringBuilder.Append($"{column.DataType}");
+            stringBuilder.Append(column.HasLength ? $"({column.DataLength})" : " ");
+            if (column.DefaultValue != null)
+                stringBuilder.Append($"\tdefault {column.DefaultValue}");
+
+            if (column.AutoInc)
+            {
+                if (column.DefaultValue == null)
+                {
+                    stringBuilder.Append(" auto_increment");
+                }
+                else
+                {
+                    throw new AmbiguousMatchException("Auto Increment mevcut iken Default value verilemez");
+                }
+            }
+
+            if (column.PrimaryKey)
+            {
+                stringBuilder.Append("\tprimary key");
+            }
+            else
+            {
+                stringBuilder.Append(column.NotNull ? "\tnot null" : "\t null");
+            }
+
+            #endregion
+            var addColumnString = stringBuilder.ToString();
             StringBuilder sb = new StringBuilder();
             sb.AppendLine($"USE {table.DatabaseName}; \n");
+            sb.AppendLine($"Alter Table {table.TableName}");
+            sb.AppendLine(addColumnString);
+            sb.Append(";\n");
 
-
-            if (table.Columns != null && table.Columns.Count != 0)
+            if (column.Unique)
             {
-                sb.AppendLine($"Alter Table {table.TableName}");
-                foreach (Column column in table.Columns)
+                var index = new Index
                 {
+                    TableName = table.TableName,
+                    IndexColumn = column.ColumnName,
+                    IndexName = $"Unique_Index_{table.TableName}_{column.ColumnName}",
+                    IsUnique = column.Unique,
 
-
-                    if (column.Unique)
-                        table.Indices.Add(new Index
-                        {
-                            TableName = table.TableName,
-                            IndexColumn = column.ColumnName,
-                            IndexName = $"Unique_Index_{table.TableName}_{column.ColumnName}",
-                            IsUnique = column.Unique,
-
-                        });
-
-                    string columnQuery = AlterColumn(column);
-                    sb.Append($"{columnQuery}");
-                    if (table.Columns.IndexOf(column) != table.Columns.Count - 1)
-                        sb.Append(",\n");
-                }
-
-                sb.Append(";\n");
+                };
+                sb.AppendLine(GenerateAddIndexQuery(index, table));
             }
 
 
-            if (table.ForeignKeys != null && table.ForeignKeys.Count != 0)
-            {
-                sb.AppendLine($"Alter Table {table.TableName}");
-
-                foreach (ForeignKey foreignKey in table.ForeignKeys)
-                {
-                    string foreignKeyQuery = AlterRelation(foreignKey);
-                    sb.Append(foreignKeyQuery);
-                    if (table.ForeignKeys.IndexOf(foreignKey) != table.ForeignKeys.Count - 1)
-                        sb.Append(",\n");
-                }
-                sb.Append(";\n");
-
-            }
-
-            if (table.Indices != null && table.Indices.Where(x => x.IsUnique).ToList().Count != 0)
-            {
-                //sb.AppendLine($"Alter Table {table.TableName}");
-                sb.AppendLine($"\n");
-                foreach (Index index in table.Indices.Where(x => x.IsUnique))
-                {
-                    string indexQuery = AlterIndex(index);
-                    sb.Append(indexQuery);
-                    if (table.Indices.IndexOf(index) != table.Indices.Where(x => x.IsUnique).ToList().Count - 1)
-                        sb.Append(",\n");
-                }
-                sb.Append("\n");
-
-            }
-
-            if (table.Keys != null && table.Keys.Count != 0)
-            {
-                sb.AppendLine($"Alter Table {table.TableName}");
-
-                if (table.Keys.Any(x => x.IsPrimary) && table.Columns.Any(x => x.PrimaryKey))
-                {
-                    throw new AmbiguousMatchException($"Bir tablo sadece bir adet primary key içerebilir");
-                }
-
-                foreach (Key key in table.Keys)
-                {
-                    string keyQuery = AlterKey(key);
-                    sb.Append(keyQuery);
-                    if (table.Keys.IndexOf(key) != table.Keys.Count - 1)
-                        sb.Append(",\n");
-                }
-                sb.Append(";\n");
-
-            }
-
-            if (table.Indices != null && table.Indices.Where(x => x.IsUnique == false).ToList().Count != 0)
-            {
-                //sb.AppendLine($"Alter Table {table.TableName}");
-                sb.AppendLine($"\n");
-
-                foreach (Index index in table.Indices.Where(x => x.IsUnique == false))
-                {
-                    string indexQuery = AlterIndex(index);
-                    sb.Append(indexQuery);
-                    if (table.Indices.IndexOf(index) != table.Indices.Count - 1)
-                        sb.Append("\n");
-                }
-                sb.Append("\n");
-
-            }
-
-
-
-            Console.WriteLine(sb.ToString());
             return sb.ToString();
         }
-
-        public string CreateColumn(Column column)
+        public string GenerateAddIndexQuery(Index index, Table table)
         {
+
+            StringBuilder stringBuilder = new StringBuilder();
+            stringBuilder.Append(index.IsUnique
+                ? $"\t create unique index {index.IndexName} on {index.TableName} ({index.IndexColumn})"
+                : $"\t create index {index.IndexName} on {index.TableName} ({index.IndexColumn})");
+            var addIndexStr = stringBuilder.ToString();
+            StringBuilder sb = new StringBuilder();
+            sb.AppendLine($"USE {table.DatabaseName}; \n");
+            sb.AppendLine(addIndexStr);
+            return sb.ToString();
+        }
+        public string GenerateAddForeignKeyQuery(ForeignKey foreignKey, Table table)
+        {
+            StringBuilder stringBuilder = new StringBuilder();
+            stringBuilder.AppendLine($"USE {table.DatabaseName}; \n");
+            stringBuilder.AppendLine($"Alter Table {table.TableName}");
+
+
+            StringBuilder sb = new StringBuilder();
+            sb.Append($"\t add constraint {foreignKey.ForeignKeyName} foreign key ({foreignKey.SourceColumn}) " +
+                      $"references {foreignKey.TargetTable} ({foreignKey.TargetColumn})");
+            var foreignStr = sb.ToString();
+
+            stringBuilder.AppendLine(foreignStr);
+            stringBuilder.Append(";\n");
+
+            return stringBuilder.ToString();
+        }
+        public string GenerateAddKeyQuery(Key key, Table table)
+        {
+            StringBuilder stringBuilder = new StringBuilder();
+            stringBuilder.AppendLine($"USE {table.DatabaseName}; \n");
+            stringBuilder.AppendLine($"Alter Table {table.TableName}");
+
+            StringBuilder sb = new StringBuilder();
+            if (!key.IsPrimary)
+                sb.Append($"\t add constraint {key.KeyName} unique ({key.KeyColumn})");
+            var keyStr = sb.ToString();
+
+            stringBuilder.AppendLine(keyStr);
+            stringBuilder.Append(";\n");
+
+            return stringBuilder.ToString();
+        }
+        public string GenerateModifyColumnQuery(Column column, Table table)
+        {
+            #region ModifyColumnStrGenerator
+
             StringBuilder stringBuilder = new StringBuilder();
             column.DataType = column.DataType.ToUpperInvariant();
             CheckColumnIsValid(column);
 
-            stringBuilder.Append($"\t  {column.ColumnName}\t");
+
+            stringBuilder.Append($"\t modify {column.ColumnName}\t");
             if (!String.IsNullOrEmpty(column.DataType)) stringBuilder.Append($"{column.DataType}");
             if (column.HasLength) stringBuilder.Append($"({column.DataLength})");
             else stringBuilder.Append(" ");
 
             if (column.DefaultValue != null)
                 stringBuilder.Append($"\tdefault {column.DefaultValue}");
-
 
 
             if (column.AutoInc)
@@ -269,10 +329,59 @@ namespace T_API.BLL.Concrete
                 }
             }
 
+            var modifyColumnStr = stringBuilder.ToString();
 
-            return stringBuilder.ToString();
+            #endregion
+
+            StringBuilder sb = new StringBuilder();
+            sb.AppendLine($"USE {table.DatabaseName}; \n");
+            sb.AppendLine($"Alter Table {table.TableName}");
+            sb.AppendLine(modifyColumnStr);
+            sb.Append(";\n");
+
+            return sb.ToString();
         }
+        public string GenerateModifyIndexQuery(Index index, Table table)
+        {
+            StringBuilder sb = new StringBuilder();
+            sb.AppendLine($"USE {table.DatabaseName}; \n");
+            sb.AppendLine($"\n");
+            StringBuilder stringBuilder = new StringBuilder();
+            stringBuilder.Append(index.IsUnique
+                ? $"\t create unique index {index.IndexName} on {index.TableName} ({index.IndexColumn})"
+                : $"\t create index {index.IndexName} on {index.TableName} ({index.IndexColumn})");
+            var modifyIndexStr = stringBuilder.ToString();
+            sb.AppendLine(modifyIndexStr);
+            sb.AppendLine($"\n");
 
+            return sb.ToString();
+        }
+        public string GenerateModifyForeignKeyQuery(ForeignKey foreignKey, Table table)
+        {
+            StringBuilder sb = new StringBuilder();
+            sb.AppendLine($"USE {table.DatabaseName}; \n");
+            sb.AppendLine($"Alter Table {table.TableName}");
+            StringBuilder stringBuilder = new StringBuilder();
+            stringBuilder.Append($"\t add constraint {foreignKey.ForeignKeyName} foreign key ({foreignKey.SourceColumn}) " +
+                                 $"references {foreignKey.TargetTable} ({foreignKey.TargetColumn})");
+            var modifyForeignKeyStr = stringBuilder.ToString();
+            sb.AppendLine(modifyForeignKeyStr);
+            sb.Append(";\n");
+            return sb.ToString();
+        }
+        public string GenerateModifyKeyQuery(Key key, Table table)
+        {
+            StringBuilder sb = new StringBuilder();
+            sb.AppendLine($"USE {table.DatabaseName}; \n");
+            sb.AppendLine($"Alter Table {table.TableName}");
+            StringBuilder stringBuilder = new StringBuilder();
+            if (!key.IsPrimary)
+                stringBuilder.Append($"\t add constraint {key.KeyName} unique ({key.KeyColumn})");
+            var modifyKeyStr = stringBuilder.ToString();
+            sb.AppendLine(modifyKeyStr);
+            sb.Append(";\n");
+            return sb.ToString();
+        }
         private static void CheckColumnIsValid(Column column)
         {
             if ((column.DataType.Equals("TEXT") || column.DataType.Equals("TINYTEXT") || column.DataType.Equals("CHAR") ||
@@ -346,9 +455,7 @@ namespace T_API.BLL.Concrete
                 throw new ArgumentOutOfRangeException("DataType", "Column için belirtilen column tipi hatalı.");
             }
         }
-
-        [Obsolete("To Be Added.")]
-        public string DropColumn(Column column)
+        public string GenerateDropColumnQuery(Column column)
         {
             if (column.PrimaryKey)
             {
@@ -358,86 +465,13 @@ namespace T_API.BLL.Concrete
 
             throw new System.NotImplementedException();
         }
-
-        public string AlterColumn(Column column)
-        {
-            StringBuilder stringBuilder = new StringBuilder();
-            column.DataType = column.DataType.ToUpperInvariant();
-            CheckColumnIsValid(column);
-
-
-            stringBuilder.Append($"\t modify {column.ColumnName}\t");
-            if (!String.IsNullOrEmpty(column.DataType)) stringBuilder.Append($"{column.DataType}");
-            if (column.HasLength) stringBuilder.Append($"({column.DataLength})");
-            else stringBuilder.Append(" ");
-
-            if (column.DefaultValue != null)
-                stringBuilder.Append($"\tdefault {column.DefaultValue}");
-
-
-            if (column.AutoInc)
-            {
-                if (column.DefaultValue == null)
-                {
-                    stringBuilder.Append(" auto_increment");
-                }
-                else
-                {
-                    throw new AmbiguousMatchException("Auto Increment mevcut iken Default value verilemez");
-                }
-            }
-
-            if (column.PrimaryKey)
-            {
-                stringBuilder.Append("\tprimary key");
-            }
-            else
-            {
-                if (column.NotNull)
-                {
-                    stringBuilder.Append("\tnot null");
-                }
-                else
-                {
-                    stringBuilder.Append("\t null");
-                }
-            }
-
-            return stringBuilder.ToString();
-        }
-
-        public string CreateRelation(ForeignKey foreignKey)
-        {
-            StringBuilder sb = new StringBuilder();
-            sb.Append($"\tconstraint {foreignKey.ForeignKeyName} foreign key ({foreignKey.SourceColumn}) " +
-                      $"references {foreignKey.TargetTable} ({foreignKey.TargetColumn})");
-            return sb.ToString();
-        }
-
-        public string DropRelation(ForeignKey foreignKey)
+        public string GenerateDropRelationQuery(ForeignKey foreignKey)
         {
             StringBuilder sb = new StringBuilder();
             sb.Append($"\t alter table {foreignKey.SourceTable} drop foreign key {foreignKey.ForeignKeyName};");
             return sb.ToString();
         }
-
-        public string AlterRelation(ForeignKey foreignKey)
-        {
-            StringBuilder sb = new StringBuilder();
-            sb.Append($"\t add constraint {foreignKey.ForeignKeyName} foreign key ({foreignKey.SourceColumn}) " +
-                      $"references {foreignKey.TargetTable} ({foreignKey.TargetColumn})");
-            return sb.ToString();
-        }
-
-        public string CreateKey(Key key)
-        {
-            StringBuilder sb = new StringBuilder();
-            if (!key.IsPrimary)
-                sb.Append($"\tconstraint {key.KeyName} unique ({key.KeyColumn})");
-            return sb.ToString();
-        }
-
-        public string DropKey(Key key)
+        public string GenerateDropKeyQuery(Key key)
         {
             StringBuilder sb = new StringBuilder();
             if (!key.IsPrimary)
@@ -448,54 +482,11 @@ namespace T_API.BLL.Concrete
             }
             return sb.ToString();
         }
-
-        public string AlterKey(Key key)
-        {
-            StringBuilder sb = new StringBuilder();
-            if (!key.IsPrimary)
-                sb.Append($"\t add constraint {key.KeyName} unique ({key.KeyColumn})");
-            return sb.ToString();
-        }
-
-        public string CreateIndex(Index index)
-        {
-            StringBuilder sb = new StringBuilder();
-
-            if (index.IsUnique)
-            {
-                sb.Append($"\tconstraint {index.IndexName} unique ({index.IndexColumn})");
-            }
-
-            else
-            {
-                sb.Append($"\tcreate index {index.IndexName} on {index.TableName} ({index.IndexColumn});");
-            }
-
-            return sb.ToString();
-        }
-
-        public string DropIndex(Index index)
+        public string GenerateDropIndexQuery(Index index)
         {
             StringBuilder sb = new StringBuilder();
 
             sb.Append($"\t drop index {index.IndexName} on {index.TableName};");
-
-            return sb.ToString();
-        }
-
-        public string AlterIndex(Index index)
-        {
-            StringBuilder sb = new StringBuilder();
-
-            if (index.IsUnique)
-            {
-                sb.Append($"\t create unique index {index.IndexName} on {index.TableName} ({index.IndexColumn})");
-            }
-
-            else
-            {
-                sb.Append($"\tcreate index {index.IndexName} on {index.TableName} ({index.IndexColumn})");
-            }
 
             return sb.ToString();
         }

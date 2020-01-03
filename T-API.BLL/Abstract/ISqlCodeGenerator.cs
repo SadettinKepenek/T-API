@@ -4,27 +4,22 @@ using Index = T_API.Entity.Concrete.Index;
 
 namespace T_API.BLL.Abstract
 {
-    public interface  ISqlCodeGenerator : IDisposable
+    public interface ISqlCodeGenerator : IDisposable
     {
-        string CreateDatabase(Database database);
-         string CreateTable(Table table);
-         string DropTable(Table table);
-        string AlterTable(Table table);
-
-        string CreateColumn(Column column);
-        string DropColumn(Column column);
-        string AlterColumn(Column column);
-
-        string CreateRelation(ForeignKey foreignKey);
-        string DropRelation(ForeignKey foreignKey);
-        string AlterRelation(ForeignKey foreignKey);
-
-        string CreateKey(Key key);
-        string DropKey(Key key);
-        string AlterKey(Key key);
-
-        string CreateIndex(Index index);
-        string DropIndex(Index index);
-        string AlterIndex(Index index);
+        string GenerateCreateDatabaseQuery(Database database);
+        string GenerateCreateTableQuery(Table table);
+        string GenerateAddColumnQuery(Column column, Table table);
+        string GenerateAddIndexQuery(Index index, Table table);
+        string GenerateAddForeignKeyQuery(ForeignKey foreignKey, Table table);
+        string GenerateAddKeyQuery(Key key, Table table);
+        string GenerateModifyColumnQuery(Column column, Table table);
+        string GenerateModifyIndexQuery(Index index, Table table);
+        string GenerateModifyForeignKeyQuery(ForeignKey foreignKey, Table table);
+        string GenerateModifyKeyQuery(Key key, Table table);
+        string GenerateDropTableQuery(Table table);
+        string GenerateDropColumnQuery(Column column);
+        string GenerateDropRelationQuery(ForeignKey foreignKey);
+        string GenerateDropKeyQuery(Key key);
+        string GenerateDropIndexQuery(Index index);
     }
 }

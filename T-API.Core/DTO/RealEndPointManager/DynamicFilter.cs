@@ -3,6 +3,6 @@
     public class DynamicFilter
     {
         public string ColumnName { get; set; }
-        public object Value { get; set; }
+        public dynamic Value { get; set; }
     }
 }

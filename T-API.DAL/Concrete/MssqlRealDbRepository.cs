@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Data;
 using System.Threading.Tasks;
 using T_API.Core.DAL.Concrete;
 using T_API.DAL.Abstract;
@@ -22,6 +23,11 @@ namespace T_API.DAL.Concrete
         }
 
         public Task ExecuteQueryOnRemote(string query)
+        {
+            throw new System.NotImplementedException();
+        }
+
+        public Task<DataTable> Get(string query, DbInformation dbInformation)
         {
             throw new System.NotImplementedException();
         }

@@ -9,6 +9,8 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Distributed;
 using T_API.BLL.Abstract;
+using T_API.Core.DAL.Concrete;
+using T_API.Core.DTO.RealEndPointManager;
 using T_API.Core.DTO.Table;
 using T_API.Core.DTO.User;
 using T_API.Core.Settings;
@@ -25,13 +27,15 @@ namespace T_API.UI.Controllers
         private IDatabaseService _databaseService;
         private IAuthService _authService;
         private IMapper _mapper;
+        private IDataService _dataService;
 
-        public RealDatabaseController(IRealDbService realDbService, IDatabaseService databaseService, IAuthService authService, IMapper mapper)
+        public RealDatabaseController(IRealDbService realDbService, IDatabaseService databaseService, IAuthService authService, IMapper mapper, IDataService dataService)
         {
             _realDbService = realDbService;
             _databaseService = databaseService;
             _authService = authService;
             _mapper = mapper;
+            _dataService = dataService;
         }
 
 
@@ -59,8 +63,8 @@ namespace T_API.UI.Controllers
             return Ok();
         }
 
-        [HttpGet("Get")]
-        public async Task<IActionResult> Get(int serviceNumber)
+        [HttpGet("Get/{serviceNumber}/{tableName}")]
+        public async Task<IActionResult> Get(int serviceNumber,string tableName,[FromQuery] List<DynamicFilter> filters)
         {
             int userId = HttpContext.GetNameIdentifier();
             var db = await _databaseService.GetById(serviceNumber);
@@ -69,8 +73,10 @@ namespace T_API.UI.Controllers
                 return Unauthorized("Kullanıcı ve Database Sahibi Eşleşmedi");
             }
 
+            var dbInfo = _mapper.Map<DbInformation>(db);
+            var data = await _dataService.Get(tableName, dbInfo);
 
-            return Ok();
+            return Ok(data);
         }
 
 

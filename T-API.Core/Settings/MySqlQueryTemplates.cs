@@ -28,7 +28,7 @@ namespace T_API.Core.Settings
                            " inner join information_schema.COLUMNS on TABLES.TABLE_NAME = COLUMNS.TABLE_NAME" +
                            " LEFT join information_schema.KEY_COLUMN_USAGE on COLUMNS.COLUMN_NAME = KEY_COLUMN_USAGE.COLUMN_NAME" +
                            " LEFT JOIN information_schema.STATISTICS on COLUMNS.COLUMN_NAME = STATISTICS.COLUMN_NAME" +
-                           $" where TABLES.TABLE_SCHEMA = '{databaseName}'";
+                           $" where TABLES.TABLE_SCHEMA = '{databaseName}' AND information_schema.COLUMNS.TABLE_SCHEMA='{databaseName}'";
             return query;
         }
         public static string GetTable(string databaseName, string tableName)

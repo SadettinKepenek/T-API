@@ -231,7 +231,7 @@ namespace T_API.BLL.Concrete
             column.DataType = column.DataType.ToUpperInvariant();
             CheckColumnIsValid(column);
 
-            stringBuilder.Append($"\t add {column.ColumnName}\t");
+            stringBuilder.Append($"\t  {column.ColumnName}\t");
             if (!String.IsNullOrEmpty(column.DataType)) stringBuilder.Append($"{column.DataType}");
             if (column.HasLength) stringBuilder.Append($"({column.DataLength})");
             else stringBuilder.Append(" ");

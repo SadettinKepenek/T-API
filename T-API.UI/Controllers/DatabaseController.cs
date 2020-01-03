@@ -77,8 +77,7 @@ namespace T_API.UI.Controllers
         public async Task<IActionResult> CreateService()
         {
             CreateServiceViewModel model = new CreateServiceViewModel();
-            model.UserId = Convert.ToInt32(HttpContext.User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value);
-
+            model.UserId = HttpContext.GetNameIdentifier();
             return View(model);
         }
 

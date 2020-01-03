@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Distributed;
+using Newtonsoft.Json.Linq;
 using T_API.BLL.Abstract;
 using T_API.Core.DAL.Concrete;
 using T_API.Core.DTO.RealEndPointManager;
@@ -77,6 +78,21 @@ namespace T_API.UI.Controllers
             var data = await _dataService.Get(tableName, dbInfo);
 
             return Ok(data);
+        }
+        [HttpPost("Add/{serviceNumber}/{tableName}")]
+        public async Task<IActionResult> Add(int serviceNumber, string tableName, [FromBody] JObject jObject)
+        {
+            int userId = HttpContext.GetNameIdentifier();
+            var db = await _databaseService.GetById(serviceNumber);
+            if (db.UserId != userId)
+            {
+                return Unauthorized("Kullanıcı ve Database Sahibi Eşleşmedi");
+            }
+
+            var dbInfo = _mapper.Map<DbInformation>(db);
+            //var data = await _dataService.Get(tableName, dbInfo);
+
+            return Ok(jObject);
         }
 
 

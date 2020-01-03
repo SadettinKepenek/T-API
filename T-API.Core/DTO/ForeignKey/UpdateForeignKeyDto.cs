@@ -10,5 +10,7 @@
         public string OnUpdateAction { get; set; }
         public string OnDeleteAction { get; set; }
         public DetailForeignKeyDto OldForeignKey { get; set; }
+        public int DatabaseId { get; set; }
+
     }
 }

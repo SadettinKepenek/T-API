@@ -374,10 +374,12 @@ namespace T_API.BLL.Concrete
                             DatabaseName = dbInformation.DatabaseName,
                         };
 
-                        List<string> queries = new List<string>();
+                        List<string> queries = new List<string>
+                        {
+                            codeGenerator.GenerateDropRelationQuery(mappedOld),
+                            codeGenerator.GenerateAddForeignKeyQuery(mappedNew, table)
+                        };
 
-                        queries.Add(codeGenerator.GenerateDropRelationQuery(mappedOld));
-                        queries.Add(codeGenerator.GenerateAddForeignKeyQuery(mappedNew, table));
                         await ExecuteQueryOnRemote(queries, dbInformation);
 
                     }

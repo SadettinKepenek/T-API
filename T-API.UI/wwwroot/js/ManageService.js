@@ -263,9 +263,11 @@ var initDataTableForForeigns = function initDataTableForForeigns(tableName) {
                 { data: "onDeleteAction", title: "OnDelete Action" },
                 {
                     data: null,
+                    render: function (data, type, row, meta) {
+                        return type === 'display' ? getForeignKeyButtonString(data) : data;
+                    },
                     title: buttonStr,
-                    className: "center",
-                    defaultContent: '<a href="" class="editor_edit">Edit</a> / <a href="" class="editor_remove">Delete</a>'
+                    className: "center"
                 }
             ],
             "paging": false,
@@ -307,6 +309,31 @@ var getColumnEditButtonString = function getColumnEditButtonString(data) {
     buttonStr += '</button>';
     return buttonStr;
 };
+var getForeignKeyButtonString = function getForeignKeyButtonString(data) {
+    var buttonStr = '';
+    buttonStr += '<button type="button"' +
+        ' class="btn btn-info btn-sm"' +
+        ' style="margin-bottom: 5px;margin-left:10px;"' +
+        ' data-toggle="modal" ' +
+        ' data-foreignKeyName=' + data.foreignKeyName +
+        ' data-id=' +
+        data.tableName +
+        ' data-target="#updateForeignKeyModal">';
+    buttonStr += 'Edit';
+    buttonStr += '</button>';
+    buttonStr += '<button type="button"' +
+        ' class="btn btn-danger btn-sm"' +
+        ' style="margin-bottom: 5px;margin-left:10px;"' +
+        ' data-toggle="modal" ' +
+        ' data-foreignKeyName=' + data.foreignKeyName +
+        ' data-id=' +
+        data.tableName +
+        ' data-target="#deleteForeignKeyModal">';
+    buttonStr += 'Delete';
+    buttonStr += '</button>';
+    return buttonStr;
+};
+
 
 var initDataTableForColumns = function initDataTableForColumns(tableName) {
 

@@ -17,9 +17,9 @@ namespace T_API.BLL.Abstract
         string GenerateModifyForeignKeyQuery(ForeignKey foreignKey, Table table);
         string GenerateModifyKeyQuery(Key key, Table table);
         string GenerateDropTableQuery(Table table);
-        string GenerateDropColumnQuery(Column column);
-        string GenerateDropRelationQuery(ForeignKey foreignKey);
-        string GenerateDropKeyQuery(Key key);
-        string GenerateDropIndexQuery(Index index);
+        string GenerateDropColumnQuery(Column column, Table table);
+        string GenerateDropRelationQuery(ForeignKey foreignKey, Table table);
+        string GenerateDropKeyQuery(Key key, Table table);
+        string GenerateDropIndexQuery(Index index, Table table);
     }
 }

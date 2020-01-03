@@ -402,6 +402,7 @@ namespace T_API.BLL.Concrete
         {
             try
             {
+
                 if (SqlCodeGeneratorFactory.CreateGenerator(dbInformation.Provider) is MySqlCodeGenerator codeGenerator)
                 {
                     DeleteForeignKeyValidator validator = new DeleteForeignKeyValidator();
@@ -409,12 +410,17 @@ namespace T_API.BLL.Concrete
                     if (validationResult.IsValid)
                     {
                         var mappedNew = _mapper.Map<ForeignKey>(foreignKey);
-                        
+                        Table table = new Table
+                        {
+                            TableName = foreignKey.SourceTable,
+                            DatabaseName = dbInformation.DatabaseName,
+                        };
 
                         List<string> queries = new List<string>
                         {
-                            codeGenerator.GenerateDropRelationQuery(mappedNew)
+                            codeGenerator.GenerateDropRelationQuery(mappedNew, table)
                         };
+
                         await ExecuteQueryOnRemote(queries, dbInformation);
 
                     }

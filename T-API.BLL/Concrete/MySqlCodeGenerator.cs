@@ -455,7 +455,7 @@ namespace T_API.BLL.Concrete
                 throw new ArgumentOutOfRangeException("DataType", "Column için belirtilen column tipi hatalı.");
             }
         }
-        public string GenerateDropColumnQuery(Column column)
+        public string GenerateDropColumnQuery(Column column, Table table)
         {
             if (column.PrimaryKey)
             {
@@ -465,13 +465,14 @@ namespace T_API.BLL.Concrete
 
             throw new System.NotImplementedException();
         }
-        public string GenerateDropRelationQuery(ForeignKey foreignKey)
+        public string GenerateDropRelationQuery(ForeignKey foreignKey,Table table)
         {
             StringBuilder sb = new StringBuilder();
+            sb.AppendLine($"USE {table.DatabaseName}; \n");
             sb.Append($"\t alter table {foreignKey.SourceTable} drop foreign key {foreignKey.ForeignKeyName};");
             return sb.ToString();
         }
-        public string GenerateDropKeyQuery(Key key)
+        public string GenerateDropKeyQuery(Key key, Table table)
         {
             StringBuilder sb = new StringBuilder();
             if (!key.IsPrimary)
@@ -482,7 +483,7 @@ namespace T_API.BLL.Concrete
             }
             return sb.ToString();
         }
-        public string GenerateDropIndexQuery(Index index)
+        public string GenerateDropIndexQuery(Index index, Table table)
         {
             StringBuilder sb = new StringBuilder();
 

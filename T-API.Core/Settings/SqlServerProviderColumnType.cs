@@ -1,4 +1,5 @@
 ﻿using T_API.Entity.Abstract;
+using ProviderColumnType = T_API.Core.Settings.Abstract.ProviderColumnType;
 
 namespace T_API.Core.Settings
 {

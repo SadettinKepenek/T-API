@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
@@ -8,6 +9,8 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Distributed;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using T_API.BLL.Abstract;
 using T_API.Core.DAL.Concrete;
 using T_API.Core.DTO.RealEndPointManager;
@@ -64,11 +67,11 @@ namespace T_API.UI.Controllers
         }
 
         [HttpGet("Get/{serviceNumber}/{tableName}")]
-        public async Task<IActionResult> Get(int serviceNumber,string tableName,[FromQuery] List<DynamicFilter> filters)
+        public async Task<IActionResult> Get(int serviceNumber, string tableName, [FromQuery] List<DynamicFilter> filters)
         {
             int userId = HttpContext.GetNameIdentifier();
             var db = await _databaseService.GetById(serviceNumber);
-            if (db.UserId!=userId)
+            if (db.UserId != userId)
             {
                 return Unauthorized("Kullanıcı ve Database Sahibi Eşleşmedi");
             }
@@ -77,6 +80,30 @@ namespace T_API.UI.Controllers
             var data = await _dataService.Get(tableName, dbInfo);
 
             return Ok(data);
+        }
+        [HttpPost("Add/{serviceNumber}/{tableName}")]
+        public async Task<IActionResult> Add(int serviceNumber, string tableName)
+        {
+            try
+            {
+                int userId = HttpContext.GetNameIdentifier();
+                var db = await _databaseService.GetById(serviceNumber);
+                if (db.UserId == userId)
+                {
+                    JObject obj = await Request.ConvertRequestBody();
+
+                    var dbInfo = _mapper.Map<DbInformation>(db);
+                    await _dataService.Add(tableName, dbInfo, obj);
+
+                    return Ok();
+                }
+
+                return Unauthorized("Kullanıcı ve Database Sahibi Eşleşmedi");
+            }
+            catch (Exception e)
+            {
+                return BadRequest();
+            }
         }
 
 

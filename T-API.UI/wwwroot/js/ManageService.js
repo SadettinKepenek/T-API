@@ -912,7 +912,7 @@ var updateForeignKey = function updateForeignKey(foreignKey) {
         data: JSON.stringify(foreignKey),
         contentType: "application/json",
         success: function (data) {
-
+            getDatabase(foreignKey.DatabaseId);
             $('#updateForeignKeyModal').modal('toggle');
         },
         error: function (XMLHttpRequest, textStatus, errorThrown) {

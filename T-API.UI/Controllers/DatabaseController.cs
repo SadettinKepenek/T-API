@@ -287,6 +287,39 @@ namespace T_API.UI.Controllers
             }
 
         }
+        [HttpDelete]
+        public async Task<IActionResult> DeleteForeignKey([FromBody] DeleteForeignKeyDto model)
+        {
+
+            if (model == null)
+                return BadRequest("Gönderilen veri boş");
+            try
+            {
+                var db = await _databaseService.GetById(model.DatabaseId);
+                if (db == null)
+                {
+                    throw new NullReferenceException("Database bulunamadı");
+                }
+
+                var dbInformation = _mapper.Map<DbInformation>(db);
+
+                if (dbInformation == null)
+                {
+                    throw new NullReferenceException("Database bulunamadı");
+                }
+
+                await _realDbService.DropForeignKeyOnRemote(model, dbInformation);
+                return Ok("Success");
+            }
+            catch (Exception e)
+            {
+                if (e is ValidationException)
+                    return BadRequest(e.Message);
+
+                return BadRequest(e.Message + "\n" + e.StackTrace);
+            }
+
+        }
 
 
 

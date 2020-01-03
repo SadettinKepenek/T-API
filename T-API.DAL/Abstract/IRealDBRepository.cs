@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Data;
 using System.Globalization;
 using System.Threading.Tasks;
 using T_API.Core.DAL.Concrete;
@@ -16,6 +17,8 @@ namespace T_API.DAL.Abstract
 
         Task ExecuteQueryOnRemote(string query,DbInformation dbInformation);
         Task ExecuteQueryOnRemote(string query);
+
+        Task<DataTable> Get(string query, DbInformation dbInformation);
 
         Task<List<Table>> GetTables(string databaseName);
         Task<Table> GetTable(string tableName, string databaseName);

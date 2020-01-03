@@ -35,18 +35,18 @@ namespace T_API.DAL.Concrete
                 using (cmd)
                 {
 
-                        try
-                        {
-                            cmd.ExecuteNonQuery();
-                        }
-                        catch (Exception ex)
-                        {
-                            Console.WriteLine("Commit Exception Type: {0}", ex.GetType());
-                            Console.WriteLine("  Message: {0}", ex.Message);
-                            //transaction.Rollback();
-                            throw ExceptionHandler.HandleException(ex);
+                    try
+                    {
+                        cmd.ExecuteNonQuery();
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine("Commit Exception Type: {0}", ex.GetType());
+                        Console.WriteLine("  Message: {0}", ex.Message);
+                        //transaction.Rollback();
+                        throw ExceptionHandler.HandleException(ex);
 
-                        }
+                    }
 
                 }
 
@@ -82,6 +82,36 @@ namespace T_API.DAL.Concrete
 
             }
 
+        }
+
+        public async Task<DataTable> Get(string query, DbInformation dbInformation)
+        {
+            using (var conn = DbConnectionFactory.CreateConnection(dbInformation))
+            {
+
+                var cmd = conn.CreateCommand(query);
+
+                using (cmd)
+                {
+                    try
+                    {
+                        var reader = cmd.ExecuteReader();
+                        DataTable dt = new DataTable();
+                        dt.Load(reader);
+                        return dt;
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine("Commit Exception Type: {0}", ex.GetType());
+                        Console.WriteLine("  Message: {0}", ex.Message);
+                        //transaction.Rollback();
+                        throw ExceptionHandler.HandleException(ex);
+
+                    }
+
+                }
+
+            }
         }
 
         /// <summary>

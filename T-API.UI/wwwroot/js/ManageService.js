@@ -170,6 +170,9 @@ var init = function init(databaseId, dbProvider) {
             var existingKey = window.databaseTables.find(x => x.tableName === tableName).foreignKeys
                 .find(x => x.ForeignKeyName === foreignKeyName);
 
+
+
+
             window.updateForeignKeyDto.TableName = tableName;
             window.updateForeignKeyDto.SourceTable = tableName;
             window.updateForeignKeyDto.SourceColumn = existingKey.sourceColumn;
@@ -227,8 +230,7 @@ var init = function init(databaseId, dbProvider) {
                 $('#errorModalBodyText').text('Hiçbir sütun ilişkilendirme için kullanılabilir değil..!');
                 $('#errorModal').modal('show');
                 $('#errorModal').on('hidden.bs.modal', function (e) {
-                    //$('#addForeignKeyModal').modal('toggle');
-
+                    $('#addForeignKeyModal').modal('toggle');
                 });
             }
 
@@ -820,7 +822,7 @@ var prepareInputChangeEvents = function prepareInputChangeEvents() {
             $('#errorModalBodyText').text('Herhangi bir veri gönderilmedi..!');
             $('#errorModal').modal('show');
         }
-        addForeignKey(window.updateForeignKeyDto);
+        updateForeignKey(window.updateForeignKeyDto);
     });
 
 };
@@ -853,26 +855,26 @@ var addColumn = function addColumn(columnObj) {
 var addForeignKey = function addForeignKey(foreignKey) {
     $.ajax({
         type: 'POST',
-        beforeSend: function (request) {
+        beforeSend: function(request) {
             request.setRequestHeader("Content-Type", "application/json");
         },
         url: 'https://localhost:44383/Database/AddForeignKey',
         data: JSON.stringify(foreignKey),
         contentType: "application/json",
-        success: function (data) {
+        success: function(data) {
 
             $('#addForeignKeyModal').modal('toggle');
         },
-        error: function (XMLHttpRequest, textStatus, errorThrown) {
+        error: function(XMLHttpRequest, textStatus, errorThrown) {
 
             $('#errorModalTitle').text('Hata!');
             $('#errorModalBodyText').text(XMLHttpRequest.responseText);
             $('#errorModal').modal('show');
         },
-        done: function (data) {
+        done: function(data) {
         }
     });
-}
+};
 
 var updateColumn = function updateColumn(columnObj) {
     $.ajax({
@@ -898,3 +900,28 @@ var updateColumn = function updateColumn(columnObj) {
 
 };
 
+
+// Update Relation
+var updateForeignKey = function updateForeignKey(foreignKey) {
+    $.ajax({
+        type: 'POST',
+        beforeSend: function (request) {
+            request.setRequestHeader("Content-Type", "application/json");
+        },
+        url: 'https://localhost:44383/Database/UpdateForeignKey',
+        data: JSON.stringify(foreignKey),
+        contentType: "application/json",
+        success: function (data) {
+
+            $('#updateForeignKeyModal').modal('toggle');
+        },
+        error: function (XMLHttpRequest, textStatus, errorThrown) {
+
+            $('#errorModalTitle').text('Hata!');
+            $('#errorModalBodyText').text(XMLHttpRequest.responseText);
+            $('#errorModal').modal('show');
+        },
+        done: function (data) {
+        }
+    });
+};

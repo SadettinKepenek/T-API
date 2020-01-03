@@ -9,5 +9,6 @@
         public string SourceColumn { get; set; }
         public string OnUpdateAction { get; set; }
         public string OnDeleteAction { get; set; }
+        public DetailForeignKeyDto OldForeignKey { get; set; }
     }
 }

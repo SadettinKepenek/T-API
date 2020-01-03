@@ -20,7 +20,7 @@ namespace T_API.BLL.Abstract
         Task DropColumnOnRemote(DeleteColumnDto column, DbInformation dbInformation);
 
         Task CreateForeignKeyOnRemote(AddForeignKeyDto foreignKey, DbInformation dbInformation);
-
+        Task AlterForeignKeyOnRemote(UpdateForeignKeyDto foreignKey, DbInformation dbInformation);
 
         Task ExecuteQueryOnRemote(string query, DbInformation dbInformation);
         Task ExecuteQueryOnRemote(List<string> queries,DbInformation dbInformation);

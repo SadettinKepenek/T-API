@@ -354,6 +354,48 @@ namespace T_API.BLL.Concrete
             }
 
         }
+
+        public async Task AlterForeignKeyOnRemote(UpdateForeignKeyDto foreignKey, DbInformation dbInformation)
+        {
+            try
+            {
+
+                if (SqlCodeGeneratorFactory.CreateGenerator(dbInformation.Provider) is MySqlCodeGenerator codeGenerator)
+                {
+                    UpdateForeignKeyValidator validator = new UpdateForeignKeyValidator();
+                    var validationResult = validator.Validate(foreignKey);
+                    if (validationResult.IsValid)
+                    {
+                        var mappedNew = _mapper.Map<ForeignKey>(foreignKey);
+                        var mappedOld = _mapper.Map<ForeignKey>(foreignKey.OldForeignKey);
+                        Table table = new Table
+                        {
+                            TableName = foreignKey.SourceTable,
+                            DatabaseName = dbInformation.DatabaseName,
+                        };
+
+                        List<string> queries = new List<string>();
+
+                        queries.Add(codeGenerator.GenerateDropRelationQuery(mappedOld));
+                        queries.Add(codeGenerator.GenerateAddForeignKeyQuery(mappedNew, table));
+                        await ExecuteQueryOnRemote(queries, dbInformation);
+
+                    }
+                    else
+                    {
+                        throw new ValidationException(validationResult.ToString());
+                    }
+                }
+
+
+            }
+            catch (Exception e)
+            {
+                throw ExceptionHandler.HandleException(e);
+            }
+
+        }
+
         public async Task ExecuteQueryOnRemote(string query, DbInformation dbInformation)
         {
             try

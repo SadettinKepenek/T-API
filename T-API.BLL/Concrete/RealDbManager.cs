@@ -240,7 +240,6 @@ namespace T_API.BLL.Concrete
             }
 
         }
-
         public async Task DropColumnOnRemote(DeleteColumnDto column, DbInformation dbInformation)
         {
             try
@@ -300,12 +299,6 @@ namespace T_API.BLL.Concrete
             }
 
         }
-
-        public Task CreateIndexOnRemote(AddIndexDto index, DbInformation dbInformation)
-        {
-            throw new NotImplementedException();
-        }
-
         public async Task CreateForeignKeyOnRemote(AddForeignKeyDto foreignKey, DbInformation dbInformation)
         {
             try
@@ -361,12 +354,6 @@ namespace T_API.BLL.Concrete
             }
 
         }
-
-        public Task CreateKeyOnRemote(AddKeyDto key, DbInformation dbInformation)
-        {
-            throw new NotImplementedException();
-        }
-
         public async Task ExecuteQueryOnRemote(string query, DbInformation dbInformation)
         {
             try
@@ -426,7 +413,6 @@ namespace T_API.BLL.Concrete
             }
 
         }
-
         public async Task ExecuteQueryOnRemote(string query)
         {
             try
@@ -450,8 +436,6 @@ namespace T_API.BLL.Concrete
             }
 
         }
-
-
         public async Task<List<DetailTableDto>> GetTables(string databaseName, string provider)
         {
             if (String.IsNullOrEmpty(databaseName))
@@ -470,7 +454,6 @@ namespace T_API.BLL.Concrete
             var mappedResults = _mapper.Map<List<DetailTableDto>>(result);
             return mappedResults;
         }
-
         public async Task<DetailTableDto> GetTable(string tableName, string databaseName, string provider)
         {
 
@@ -489,61 +472,6 @@ namespace T_API.BLL.Concrete
             var result = await realDbRepository.GetTable(tableName, databaseName);
             var mappedResults = _mapper.Map<DetailTableDto>(result);
             return mappedResults;
-        }
-
-        public Task<List<DetailForeignKeyDto>> GetForeignKeys(string databaseName, string provider)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<List<DetailForeignKeyDto>> GetForeignKeys(string databaseName, string tableName, string provider)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<DetailForeignKeyDto> GetForeignKey(string databaseName, string tableName, string foreignKeyName, string provider)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<List<DetailKeyDto>> GetKeys(string databaseName, string provider)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<List<DetailKeyDto>> GetKeys(string databaseName, string tableName, string provider)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<DetailKeyDto> GetKey(string databaseName, string tableName, string keyName, string provider)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<List<DetailIndexDto>> GetIndices(string databaseName, string provider)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<List<DetailIndexDto>> GetIndices(string databaseName, string tableName, string provider)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<DetailIndexDto> GetIndex(string databaseName, string tableName, string indexName, string provider)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<List<DetailColumnDto>> GetColumns(string databaseName, string tableName, string provider)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<DetailColumnDto> GetColumn(string databaseName, string tableName, string columnName, string provider)
-        {
-            throw new NotImplementedException();
         }
 
 

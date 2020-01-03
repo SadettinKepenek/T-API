@@ -461,9 +461,10 @@ namespace T_API.BLL.Concrete
             {
                 throw new ArgumentException("Primary Key Column Drop edilemez");
             }
-
-
-            throw new System.NotImplementedException();
+            StringBuilder sb = new StringBuilder();
+            sb.AppendLine($"USE {table.DatabaseName}; \n");
+            sb.Append($"\t alter table {column.TableName} drop column {column.ColumnName};");
+            return sb.ToString();
         }
         public string GenerateDropRelationQuery(ForeignKey foreignKey,Table table)
         {

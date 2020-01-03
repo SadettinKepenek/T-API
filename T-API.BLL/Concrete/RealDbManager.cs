@@ -194,21 +194,21 @@ namespace T_API.BLL.Concrete
                                 {
                                     var idx = databaseEntity.Keys.FirstOrDefault(x =>
                                         x.KeyColumn == column.ColumnName && x.TableName == column.TableName);
-                                    queries.Add(codeGenerator.GenerateDropKeyQuery(_mapper.Map<Key>(idx),table));
+                                    queries.Add(codeGenerator.GenerateDropKeyQuery(_mapper.Map<Key>(idx), table));
                                 }
 
                                 if (column.OldColumn.PrimaryKey && column.PrimaryKey == false)
                                 {
                                     var idx = databaseEntity.Keys.FirstOrDefault(x =>
                                         x.KeyColumn == column.ColumnName && x.TableName == column.TableName);
-                                    queries.Add(codeGenerator.GenerateDropKeyQuery(_mapper.Map<Key>(idx),table));
+                                    queries.Add(codeGenerator.GenerateDropKeyQuery(_mapper.Map<Key>(idx), table));
                                 }
                             }
 
                             column.DefaultValue = null;
                             var mappedEntity = _mapper.Map<Column>(column);
 
-                         
+
                             string command = codeGenerator.GenerateModifyColumnQuery(mappedEntity, table);
                             queries.Add(command);
 
@@ -244,57 +244,46 @@ namespace T_API.BLL.Concrete
         {
             try
             {
-                if (column.Provider.Equals("MySql"))
+                if (SqlCodeGeneratorFactory.CreateGenerator(dbInformation.Provider) is MySqlCodeGenerator codeGenerator)
                 {
-                    using MySqlCodeGenerator codeGenerator =
-                        (MySqlCodeGenerator)SqlCodeGeneratorFactory.CreateGenerator(column.Provider);
-                    if (codeGenerator != null)
+                    DeleteColumnValidator validator = new DeleteColumnValidator();
+                    var validationResult = validator.Validate(column);
+                    if (validationResult.IsValid)
                     {
-                        DeleteColumnValidator validator = new DeleteColumnValidator();
-                        var validationResult = validator.Validate(column);
-                        if (validationResult.IsValid)
+                        var databaseEntity = await GetTable(column.TableName, dbInformation.DatabaseName,
+                            dbInformation.Provider);
+                        if (databaseEntity != null)
                         {
-                            var databaseEntity = await GetTable(column.TableName, dbInformation.DatabaseName, dbInformation.Provider);
-                            if (databaseEntity != null)
+
+                            var mappedEntity = _mapper.Map<Column>(column);
+                            Table table = new Table
                             {
+                                TableName = column.TableName,
+                                DatabaseName = dbInformation.DatabaseName
+                            };
 
+                            string command = codeGenerator.GenerateDropColumnQuery(mappedEntity, table);
 
-                                var mappedEntity = _mapper.Map<Column>(column);
-                                Table table = new Table
-                                {
-                                    TableName = column.TableName,
-                                };
-
-                                string command = codeGenerator.GenerateDropColumnQuery(mappedEntity,table);
-
-                                if (!String.IsNullOrEmpty(command))
-                                {
-                                    await ExecuteQueryOnRemote(command, dbInformation);
-                                }
-                                else
-                                {
-                                    throw new NullReferenceException("Create Table Sql Referansı Bulunamadı");
-                                }
+                            if (!String.IsNullOrEmpty(command))
+                            {
+                                await ExecuteQueryOnRemote(command, dbInformation);
                             }
                             else
                             {
-                                throw new ArgumentNullException("Database", "Database Entity Null");
+                                throw new NullReferenceException("Create Table Sql Referansı Bulunamadı");
                             }
                         }
                         else
                         {
-                            throw new ValidationException(validationResult.ToString());
+                            throw new ArgumentNullException("Database", "Database Entity Null");
                         }
                     }
                     else
                     {
-                        throw new NullReferenceException("Code Generator Referansına Ulaşlamadı");
+                        throw new ValidationException(validationResult.ToString());
                     }
                 }
-                else
-                {
-                    throw new AmbiguousMatchException("Desteklenen Provider Verilmedi.");
-                }
+
             }
             catch (Exception e)
             {
@@ -401,7 +390,7 @@ namespace T_API.BLL.Concrete
 
         }
 
-        public async  Task DropForeignKeyOnRemote(DeleteForeignKeyDto foreignKey, DbInformation dbInformation)
+        public async Task DropForeignKeyOnRemote(DeleteForeignKeyDto foreignKey, DbInformation dbInformation)
         {
             try
             {

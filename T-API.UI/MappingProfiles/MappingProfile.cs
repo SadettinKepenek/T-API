@@ -34,6 +34,7 @@ namespace T_API.UI.MappingProfiles
             CreateMap<DetailDatabaseDto, Database>().ReverseMap();
 
             CreateMap<AddUserDto, UserEntity>().ReverseMap();
+            CreateMap<DetailUserDto, UpdateUserDto>().ReverseMap();
             CreateMap<CreateUserViewModel, AddUserDto>();
             CreateMap<RegisterViewModel, AddUserDto>().ReverseMap();
             CreateMap<LoginViewModel, LoginUserDto>().ReverseMap();

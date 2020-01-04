@@ -33,7 +33,7 @@ namespace T_API.DAL.Concrete
 
                 string sql =
                     "Insert into `databases` (UserId,Server,Username,Password,Port,Provider,StartDate,EndDate,IsActive,`Database`,PackageId) " +
-                    "Values (@UserId,@Server,@Username,@Password,@Port,@Provider,@StartDate,@EndDate,@IsActive,@IsStorageSupport,@IsApiSupport,@Database,@PackageId); " +
+                    "Values (@UserId,@Server,@Username,@Password,@Port,@Provider,@StartDate,@EndDate,@IsActive,@Database,@PackageId); " +
                     "SELECT LAST_INSERT_ID();";
 
 

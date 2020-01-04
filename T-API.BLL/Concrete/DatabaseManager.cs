@@ -10,6 +10,7 @@ using T_API.BLL.Abstract;
 using T_API.BLL.Validators.Database;
 using T_API.Core.DAL.Concrete;
 using T_API.Core.DTO.Database;
+using T_API.Core.DTO.User;
 using T_API.Core.Exception;
 using T_API.Core.Settings;
 using T_API.DAL.Abstract;
@@ -155,16 +156,16 @@ namespace T_API.BLL.Concrete
             {
                 var transactionCompletedEvent = new AutoResetEvent(true);
 
-                var package =await _packageService.GetById(dto.PackageId);
-                var user =await _userService.GetById(dto.UserId);
+                var package = await _packageService.GetById(dto.PackageId);
+                var user = await _userService.GetById(dto.UserId);
                 var databases = await _databaseRepository.GetByUser(user.Username);
 
 
-                if (package.Price<=0.0 && databases.FirstOrDefault(x=>x.PackageId==package.PackageId)!=null)
+                if (package.Price <= 0.0 && databases.FirstOrDefault(x => x.PackageId == package.PackageId) != null)
                 {
                     throw new UnauthorizedAccessException("Ücretsiz paket birden fazla alınamaz");
                 }
-                if ((Convert.ToDouble(user.Balance)-package.Price)>=0)
+                if ((Convert.ToDouble(user.Balance) - (package.Price * dto.MonthCount)) >= 0)
                 {
 
                     var availableServer = await _realDbService.GetAvailableServer(dto.Provider);
@@ -186,17 +187,13 @@ namespace T_API.BLL.Concrete
                         var mappedEntity = _mapper.Map<Database>(dto);
 
                         int addDatabaseResult;
-                        using TransactionScope scope = new TransactionScope();
 
                         addDatabaseResult = await _databaseRepository.AddDatabase(mappedEntity);
-                        Transaction.Current.TransactionCompleted += delegate
-                        {
-                            using TransactionScope scopeInline = new TransactionScope();
-                            _realDbService.CreateDatabaseOnRemote(dto);
-                            scopeInline.Complete();
+                        await _realDbService.CreateDatabaseOnRemote(dto);
+                        var mappedUser = _mapper.Map<UpdateUserDto>(user);
+                        mappedUser.Balance -= Convert.ToDecimal(package.Price * dto.MonthCount);
+                        await _userService.UpdateUser(mappedUser);
 
-                        };
-                        scope.Complete();
 
 
                         return addDatabaseResult;
@@ -208,7 +205,7 @@ namespace T_API.BLL.Concrete
                 {
                     throw new Exception("Bakiye yetersiz.");
                 }
-                
+
 
             }
             catch (Exception e)

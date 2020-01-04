@@ -575,8 +575,10 @@ namespace T_API.BLL.Concrete
             string guidString = Convert.ToBase64String(g.ToByteArray());
             guidString = guidString.Replace("=", "");
             guidString = guidString.Replace("+", "");
+            guidString = guidString.Substring(0, 5);
             guidString += $"U{userId}DB";
-            return guidString;
+           
+            return guidString.ToLower();
         }
 
         public async Task<string> GenerateUserName(int userId)
@@ -585,6 +587,7 @@ namespace T_API.BLL.Concrete
             string guidString = Convert.ToBase64String(g.ToByteArray());
             guidString = guidString.Replace("=", "");
             guidString = guidString.Replace("+", "");
+            guidString = guidString.Substring(0, 5);
             guidString += $"U{userId}ID";
             return guidString;
         }
@@ -596,6 +599,7 @@ namespace T_API.BLL.Concrete
             string guidString = Convert.ToBase64String(g.ToByteArray());
             guidString = guidString.Replace("=", "");
             guidString = guidString.Replace("+", "");
+            guidString = guidString.Substring(0, 5);
             guidString += $"U{userId}PW";
             return guidString;
         }

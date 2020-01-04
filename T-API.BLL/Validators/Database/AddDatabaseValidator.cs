@@ -17,6 +17,7 @@ namespace T_API.BLL.Validators.Database
             RuleFor(x => x.Provider).NotNull().NotEmpty();
             RuleFor(x => x.Server).NotNull().NotEmpty();
             RuleFor(x => x.UserId).NotNull().NotEmpty();
+            RuleFor(x => x.PackageId).NotNull().NotEmpty();
             RuleFor(x => x.Username).NotNull().NotEmpty();
         }
     }

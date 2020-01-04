@@ -149,7 +149,7 @@ namespace T_API.DAL.Concrete
                              "StartDate," +
                              "EndDate," +
                              "`Database`," +
-                             "PackageId," +
+                             "d.PackageId," +
                              "IsActive," +
                              "PackageName," +
                              "IsApiSupport," +
@@ -217,7 +217,7 @@ namespace T_API.DAL.Concrete
                              "StartDate," +
                              "EndDate," +
                              "`Database`," +
-                             "PackageId," +
+                             "d.PackageId," +
                              "IsActive," +
                              "PackageName," +
                              "IsApiSupport," +
@@ -326,7 +326,7 @@ namespace T_API.DAL.Concrete
                              "StartDate," +
                              "EndDate," +
                              "`Database`," +
-                             "PackageId," +
+                             "d.PackageId," +
                              "IsActive," +
                              "PackageName," +
                              "IsApiSupport," +

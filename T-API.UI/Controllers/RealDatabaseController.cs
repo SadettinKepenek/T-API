@@ -118,9 +118,7 @@ namespace T_API.UI.Controllers
                 {
                     JObject obj = await Request.ConvertRequestBody();
                     var dbInfo = _mapper.Map<DbInformation>(db);
-
-
-
+                    await _dataService.Update(tableName, dbInfo, obj);
                     return Ok();
                 }
                 return Unauthorized();

@@ -150,6 +150,18 @@ namespace T_API.BLL.Concrete
             {
                 var transactionCompletedEvent = new AutoResetEvent(true);
 
+                dto.StartDate = DateTime.Now;
+                dto.EndDate = DateTime.Now.AddMonths(dto.MonthCount);
+
+                var availableServer = await _realDbService.GetAvailableServer(dto.Provider);
+
+                dto.Port = availableServer.Port;
+                dto.Server =availableServer.Server;
+                dto.Username = await _realDbService.GenerateUserName(dto.UserId);
+                dto.Password = await _realDbService.GeneratePassword(dto.UserId);
+                dto.DatabaseName = await _realDbService.GenerateDatabaseName(dto.UserId);
+                dto.IsActive = false;
+
 
                 AddDatabaseValidator validator = new AddDatabaseValidator();
                 var result = validator.Validate(dto);

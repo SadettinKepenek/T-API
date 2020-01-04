@@ -31,6 +31,12 @@ namespace T_API.BLL.Abstract
         Task<List<DetailTableDto>> GetTables(string databaseName,string provider);
         Task<DetailTableDto> GetTable(string tableName, string databaseName, string provider);
 
+        Task<List<string>> GetAvailableProviders();
+        Task<DbInformation> GetAvailableServer(string provider);
+        Task<string> GenerateDatabaseName(int userId);
+        Task<string> GenerateUserName(int userId);
+        Task<string> GeneratePassword(int userId);
+
 
 
 

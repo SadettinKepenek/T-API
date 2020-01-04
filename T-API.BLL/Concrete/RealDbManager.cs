@@ -550,6 +550,54 @@ namespace T_API.BLL.Concrete
             return mappedResults;
         }
 
+        public async Task<List<string>> GetAvailableProviders()
+        {
+            List<string> providers=new List<string>()
+            {
+                "MySql"
+            };
+            return providers;
+        }
 
+        public async Task<DbInformation> GetAvailableServer(string provider)
+        {
+            if (provider.Equals("MySql"))
+            {
+                return ConfigurationSettings.ServerDbInformation;
+            }
+
+            return ConfigurationSettings.ServerDbInformation;
+        }
+
+        public async Task<string> GenerateDatabaseName(int userId)
+        {
+            Guid g = Guid.NewGuid();
+            string guidString = Convert.ToBase64String(g.ToByteArray());
+            guidString = guidString.Replace("=", "");
+            guidString = guidString.Replace("+", "");
+            guidString += $"U{userId}DB";
+            return guidString;
+        }
+
+        public async Task<string> GenerateUserName(int userId)
+        {
+            Guid g = Guid.NewGuid();
+            string guidString = Convert.ToBase64String(g.ToByteArray());
+            guidString = guidString.Replace("=", "");
+            guidString = guidString.Replace("+", "");
+            guidString += $"U{userId}ID";
+            return guidString;
+        }
+
+        public async Task<string> GeneratePassword(int userId)
+        {
+
+            Guid g = Guid.NewGuid();
+            string guidString = Convert.ToBase64String(g.ToByteArray());
+            guidString = guidString.Replace("=", "");
+            guidString = guidString.Replace("+", "");
+            guidString += $"U{userId}PW";
+            return guidString;
+        }
     }
 }

@@ -80,6 +80,7 @@ namespace T_API.UI.Controllers
         {
             CreateServiceViewModel model = new CreateServiceViewModel();
             model.Packages =await _packageService.Get();
+            model.Providers =await _realDbService.GetAvailableProviders();
             model.UserId = HttpContext.GetNameIdentifier();
             return View(model);
         }
@@ -91,19 +92,13 @@ namespace T_API.UI.Controllers
             if (!ModelState.IsValid)
             {
                 model.Packages = await _packageService.Get();
+                model.Providers = await _realDbService.GetAvailableProviders();
                 return View(model);
             }
 
             try
             {
                 var dto = _mapper.Map<AddDatabaseDto>(model);
-                dto.StartDate = DateTime.Now;
-                dto.EndDate = DateTime.Now.AddMonths(1);
-                dto.Port = ConfigurationSettings.ServerDbInformation.Port;
-                dto.Provider = ConfigurationSettings.ServerDbInformation.Provider;
-                dto.Server = ConfigurationSettings.ServerDbInformation.Server;
-                dto.IsActive = false;
-                
                 _ = await _databaseService.AddDatabase(dto);
                 TempData["Message"] = "Database Başarıyla Eklendi";
                 return RedirectToAction("Index", "Database");

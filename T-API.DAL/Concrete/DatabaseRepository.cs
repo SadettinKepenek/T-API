@@ -32,8 +32,8 @@ namespace T_API.DAL.Concrete
                 using var conn = DbConnectionFactory.CreateConnection(ConfigurationSettings.DbInformation);
 
                 string sql =
-                    "Insert into `databases` (UserId,Server,Username,Password,Port,Provider,StartDate,EndDate,IsActive,IsStorageSupport,IsApiSupport,`Database`) " +
-                    "Values (@UserId,@Server,@Username,@Password,@Port,@Provider,@StartDate,@EndDate,@IsActive,@IsStorageSupport,@IsApiSupport,@Database); " +
+                    "Insert into `databases` (UserId,Server,Username,Password,Port,Provider,StartDate,EndDate,IsActive,`Database`,PackageId) " +
+                    "Values (@UserId,@Server,@Username,@Password,@Port,@Provider,@StartDate,@EndDate,@IsActive,@IsStorageSupport,@IsApiSupport,@Database,@PackageId); " +
                     "SELECT LAST_INSERT_ID();";
 
 
@@ -49,8 +49,7 @@ namespace T_API.DAL.Concrete
                     cmd.AddParameter("StartDate", database.StartDate);
                     cmd.AddParameter("EndDate", database.EndDate);
                     cmd.AddParameter("IsActive", database.IsActive);
-                    cmd.AddParameter("IsStorageSupport", database.IsStorageSupport);
-                    cmd.AddParameter("IsApiSupport", database.IsApiSupport);
+                    cmd.AddParameter("PackageId", database.PackageId);
                     cmd.AddParameter("Database", database.DatabaseName);
 
                     var id = Convert.ToInt32(cmd.ExecuteScalar()); 
@@ -77,7 +76,7 @@ namespace T_API.DAL.Concrete
 
                 string sql =
                     "Update `databases` Set UserId = @UserId,Server = @Server,Username = @Username,Password = @Password,Port = @Port,Provider = @Provider," +
-                    "StartDate = @StartDate,EndDate = @EndDate,IsActive = @IsActive,IsStorageSupport = @IsStorageSupport,IsApiSupport = @IsApiSupport ,`Database`=@Database where DatabaseId = @DatabaseId";
+                    "StartDate = @StartDate,EndDate = @EndDate,IsActive = @IsActive,IsStorageSupport = @IsStorageSupport,IsApiSupport = @IsApiSupport ,`Database`=@Database,PackageId=@PackageId where DatabaseId = @DatabaseId";
                 var cmd = conn.CreateCommand(sql);
 
                 using (cmd)
@@ -91,8 +90,7 @@ namespace T_API.DAL.Concrete
                     cmd.AddParameter("StartDate", database.StartDate);
                     cmd.AddParameter("EndDate", database.EndDate);
                     cmd.AddParameter("IsActive", database.IsActive);
-                    cmd.AddParameter("IsStorageSupport", database.IsStorageSupport);
-                    cmd.AddParameter("IsApiSupport", database.IsApiSupport);
+                    cmd.AddParameter("PackageId", database.PackageId);
                     cmd.AddParameter("DatabaseId", database.DatabaseId);
                     cmd.AddParameter("Database", database.DatabaseName);
                 }
@@ -223,8 +221,7 @@ namespace T_API.DAL.Concrete
                 StartDate = Convert.ToDateTime(dataRow["StartDate"]),
                 DatabaseName = dataRow["Database"] as string,
                 IsActive = Convert.ToBoolean(dataRow["IsActive"]),
-                IsApiSupport = Convert.ToBoolean(dataRow["IsApiSupport"]),
-                IsStorageSupport = Convert.ToBoolean(dataRow["IsStorageSupport"]),
+                PackageId = Convert.ToInt32(dataRow["PackageId"]),
                 EndDate = Convert.ToDateTime(dataRow["EndDate"]),
                 DatabaseId = Convert.ToInt32(dataRow["DatabaseId"]),
                 Server = dataRow["Server"] as string,

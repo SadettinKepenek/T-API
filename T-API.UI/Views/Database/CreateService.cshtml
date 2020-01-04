@@ -5,22 +5,37 @@
 
 <script src="~/js/ManageService.js"></script>
 <form asp-action="CreateService" asp-controller="Database" asp-antiforgery="true" method="post">
-    <div class="form-group">
-        <label asp-for="Username">Database Username</label>
-        <input type="text" class="form-control" placeholder="Enter Username" asp-for="Username">
-        <span class="text-danger" asp-validation-for="Username"></span>
-    </div>
-    <div class="form-group">
-        <label asp-for="Password">Database Password</label>
-        <input type="password" class="form-control" placeholder="Enter Password" asp-for="Password">
-        <span class="text-danger" asp-validation-for="Password"></span>
-    </div>
+
     <div class="form-group">
         <label asp-for="DatabaseName">Database Name</label>
         <input type="text" class="form-control" placeholder="Enter Database Name" asp-for="DatabaseName">
         <span class="text-danger" asp-validation-for="DatabaseName"></span>
     </div>
-
+    <div class="form-group">
+        <table class="table table-bordered table-striped table-responsive">
+            <thead>
+            <tr>
+                <td>Package</td>
+                <td>Api</td>
+                <td>Auth</td>
+                <td>Storage</td>
+                <td>View</td>
+                <td>SP</td>
+                <td>Trigger</td>
+                <td>UDF</td>
+                <td>Jobs</td>
+                <td>Max Column</td>
+                <td>Max Table</td>
+                <td>Max SP</td>
+                <td>Max UDF</td>
+                <td>Max Trigger</td>
+                <td>Max Job</td>
+                <td>Max View</td>
+                <td>Price</td>
+            </tr>
+            </thead>
+        </table>
+    </div>
     <input asp-for="UserId" hidden="hidden" />
 
 

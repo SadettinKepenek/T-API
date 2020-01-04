@@ -30,13 +30,15 @@ namespace T_API.UI.Controllers
         private IMapper _mapper;
         private IRealDbService _realDbService;
         private IMemoryCache _cache;
-        public DatabaseController(IDatabaseService databaseService, IMapper mapper, IRealDbService realDbService,  IMemoryCache cache)
+        private IPackageService _packageService;
+        public DatabaseController(IDatabaseService databaseService, IMapper mapper, IRealDbService realDbService,  IMemoryCache cache, IPackageService packageService)
         {
             _databaseService = databaseService;
             _mapper = mapper;
             _realDbService = realDbService;
             
             _cache = cache;
+            _packageService = packageService;
         }
 
 
@@ -77,6 +79,7 @@ namespace T_API.UI.Controllers
         public async Task<IActionResult> CreateService()
         {
             CreateServiceViewModel model = new CreateServiceViewModel();
+            model.Packages =await _packageService.Get();
             model.UserId = HttpContext.GetNameIdentifier();
             return View(model);
         }

@@ -68,7 +68,8 @@ namespace T_API.DAL.Concrete
                 MaxTriggerCount = Convert.ToInt32(dataRow["MaxTriggerCount"]),
                 MaxUserDefinedFunctionCount = Convert.ToInt32(dataRow["MaxUserDefinedFunctionCount"]),
                 MaxViewCount = Convert.ToInt32(dataRow["MaxViewCount"]),
-                PackageName = dataRow["PackageName"] as string
+                PackageName = dataRow["PackageName"] as string,
+                Price = Convert.ToDouble(dataRow["Price"])
             };
             return package;
         }
@@ -133,7 +134,7 @@ namespace T_API.DAL.Concrete
                 string sql = "INSERT INTO databasepackages VALUES (@PackageName,@IsApiSupport,@IsAuthSupport," +
                              "@IsStorageSupport,@IsViewSupport,@IsStoredProcedureSupport,@IsUserDefinedFunctionSupport,@IsTriggerSupport," +
                              "@IsJobSupport,@ApiRequestCount,@MaxColumnPerTable,@MaxTableCount,@MaxStoredProcedureCount,@MaxTriggerCount,@MaxJobCount," +
-                             "@MaxViewCount)";
+                             "@MaxViewCount,@Price)";
                 var cmd = conn.CreateCommand(sql);
                 using (cmd)
                 {
@@ -154,6 +155,7 @@ namespace T_API.DAL.Concrete
                     cmd.AddParameter("MaxTriggerCount", package.MaxTriggerCount);
                     cmd.AddParameter("MaxJobCount", package.MaxJobCount);
                     cmd.AddParameter("MaxViewCount", package.MaxViewCount);
+                    cmd.AddParameter("Price", package.Price);
 
                     cmd.ExecuteNonQuery();
 

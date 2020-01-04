@@ -19,5 +19,7 @@
         public int MaxTriggerCount { get; set; }
         public int MaxJobCount { get; set; }
         public int MaxViewCount { get; set; }
+        public double Price { get; set; }
+
     }
 }

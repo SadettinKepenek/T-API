@@ -32,8 +32,8 @@ namespace T_API.DAL.Concrete
                 using var conn = DbConnectionFactory.CreateConnection(ConfigurationSettings.DbInformation);
 
                 string sql =
-                    "Insert into `databases` (UserId,Server,Username,Password,Port,Provider,StartDate,EndDate,IsActive,IsStorageSupport,IsApiSupport,`Database`) " +
-                    "Values (@UserId,@Server,@Username,@Password,@Port,@Provider,@StartDate,@EndDate,@IsActive,@IsStorageSupport,@IsApiSupport,@Database); " +
+                    "Insert into `databases` (UserId,Server,Username,Password,Port,Provider,StartDate,EndDate,IsActive,`Database`,PackageId) " +
+                    "Values (@UserId,@Server,@Username,@Password,@Port,@Provider,@StartDate,@EndDate,@IsActive,@Database,@PackageId); " +
                     "SELECT LAST_INSERT_ID();";
 
 
@@ -49,8 +49,7 @@ namespace T_API.DAL.Concrete
                     cmd.AddParameter("StartDate", database.StartDate);
                     cmd.AddParameter("EndDate", database.EndDate);
                     cmd.AddParameter("IsActive", database.IsActive);
-                    cmd.AddParameter("IsStorageSupport", database.IsStorageSupport);
-                    cmd.AddParameter("IsApiSupport", database.IsApiSupport);
+                    cmd.AddParameter("PackageId", database.PackageId);
                     cmd.AddParameter("Database", database.DatabaseName);
 
                     var id = Convert.ToInt32(cmd.ExecuteScalar()); 
@@ -77,7 +76,7 @@ namespace T_API.DAL.Concrete
 
                 string sql =
                     "Update `databases` Set UserId = @UserId,Server = @Server,Username = @Username,Password = @Password,Port = @Port,Provider = @Provider," +
-                    "StartDate = @StartDate,EndDate = @EndDate,IsActive = @IsActive,IsStorageSupport = @IsStorageSupport,IsApiSupport = @IsApiSupport ,`Database`=@Database where DatabaseId = @DatabaseId";
+                    "StartDate = @StartDate,EndDate = @EndDate,IsActive = @IsActive,IsStorageSupport = @IsStorageSupport,IsApiSupport = @IsApiSupport ,`Database`=@Database,PackageId=@PackageId where DatabaseId = @DatabaseId";
                 var cmd = conn.CreateCommand(sql);
 
                 using (cmd)
@@ -91,8 +90,7 @@ namespace T_API.DAL.Concrete
                     cmd.AddParameter("StartDate", database.StartDate);
                     cmd.AddParameter("EndDate", database.EndDate);
                     cmd.AddParameter("IsActive", database.IsActive);
-                    cmd.AddParameter("IsStorageSupport", database.IsStorageSupport);
-                    cmd.AddParameter("IsApiSupport", database.IsApiSupport);
+                    cmd.AddParameter("PackageId", database.PackageId);
                     cmd.AddParameter("DatabaseId", database.DatabaseId);
                     cmd.AddParameter("Database", database.DatabaseName);
                 }
@@ -141,7 +139,36 @@ namespace T_API.DAL.Concrete
                 using var conn = DbConnectionFactory.CreateConnection(ConfigurationSettings.DbInformation);
 
 
-                string sql = "Select * from `databases` where UserId = @UserId";
+                string sql = "Select DatabaseId," +
+                             "UserId," +
+                             "Server," +
+                             "Username," +
+                             "Password," +
+                             "Port," +
+                             "Provider," +
+                             "StartDate," +
+                             "EndDate," +
+                             "`Database`," +
+                             "d.PackageId," +
+                             "IsActive," +
+                             "PackageName," +
+                             "IsApiSupport," +
+                             "IsAuthSupport," +
+                             "IsStorageSupport," +
+                             "IsViewSupport," +
+                             "IsStoredProcedureSupport," +
+                             "IsUserDefinedFunctionSupport," +
+                             "IsTriggerSupport," +
+                             "IsJobSupport," +
+                             "ApiRequestCount," +
+                             "MaxColumnPerTable," +
+                             "MaxTableCount," +
+                             "MaxStoredProcedureCount," +
+                             "MaxUserDefinedFunctionCount," +
+                             "MaxTriggerCount," +
+                             "MaxJobCount," +
+                             "MaxViewCount  from `databases` " +
+                             "INNER JOIN databasepackages d on `databases`.PackageId = d.PackageId WHERE UserId=@UserId";
                 var cmd = conn.CreateCommand(sql);
 
                 using (cmd)
@@ -180,7 +207,37 @@ namespace T_API.DAL.Concrete
             {
 
                 using var conn = DbConnectionFactory.CreateConnection(ConfigurationSettings.DbInformation);
-                string sql = "Select * from `databases` inner join users on databases.UserId = users.UserId Where users.Username = @Username";
+                string sql = "Select DatabaseId," +
+                             "`databases`.UserId," +
+                             "Server," +
+                             "`databases`.Username," +
+                             "`databases`.Password," +
+                             "Port," +
+                             "Provider," +
+                             "StartDate," +
+                             "EndDate," +
+                             "`Database`," +
+                             "d.PackageId," +
+                             "`databases`.IsActive," +
+                             "PackageName," +
+                             "IsApiSupport," +
+                             "IsAuthSupport," +
+                             "IsStorageSupport," +
+                             "IsViewSupport," +
+                             "IsStoredProcedureSupport," +
+                             "IsUserDefinedFunctionSupport," +
+                             "IsTriggerSupport," +
+                             "IsJobSupport," +
+                             "ApiRequestCount," +
+                             "MaxColumnPerTable," +
+                             "MaxTableCount," +
+                             "MaxStoredProcedureCount," +
+                             "MaxUserDefinedFunctionCount," +
+                             "MaxTriggerCount," +
+                             "MaxJobCount," +
+                             "MaxViewCount  from `databases` " +
+                             "INNER JOIN databasepackages d on `databases`.PackageId = d.PackageId " +
+                             "inner join users on databases.UserId = users.UserId  Where users.Username = @Username";
                 var cmd = conn.CreateCommand(sql);
                 using (cmd)
                 {
@@ -223,12 +280,32 @@ namespace T_API.DAL.Concrete
                 StartDate = Convert.ToDateTime(dataRow["StartDate"]),
                 DatabaseName = dataRow["Database"] as string,
                 IsActive = Convert.ToBoolean(dataRow["IsActive"]),
-                IsApiSupport = Convert.ToBoolean(dataRow["IsApiSupport"]),
-                IsStorageSupport = Convert.ToBoolean(dataRow["IsStorageSupport"]),
+                PackageId = Convert.ToInt32(dataRow["PackageId"]),
                 EndDate = Convert.ToDateTime(dataRow["EndDate"]),
                 DatabaseId = Convert.ToInt32(dataRow["DatabaseId"]),
                 Server = dataRow["Server"] as string,
-                UserId = Convert.ToInt32(dataRow["UserId"])
+                UserId = Convert.ToInt32(dataRow["UserId"]),
+                Package = new DatabasePackage()
+                {
+                    PackageId = Convert.ToInt32(dataRow["PackageId"]),
+                    IsApiSupport = Convert.ToBoolean(dataRow["IsApiSupport"]),
+                    IsStorageSupport = Convert.ToBoolean(dataRow["IsStorageSupport"]),
+                    IsAuthSupport = Convert.ToBoolean(dataRow["IsAuthSupport"]),
+                    IsJobSupport = Convert.ToBoolean(dataRow["IsJobSupport"]),
+                    IsTriggerSupport = Convert.ToBoolean(dataRow["IsTriggerSupport"]),
+                    IsStoredProcedureSupport = Convert.ToBoolean(dataRow["IsStoredProcedureSupport"]),
+                    IsUserDefinedFunctionSupport = Convert.ToBoolean(dataRow["IsUserDefinedFunctionSupport"]),
+                    IsViewSupport = Convert.ToBoolean(dataRow["IsViewSupport"]),
+                    MaxJobCount = Convert.ToInt32(dataRow["MaxJobCount"]),
+                    ApiRequestCount = Convert.ToInt32(dataRow["ApiRequestCount"]),
+                    MaxColumnPerTable = Convert.ToInt32(dataRow["MaxColumnPerTable"]),
+                    MaxStoredProcedureCount = Convert.ToInt32(dataRow["MaxStoredProcedureCount"]),
+                    MaxTableCount = Convert.ToInt32(dataRow["MaxTableCount"]),
+                    MaxTriggerCount = Convert.ToInt32(dataRow["MaxTriggerCount"]),
+                    MaxUserDefinedFunctionCount = Convert.ToInt32(dataRow["MaxUserDefinedFunctionCount"]),
+                    MaxViewCount = Convert.ToInt32(dataRow["MaxViewCount"]),
+                    PackageName = dataRow["PackageName"] as string
+                }
             };
             return databaseEntity;
         }
@@ -239,8 +316,37 @@ namespace T_API.DAL.Concrete
             {
                 using var conn = DbConnectionFactory.CreateConnection(ConfigurationSettings.DbInformation);
 
+                string sql = "Select DatabaseId," +
+                             "UserId," +
+                             "Server," +
+                             "Username," +
+                             "Password," +
+                             "Port," +
+                             "Provider," +
+                             "StartDate," +
+                             "EndDate," +
+                             "`Database`," +
+                             "d.PackageId," +
+                             "IsActive," +
+                             "PackageName," +
+                             "IsApiSupport," +
+                             "IsAuthSupport," +
+                             "IsStorageSupport," +
+                             "IsViewSupport," +
+                             "IsStoredProcedureSupport," +
+                             "IsUserDefinedFunctionSupport," +
+                             "IsTriggerSupport," +
+                             "IsJobSupport," +
+                             "ApiRequestCount," +
+                             "MaxColumnPerTable," +
+                             "MaxTableCount," +
+                             "MaxStoredProcedureCount," +
+                             "MaxUserDefinedFunctionCount," +
+                             "MaxTriggerCount," +
+                             "MaxJobCount," +
+                             "MaxViewCount  from `databases` " +
+                             "INNER JOIN databasepackages d on `databases`.PackageId = d.PackageId WHERE DatabaseId=@DatabaseId";
 
-                string sql = "Select * from `databases` where DatabaseId = @DatabaseId";
                 var cmd = conn.CreateCommand(sql);
                 using (cmd)
                 {
@@ -271,7 +377,36 @@ namespace T_API.DAL.Concrete
                 using var conn = DbConnectionFactory.CreateConnection(ConfigurationSettings.DbInformation);
 
 
-                string sql = "Select * from `databases`";
+                string sql = "Select DatabaseId," +
+                             "UserId," +
+                             "Server," +
+                             "Username," +
+                             "Password," +
+                             "Port," +
+                             "Provider," +
+                             "StartDate," +
+                             "EndDate," +
+                             "`Database`," +
+                             "PackageId," +
+                             "IsActive," +
+                             "PackageName," +
+                             "IsApiSupport," +
+                             "IsAuthSupport," +
+                             "IsStorageSupport," +
+                             "IsViewSupport," +
+                             "IsStoredProcedureSupport," +
+                             "IsUserDefinedFunctionSupport," +
+                             "IsTriggerSupport," +
+                             "IsJobSupport," +
+                             "ApiRequestCount," +
+                             "MaxColumnPerTable," +
+                             "MaxTableCount," +
+                             "MaxStoredProcedureCount," +
+                             "MaxUserDefinedFunctionCount," +
+                             "MaxTriggerCount," +
+                             "MaxJobCount," +
+                             "MaxViewCount  from `databases` " +
+                             "INNER JOIN databasepackages d on `databases`.PackageId = d.PackageId";
                 //  var GetAllDatabase = (List<DatabaseEntity>)await cmd.ExecuteScalarAsync();
 
                 var cmd = conn.CreateCommand(sql);

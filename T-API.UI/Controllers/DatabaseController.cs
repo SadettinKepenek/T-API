@@ -30,13 +30,15 @@ namespace T_API.UI.Controllers
         private IMapper _mapper;
         private IRealDbService _realDbService;
         private IMemoryCache _cache;
-        public DatabaseController(IDatabaseService databaseService, IMapper mapper, IRealDbService realDbService,  IMemoryCache cache)
+        private IPackageService _packageService;
+        public DatabaseController(IDatabaseService databaseService, IMapper mapper, IRealDbService realDbService,  IMemoryCache cache, IPackageService packageService)
         {
             _databaseService = databaseService;
             _mapper = mapper;
             _realDbService = realDbService;
             
             _cache = cache;
+            _packageService = packageService;
         }
 
 
@@ -77,6 +79,8 @@ namespace T_API.UI.Controllers
         public async Task<IActionResult> CreateService()
         {
             CreateServiceViewModel model = new CreateServiceViewModel();
+            model.Packages =await _packageService.Get();
+            model.Providers =await _realDbService.GetAvailableProviders();
             model.UserId = HttpContext.GetNameIdentifier();
             return View(model);
         }
@@ -87,20 +91,14 @@ namespace T_API.UI.Controllers
         {
             if (!ModelState.IsValid)
             {
+                model.Packages = await _packageService.Get();
+                model.Providers = await _realDbService.GetAvailableProviders();
                 return View(model);
             }
 
             try
             {
                 var dto = _mapper.Map<AddDatabaseDto>(model);
-                dto.StartDate = DateTime.Now;
-                dto.EndDate = DateTime.Now.AddMonths(1);
-                dto.Port = ConfigurationSettings.ServerDbInformation.Port;
-                dto.Provider = ConfigurationSettings.ServerDbInformation.Provider;
-                dto.Server = ConfigurationSettings.ServerDbInformation.Server;
-                dto.IsActive = false;
-                dto.IsApiSupport = true;
-                dto.IsStorageSupport = false;
                 _ = await _databaseService.AddDatabase(dto);
                 TempData["Message"] = "Database Başarıyla Eklendi";
                 return RedirectToAction("Index", "Database");

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
@@ -9,6 +10,7 @@ using T_API.BLL.Abstract;
 using T_API.BLL.Validators.Database;
 using T_API.Core.DAL.Concrete;
 using T_API.Core.DTO.Database;
+using T_API.Core.DTO.User;
 using T_API.Core.Exception;
 using T_API.Core.Settings;
 using T_API.DAL.Abstract;
@@ -21,11 +23,15 @@ namespace T_API.BLL.Concrete
         private IDatabaseRepository _databaseRepository;
         private IMapper _mapper;
         private IRealDbService _realDbService;
-        public DatabaseManager(IDatabaseRepository databaseRepository, IMapper mapper, IRealDbService realDbService)
+        private IPackageService _packageService;
+        private IUserService _userService;
+        public DatabaseManager(IDatabaseRepository databaseRepository, IMapper mapper, IRealDbService realDbService, IPackageService packageService, IUserService userService)
         {
             _databaseRepository = databaseRepository;
             _mapper = mapper;
             _realDbService = realDbService;
+            _packageService = packageService;
+            _userService = userService;
         }
 
 
@@ -150,32 +156,56 @@ namespace T_API.BLL.Concrete
             {
                 var transactionCompletedEvent = new AutoResetEvent(true);
 
+                var package = await _packageService.GetById(dto.PackageId);
+                var user = await _userService.GetById(dto.UserId);
+                var databases = await _databaseRepository.GetByUser(user.Username);
 
-                AddDatabaseValidator validator = new AddDatabaseValidator();
-                var result = validator.Validate(dto);
-                if (result.IsValid)
+
+                if (package.Price <= 0.0 && databases.FirstOrDefault(x => x.PackageId == package.PackageId) != null)
+                {
+                    throw new UnauthorizedAccessException("Ücretsiz paket birden fazla alınamaz");
+                }
+                if ((Convert.ToDouble(user.Balance) - (package.Price * dto.MonthCount)) >= 0)
                 {
 
-                    var mappedEntity = _mapper.Map<Database>(dto);
+                    var availableServer = await _realDbService.GetAvailableServer(dto.Provider);
 
-                    int addDatabaseResult;
-                    using TransactionScope scope = new TransactionScope();
+                    dto.Port = availableServer.Port;
+                    dto.Server = availableServer.Server;
+                    dto.Username = await _realDbService.GenerateUserName(dto.UserId);
+                    dto.Password = await _realDbService.GeneratePassword(dto.UserId);
+                    dto.DatabaseName = await _realDbService.GenerateDatabaseName(dto.UserId);
+                    dto.IsActive = false;
+                    dto.StartDate = DateTime.Now;
+                    dto.EndDate = DateTime.Now.AddMonths(dto.MonthCount);
 
-                    addDatabaseResult = await _databaseRepository.AddDatabase(mappedEntity);
-                    Transaction.Current.TransactionCompleted += delegate
+                    AddDatabaseValidator validator = new AddDatabaseValidator();
+                    var result = validator.Validate(dto);
+                    if (result.IsValid)
                     {
-                        using TransactionScope scopeInline = new TransactionScope();
-                        _realDbService.CreateDatabaseOnRemote(dto);
-                        scopeInline.Complete();
 
-                    };
-                    scope.Complete();
+                        var mappedEntity = _mapper.Map<Database>(dto);
+
+                        int addDatabaseResult;
+
+                        addDatabaseResult = await _databaseRepository.AddDatabase(mappedEntity);
+                        await _realDbService.CreateDatabaseOnRemote(dto);
+                        var mappedUser = _mapper.Map<UpdateUserDto>(user);
+                        mappedUser.Balance -= Convert.ToDecimal(package.Price * dto.MonthCount);
+                        await _userService.UpdateUser(mappedUser);
 
 
-                    return addDatabaseResult;
+
+                        return addDatabaseResult;
+                    }
+
+                    throw new ValidationException(result.Errors.ToString());
+                }
+                else
+                {
+                    throw new Exception("Bakiye yetersiz.");
                 }
 
-                throw new ValidationException(result.Errors.ToString());
 
             }
             catch (Exception e)

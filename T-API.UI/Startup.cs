@@ -46,11 +46,13 @@ namespace T_API.UI
             services.AddScoped<IAuthService, AuthManager>();
             services.AddScoped<IDatabaseService, DatabaseManager>();
             services.AddScoped<IDatabaseRepository, DatabaseRepository>();
+            services.AddScoped<IPackageRepository, PackageRepository>();
             services.AddScoped<IUserService, UserManager>();
             services.AddScoped<IUserRepository, UserRepository>();
             services.AddTransient<IRealDbRepositoryFactory, RealDbRepositoryFactory>();
             services.AddTransient<IRealDbService, RealDbManager>();
             services.AddTransient<IDataService, DataManager>();
+            services.AddTransient<IPackageService, PackageManager>();
 
             services.AddControllersWithViews().AddRazorRuntimeCompilation();
 

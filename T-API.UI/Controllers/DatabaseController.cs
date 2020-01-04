@@ -90,6 +90,7 @@ namespace T_API.UI.Controllers
         {
             if (!ModelState.IsValid)
             {
+                model.Packages = await _packageService.Get();
                 return View(model);
             }
 

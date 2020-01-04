@@ -122,6 +122,7 @@ namespace T_API.UI
                 app.UseHsts();
             }
 
+
             app.UseHttpsRedirection();
             app.UseStaticFiles();
             app.UseSession();

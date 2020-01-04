@@ -1,20 +1,26 @@
-﻿@model T_API.UI.Models.Database.CreateServiceViewModel
+﻿@using T_API.Core.DTO.DatabasePackage
+@model T_API.UI.Models.Database.CreateServiceViewModel
 @{
     ViewData["Title"] = "CreateService";
 }
 
 <script src="~/js/ManageService.js"></script>
-<form asp-action="CreateService" asp-controller="Database" asp-antiforgery="true" method="post">
+<form asp-action="CreateService" asp-controller="Database"  asp-antiforgery="true" method="post">
 
     <div class="form-group">
         <label asp-for="DatabaseName">Database Name</label>
-        <input type="text" class="form-control" placeholder="Enter Database Name" asp-for="DatabaseName">
+        <input type="text" class="form-control" placeholder="Enter Database Name" required="required" asp-for="DatabaseName">
         <span class="text-danger" asp-validation-for="DatabaseName"></span>
     </div>
     <div class="form-group">
-        <table class="table table-bordered table-striped table-responsive">
+        <label asp-for="PackageId">Database Package</label>
+        <span class="text-danger" asp-validation-for="PackageId"></span>
+
+        <table class="table table-dark table-bordered table-striped table-responsive">
             <thead>
-            <tr>
+            <tr class="text-center">
+                <td>#</td>
+
                 <td>Package</td>
                 <td>Api</td>
                 <td>Auth</td>
@@ -34,7 +40,106 @@
                 <td>Price</td>
             </tr>
             </thead>
+
+            <tbody>
+            @foreach (DetailDatabasePackageDto package in Model.Packages)
+            {
+                <tr class="text-center">
+                    <td><input type="radio" asp asp-for="PackageId" required="required" value="@package.PackageId" /></td>
+                    <td>@package.PackageName</td>
+                    <td>
+                        @if (package.IsApiSupport)
+                        {
+                            <i class="fas fa-check-circle"></i>
+                        }
+                        else
+                        {
+                            <i class="far fa-times-circle"></i>
+                        }
+                    </td>
+                    <td>
+                        @if (package.IsAuthSupport)
+                        {
+                            <i class="fas fa-check-circle"></i>
+                        }
+                        else
+                        {
+                            <i class="far fa-times-circle"></i>
+                        }
+                    </td>
+                    <td>
+                        @if (package.IsStorageSupport)
+                        {
+                            <i class="fas fa-check-circle"></i>
+                        }
+                        else
+                        {
+                            <i class="far fa-times-circle"></i>
+                        }
+                    </td>
+                    <td>
+                        @if (package.IsViewSupport)
+                        {
+                            <i class="fas fa-check-circle"></i>
+                        }
+                        else
+                        {
+                            <i class="far fa-times-circle"></i>
+                        }
+                    </td>
+                    <td>
+                        @if (package.IsStoredProcedureSupport)
+                        {
+                            <i class="fas fa-check-circle"></i>
+                        }
+                        else
+                        {
+                            <i class="far fa-times-circle"></i>
+                        }
+                    </td>
+                    <td>
+                        @if (package.IsTriggerSupport)
+                        {
+                            <i class="fas fa-check-circle"></i>
+                        }
+                        else
+                        {
+                            <i class="far fa-times-circle"></i>
+                        }
+                    </td>
+                    <td>
+                        @if (package.IsUserDefinedFunctionSupport)
+                        {
+                            <i class="fas fa-check-circle"></i>
+                        }
+                        else
+                        {
+                            <i class="far fa-times-circle"></i>
+                        }
+                    </td>
+                    <td>
+                        @if (package.IsJobSupport)
+                        {
+                            <i class="fas fa-check-circle"></i>
+                        }
+                        else
+                        {
+                            <i class="far fa-times-circle"></i>
+                        }
+                    </td>
+                    <td>@package.MaxColumnPerTable</td>
+                    <td>@package.MaxTableCount</td>
+                    <td>@package.MaxStoredProcedureCount</td>
+                    <td>@package.MaxUserDefinedFunctionCount</td>
+                    <td>@package.MaxTriggerCount</td>
+                    <td>@package.MaxJobCount</td>
+                    <td>@package.MaxViewCount</td>
+                    <td>@package.Price ₺</td>
+                </tr>
+            }
+            </tbody>
         </table>
+
     </div>
     <input asp-for="UserId" hidden="hidden" />
 

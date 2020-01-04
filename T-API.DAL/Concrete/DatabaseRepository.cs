@@ -208,17 +208,17 @@ namespace T_API.DAL.Concrete
 
                 using var conn = DbConnectionFactory.CreateConnection(ConfigurationSettings.DbInformation);
                 string sql = "Select DatabaseId," +
-                             "UserId," +
+                             "`databases`.UserId," +
                              "Server," +
-                             "Username," +
-                             "Password," +
+                             "`databases`.Username," +
+                             "`databases`.Password," +
                              "Port," +
                              "Provider," +
                              "StartDate," +
                              "EndDate," +
                              "`Database`," +
                              "d.PackageId," +
-                             "IsActive," +
+                             "`databases`.IsActive," +
                              "PackageName," +
                              "IsApiSupport," +
                              "IsAuthSupport," +
@@ -236,7 +236,7 @@ namespace T_API.DAL.Concrete
                              "MaxTriggerCount," +
                              "MaxJobCount," +
                              "MaxViewCount  from `databases` " +
-                             "INNER JOIN databasepackages d on `databases`.PackageId = d.PackageId" +
+                             "INNER JOIN databasepackages d on `databases`.PackageId = d.PackageId " +
                              "inner join users on databases.UserId = users.UserId  Where users.Username = @Username";
                 var cmd = conn.CreateCommand(sql);
                 using (cmd)

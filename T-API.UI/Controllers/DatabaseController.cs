@@ -99,7 +99,6 @@ namespace T_API.UI.Controllers
                 dto.Provider = ConfigurationSettings.ServerDbInformation.Provider;
                 dto.Server = ConfigurationSettings.ServerDbInformation.Server;
                 dto.IsActive = false;
-                dto.PackageId = 0;
                 
                 _ = await _databaseService.AddDatabase(dto);
                 TempData["Message"] = "Database Başarıyla Eklendi";

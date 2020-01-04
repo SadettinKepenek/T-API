@@ -2,6 +2,7 @@
 using T_API.Core.DAL.Concrete;
 using T_API.Core.DTO.Column;
 using T_API.Core.DTO.Database;
+using T_API.Core.DTO.DatabasePackage;
 using T_API.Core.DTO.ForeignKey;
 using T_API.Core.DTO.Index;
 using T_API.Core.DTO.Key;
@@ -86,6 +87,13 @@ namespace T_API.UI.MappingProfiles
 
 
             CreateMap<DetailDatabaseDto, DbInformation>().ReverseMap();
+
+
+            CreateMap<DetailDatabasePackageDto, DatabasePackage>().ReverseMap();
+            CreateMap<AddDatabasePackageDto, DatabasePackage>().ReverseMap();
+            CreateMap<UpdateDatabasePackageDto, DatabasePackage>().ReverseMap();
+            CreateMap<DeleteDatabasePackageDto, DatabasePackage>().ReverseMap();
+            CreateMap<ListDatabasePackageDto, DatabasePackage>().ReverseMap();
 
         }
     }

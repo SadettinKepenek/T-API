@@ -31,5 +31,6 @@ namespace T_API.Entity.Concrete
         public bool IsActive { get; set; }
         public int PackageId { get; set; }
         public List<Table> Tables { get; set; }
+        public DatabasePackage Package { get; set; }
     }
 }

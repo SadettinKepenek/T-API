@@ -106,6 +106,30 @@ namespace T_API.UI.Controllers
             }
         }
 
+        [HttpPut("Update/{serviceNumber}/{tableName}")]
+        public async Task<IActionResult> Update(int serviceNumber, string tableName)
+        {
+
+            try
+            {
+                int userId = HttpContext.GetNameIdentifier();
+                var db = await _databaseService.GetById(serviceNumber);
+                if (db.UserId==userId)
+                {
+                    JObject obj = await Request.ConvertRequestBody();
+                    var dbInfo = _mapper.Map<DbInformation>(db);
+                    await _dataService.Update(tableName, dbInfo, obj);
+                    return Ok();
+                }
+                return Unauthorized();
+            }
+            catch (Exception e)
+            {
+                return BadRequest();
+
+            }
+
+        }
 
 
     }

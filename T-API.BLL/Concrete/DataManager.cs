@@ -115,5 +115,74 @@ namespace T_API.BLL.Concrete
                 throw ExceptionHandler.HandleException(e);
             }
         }
+
+        public async Task Update(string tableName, DbInformation dbInformation, JObject jObject)
+        {
+            try
+            {
+
+                if (_realDbRepositoryFactory.CreateRepository(dbInformation.Provider) is MySqlRealDbRepository realDbRepository)
+                {
+                    var table = await realDbRepository.GetTable(tableName, dbInformation.DatabaseName);
+
+                    if (table != null)
+                    {
+                        using TransactionScope scope = new TransactionScope();
+
+                        StringBuilder stringBuilder = new StringBuilder();
+                        stringBuilder.AppendLine($"USE {dbInformation.DatabaseName};\n");
+                        stringBuilder.AppendLine($"UPDATE {tableName} SET \n");
+                        var pkColumn = table.Columns.FirstOrDefault(x => x.PrimaryKey);
+                        if (pkColumn != null)
+                        {
+                            if (jObject[pkColumn.ColumnName] == null)
+                                throw new NullReferenceException(
+                                    "Herhangi bir primary key bulunamadığı için default update methodu kullanılamaz.");
+                            foreach (Column column in table.Columns.Where(x => x.PrimaryKey == false))
+                            {
+                                if (jObject[column.ColumnName] != null)
+                                {
+                                    stringBuilder.AppendLine(jObject[column.ColumnName].Type == JTokenType.String
+                                        ? $"\t{column.ColumnName}='{jObject[column.ColumnName]}' \n"
+                                        : $"\t{column.ColumnName}={jObject[column.ColumnName]} \n");
+                                    stringBuilder.Append(",");
+                                }
+                                
+                            }
+
+                            stringBuilder[^1] = stringBuilder[^1] == ',' ? ' ' : stringBuilder[^1];
+
+
+                            string filter = jObject[pkColumn.ColumnName].Type == JTokenType.String
+                                ? $"WHERE {pkColumn.ColumnName}='{jObject[pkColumn.ColumnName]}' \n"
+                                : $"WHERE {pkColumn.ColumnName}={jObject[pkColumn.ColumnName]} \n";
+                            stringBuilder.AppendLine(filter);
+
+                            await realDbRepository.ExecuteQueryOnRemote(stringBuilder.ToString(), dbInformation);
+                            scope.Complete();
+                        }
+                        else
+                        {
+                            throw new NullReferenceException(
+                                "Herhangi bir primary key bulunamadığı için default update methodu kullanılamaz.");
+                        }
+                    }
+                    else
+                    {
+                        throw new NullReferenceException("Tablo bulunamadı");
+                    }
+                }
+                else
+                {
+                    throw new NullReferenceException("Db Repository Referansına Ulaşlamadı");
+                }
+
+            }
+            catch (Exception e)
+            {
+                throw ExceptionHandler.HandleException(e);
+            }
+
+        }
     }
 }

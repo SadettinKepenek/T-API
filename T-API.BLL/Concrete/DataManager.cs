@@ -135,12 +135,23 @@ namespace T_API.BLL.Concrete
                         var pkColumn = table.Columns.FirstOrDefault(x => x.PrimaryKey);
                         if (pkColumn != null)
                         {
-                            foreach (Column column in table.Columns)
+                            if (jObject[pkColumn.ColumnName] == null)
+                                throw new NullReferenceException(
+                                    "Herhangi bir primary key bulunamadığı için default update methodu kullanılamaz.");
+                            foreach (Column column in table.Columns.Where(x => x.PrimaryKey == false))
                             {
-                                stringBuilder.AppendLine(jObject[column.ColumnName].Type == JTokenType.String
-                                    ? $"\t{column.ColumnName}='{jObject[column.ColumnName]}' \n"
-                                    : $"\t{column.ColumnName}={jObject[column.ColumnName]} \n");
+                                if (jObject[column.ColumnName] != null)
+                                {
+                                    stringBuilder.AppendLine(jObject[column.ColumnName].Type == JTokenType.String
+                                        ? $"\t{column.ColumnName}='{jObject[column.ColumnName]}' \n"
+                                        : $"\t{column.ColumnName}={jObject[column.ColumnName]} \n");
+                                    stringBuilder.Append(",");
+                                }
+                                
                             }
+
+                            stringBuilder[^1] = stringBuilder[^1] == ',' ? ' ' : stringBuilder[^1];
+
 
                             string filter = jObject[pkColumn.ColumnName].Type == JTokenType.String
                                 ? $"WHERE {pkColumn.ColumnName}='{jObject[pkColumn.ColumnName]}' \n"

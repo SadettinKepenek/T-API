@@ -1,5 +1,6 @@
 ﻿using System;
 using T_API.Core.DAL.Concrete;
+using T_API.Core.DTO.DatabasePackage;
 
 namespace T_API.Core.DTO.Database
 {
@@ -14,5 +15,7 @@ namespace T_API.Core.DTO.Database
         public DateTime StartDate { get; set; }
         public DateTime EndDate { get; set; }
         public bool IsActive { get; set; }
+        public DetailDatabasePackageDto Package { get; set; }
+
     }
 }

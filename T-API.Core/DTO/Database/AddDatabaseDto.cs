@@ -17,8 +17,7 @@ namespace T_API.Core.DTO.Database
         public DateTime StartDate { get; set; }
         public DateTime EndDate { get; set; }
         public bool IsActive { get; set; }
-        public bool IsStorageSupport { get; set; }
-        public bool IsApiSupport { get; set; }
+        public int PackageId { get; set; }
 
     }
 }

@@ -22,17 +22,19 @@ namespace T_API.UI.Controllers
         private IUserService _userService;
 
         private IMapper _mapper;
+        private ICacheService _cacheService;
 
-        public AccountController(IUserService userService, IMapper mapper)
+        public AccountController(IUserService userService, IMapper mapper, ICacheService cacheService)
         {
             _userService = userService;
             _mapper = mapper;
+            _cacheService = cacheService;
         }
 
         [HttpGet("[controller]/Settings")]
         public async Task<IActionResult> Index()
         {
-            var id = Convert.ToInt32(HttpContext.User.Claims.FirstOrDefault(x=>x.Type==ClaimTypes.NameIdentifier)?.Value);
+            var id = HttpContext.GetNameIdentifier();;
             var userProfile =await _userService.GetById(id);
             if (userProfile==null)
             {
@@ -92,5 +94,7 @@ namespace T_API.UI.Controllers
                 return View();
             }
         }
+
+       
     }
 }

@@ -9,55 +9,23 @@ namespace T_API.Core.Exception
     {
         public static System.Exception HandleException(System.Exception e)
         {
-            if (e is MySqlException)
+            switch (e)
             {
-                return MySqlExceptionHandler.HandleMySqlException(e);
+                case MySqlException _:
+                    return MySqlExceptionHandler.HandleMySqlException(e);
+                case SqlException _:
+                    return SqlServerExceptionHandler.HandleMssqlException(e);
+                case NullReferenceException _:
+                case ArgumentException _:
+                case ArrayTypeMismatchException _:
+                case ArithmeticException _:
+                case IndexOutOfRangeException _:
+                case InvalidCastException _:
+                case ValidationException _:
+                    return e;
+                default:
+                    return e;
             }
-
-            if (e is SqlException)
-            {
-                return SqlServerExceptionHandler.HandleMssqlException(e);
-            }
-
-            if (e is NullReferenceException)
-            {
-                return e;
-            }
-
-            if (e is ArgumentException)
-            {
-                return e;
-            }
-
-            if (e is ArrayTypeMismatchException)
-            {
-                return e;
-
-            }
-
-            if (e is ArithmeticException)
-            {
-                return e;
-
-            }
-
-            if (e is IndexOutOfRangeException)
-            {
-                return e;
-
-            }
-
-            if (e is InvalidCastException)
-            {
-                return e;
-
-            }
-
-            if (e is ValidationException)
-            {
-                return e;
-            }
-            return e;
         }
     }
 }

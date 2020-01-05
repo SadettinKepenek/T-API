@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Mvc;
 using T_API.BLL.Abstract;
 using T_API.BLL.Validators.User;
 using T_API.Core.DTO.User;
+using T_API.UI.Extensions;
 using T_API.UI.Models.Security;
 
 namespace T_API.UI.Controllers
@@ -17,17 +18,20 @@ namespace T_API.UI.Controllers
     {
         private IAuthService _authService;
         private IMapper _mapper;
+        private ICacheService _cacheService;
 
-        public SecurityController(IAuthService authService, IMapper mapper)
+        public SecurityController(IAuthService authService, IMapper mapper, ICacheService cacheService)
         {
             _authService = authService;
             _mapper = mapper;
+            _cacheService = cacheService;
         }
 
         [Authorize(AuthenticationSchemes = CookieAuthenticationDefaults.AuthenticationScheme)]
         [HttpGet]
         public async Task<IActionResult> Logout()
         {
+            await _cacheService.RemoveCache(HttpContext.GetNameIdentifier());
             await _authService.Logout();
             return RedirectToAction("Index", "Home");
         }

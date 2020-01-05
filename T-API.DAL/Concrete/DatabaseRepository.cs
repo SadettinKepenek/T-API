@@ -34,8 +34,6 @@ namespace T_API.DAL.Concrete
                     "Insert into `databases` (UserId,Server,Username,Password,Port,Provider,StartDate,EndDate,IsActive,`Database`,PackageId) " +
                     "Values (@UserId,@Server,@Username,@Password,@Port,@Provider,@StartDate,@EndDate,@IsActive,@Database,@PackageId); " +
                     "SELECT LAST_INSERT_ID();";
-
-
                 var cmd = conn.CreateCommand(sql);
                 using (cmd)
                 {
@@ -51,7 +49,7 @@ namespace T_API.DAL.Concrete
                     cmd.AddParameter("PackageId", database.PackageId);
                     cmd.AddParameter("Database", database.DatabaseName);
 
-                    var id = Convert.ToInt32(cmd.ExecuteScalar()); 
+                    var id = Convert.ToInt32(cmd.ExecuteScalar());
                     return id;
                 }
 
@@ -59,10 +57,12 @@ namespace T_API.DAL.Concrete
 
 
             }
+            // when keyword
             catch (Exception e)
             {
                 throw ExceptionHandler.HandleException(e);
             }
+
         }
 
 

@@ -22,27 +22,34 @@ namespace T_API.UI.Controllers
         private IUserService _userService;
 
         private IMapper _mapper;
-        private ICacheService _cacheService;
 
-        public AccountController(IUserService userService, IMapper mapper, ICacheService cacheService)
+        public AccountController(IUserService userService, IMapper mapper)
         {
             _userService = userService;
             _mapper = mapper;
-            _cacheService = cacheService;
         }
 
         [HttpGet("[controller]/Settings")]
         public async Task<IActionResult> Index()
         {
-            var id = HttpContext.GetNameIdentifier();;
-            var userProfile =await _userService.GetById(id);
-            if (userProfile==null)
+            try
             {
+                var id = HttpContext.GetNameIdentifier();;
+                var userProfile =await _userService.GetById(id);
+                if (userProfile==null)
+                {
+                    TempData["Message"] = SystemMessage.NoContentExceptionMessage;
+                    return RedirectToAction("Index", "Home");
+                }
+
+                var mappedEntity = _mapper.Map<SettingsViewModel>(userProfile);
+                return View(mappedEntity);
+            }
+            catch (Exception e)
+            {
+                TempData["Message"] = SystemMessage.DuringOperationExceptionMessage;
                 return RedirectToAction("Index", "Home");
             }
-
-            var mappedEntity = _mapper.Map<SettingsViewModel>(userProfile);
-            return View(mappedEntity);
         }
 
         [HttpPost("[controller]/Settings")]
@@ -58,12 +65,12 @@ namespace T_API.UI.Controllers
             {
                 var mappedEntity = _mapper.Map<UpdateUserDto>(viewModel);
                 await _userService.UpdateUser(mappedEntity);
-                TempData["Message"] = "Güncellendi !";
+                TempData["Message"] = SystemMessage.SuccessMessage;
                 return RedirectToAction("Index", "Account");
             }
             catch (Exception e)
             {
-                TempData["Message"] = "Güncelleme sırasında hata oluştu";
+                TempData["Message"] = SystemMessage.DuringOperationExceptionMessage;
                 return RedirectToAction("Index", "Home");
             }
         }
@@ -83,14 +90,14 @@ namespace T_API.UI.Controllers
 
             try
             {
-                int uId = HttpContext.GetNameIdentifier();
+                var uId = HttpContext.GetNameIdentifier();
                 await _userService.ChangePassword(uId, model.OldPassword, model.NewPassword);
-                TempData["Message"] = "Success";
+                TempData["Message"] = SystemMessage.SuccessMessage;
                 return View();
             }
             catch (Exception e)
             {
-                TempData["Message"] = ExceptionHandler.HandleException(e).Message;
+                TempData["Message"] = SystemMessage.DuringOperationExceptionMessage;
                 return View();
             }
         }

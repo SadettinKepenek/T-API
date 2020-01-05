@@ -53,6 +53,7 @@ namespace T_API.UI
             services.AddTransient<IRealDbService, RealDbManager>();
             services.AddTransient<IDataService, DataManager>();
             services.AddTransient<IPackageService, PackageManager>();
+            services.AddTransient<ICacheService, CacheManager>();
 
             services.AddControllersWithViews().AddRazorRuntimeCompilation();
 

@@ -5,7 +5,7 @@
 
 <div class="container-fluid">
     <div class="row">
-        <div class="col-md-8">
+        <div class="col-md-8 mx-auto">
             <h3 class="text-success">@TempData["Message"]</h3>
             <form asp-controller="Account" asp-action="Index" asp-antiforgery="true" method="post">
                 <div class="form-group">
@@ -38,14 +38,11 @@
                 <input asp-for="Role" hidden="hidden" />
                 <input asp-for="Password" hidden="hidden" />
                 <button type="submit" class="btn btn-primary">Save</button>
+                <a asp-action="ChangePassword" asp-controller="Account" class="btn btn-danger">Change Password</a>
 
             </form>
         </div>
-        <div class="col-md-4">
-            <form asp-controller="Account" method="post" asp-antiforgery="true">
-               
-            </form>
-        </div>
+    
     </div>
- 
+
 </div>  

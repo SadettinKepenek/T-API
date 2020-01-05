@@ -1,10 +1,9 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace T_API.UI.Models.ViewComponents
+namespace T_API.UI.Models.Account
 {
-    public class ChangePasswordViewComponentModel
+    public class ChangePasswordViewModel
     {
-        [Required] public int UserId { get; set; }
         [Required] public string OldPassword { get; set; }
         [Required]
         [Compare(nameof(NewPassword2), ErrorMessage = "Two Passwords are not matched.")]
@@ -12,5 +11,6 @@ namespace T_API.UI.Models.ViewComponents
         [Required]
         [Compare(nameof(NewPassword), ErrorMessage = "Two Passwords are not matched.")]
         public string NewPassword2 { get; set; }
+
     }
 }

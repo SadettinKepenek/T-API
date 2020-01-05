@@ -28,14 +28,12 @@ namespace T_API.BLL.Concrete
 {
     public class RemoteDbManager : IRemoteDbService
     {
-        private IRealDbRepositoryFactory _realDbRepositoryFactory;
         private IMapper _mapper;
 
         //Factory Design Pattern
 
-        public RemoteDbManager(IRealDbRepositoryFactory realDbRepositoryFactory, IMapper mapper)
+        public RemoteDbManager(IMapper mapper)
         {
-            _realDbRepositoryFactory = realDbRepositoryFactory;
             _mapper = mapper;
         }
 
@@ -295,50 +293,41 @@ namespace T_API.BLL.Concrete
         {
             try
             {
-                if (dbInformation.Provider.Equals("MySql"))
+
+                if (SqlCodeGeneratorFactory.CreateGenerator(dbInformation.Provider) is MySqlCodeGenerator codeGenerator)
                 {
-                    using MySqlCodeGenerator codeGenerator =
-                        (MySqlCodeGenerator)SqlCodeGeneratorFactory.CreateGenerator(dbInformation.Provider);
-                    if (codeGenerator != null)
+                    AddForeignKeyValidator validator = new AddForeignKeyValidator();
+                    var validationResult = validator.Validate(foreignKey);
+                    if (validationResult.IsValid)
                     {
-                        AddForeignKeyValidator validator = new AddForeignKeyValidator();
-                        var validationResult = validator.Validate(foreignKey);
-                        if (validationResult.IsValid)
+                        var mappedEntity = _mapper.Map<ForeignKey>(foreignKey);
+
+                        Table table = new Table
                         {
-                            var mappedEntity = _mapper.Map<ForeignKey>(foreignKey);
-
-                            Table table = new Table
-                            {
-                                TableName = foreignKey.SourceTable,
-                                DatabaseName = dbInformation.DatabaseName,
-                            };
-                            table.ForeignKeys.Add(mappedEntity);
+                            TableName = foreignKey.SourceTable,
+                            DatabaseName = dbInformation.DatabaseName,
+                        };
+                        table.ForeignKeys.Add(mappedEntity);
 
 
-                            string command = codeGenerator.GenerateAddForeignKeyQuery(mappedEntity, table);
-                            if (!String.IsNullOrEmpty(command))
-                            {
-                                await ExecuteQueryOnRemote(command, dbInformation);
-                            }
-                            else
-                            {
-                                throw new NullReferenceException("Create Foreign Key Sql Referansı Bulunamadı");
-                            }
+                        string command = codeGenerator.GenerateAddForeignKeyQuery(mappedEntity, table);
+                        if (!String.IsNullOrEmpty(command))
+                        {
+                            await ExecuteQueryOnRemote(command, dbInformation);
                         }
                         else
                         {
-                            throw new ValidationException(validationResult.ToString());
+                            throw new NullReferenceException("Create Foreign Key Sql Referansı Bulunamadı");
                         }
                     }
                     else
                     {
-                        throw new NullReferenceException("Code Generator Referansına Ulaşlamadı");
+                        throw new ValidationException(validationResult.ToString());
                     }
                 }
-                else
-                {
-                    throw new AmbiguousMatchException("Desteklenen Provider Verilmedi.");
-                }
+
+
+
             }
             catch (Exception e)
             {
@@ -434,23 +423,18 @@ namespace T_API.BLL.Concrete
         {
             try
             {
-                if (dbInformation.Provider.Equals("MySql"))
+
+                if (RemoteDbRepositoryFactory.CreateRepository(dbInformation.Provider) is MySqlRemoteDbRepository realDbRepository)
                 {
-                    if (_realDbRepositoryFactory.CreateRepository(dbInformation.Provider) is MySqlRealDbRepository realDbRepository)
-                    {
-                        using TransactionScope scope = new TransactionScope();
-                        await realDbRepository.ExecuteQueryOnRemote(query, dbInformation);
-                        scope.Complete();
-                    }
-                    else
-                    {
-                        throw new NullReferenceException("Db Repository Referansına Ulaşlamadı");
-                    }
+                    using TransactionScope scope = new TransactionScope();
+                    await realDbRepository.ExecuteQueryOnRemote(query, dbInformation);
+                    scope.Complete();
                 }
                 else
                 {
-                    throw new AmbiguousMatchException("Desteklenen Provider Verilmedi.");
+                    throw new NullReferenceException("Db Repository Referansına Ulaşlamadı");
                 }
+
             }
             catch (Exception e)
             {
@@ -462,26 +446,21 @@ namespace T_API.BLL.Concrete
         {
             try
             {
-                if (dbInformation.Provider.Equals("MySql"))
+
+                if (RemoteDbRepositoryFactory.CreateRepository(dbInformation.Provider) is MySqlRemoteDbRepository realDbRepository)
                 {
-                    if (_realDbRepositoryFactory.CreateRepository(dbInformation.Provider) is MySqlRealDbRepository realDbRepository)
+                    using TransactionScope scope = new TransactionScope();
+                    foreach (var query in queries)
                     {
-                        using TransactionScope scope = new TransactionScope();
-                        foreach (var query in queries)
-                        {
-                            await realDbRepository.ExecuteQueryOnRemote(query, dbInformation);
-                        }
-                        scope.Complete();
+                        await realDbRepository.ExecuteQueryOnRemote(query, dbInformation);
                     }
-                    else
-                    {
-                        throw new NullReferenceException("Db Repository Referansına Ulaşlamadı");
-                    }
+                    scope.Complete();
                 }
                 else
                 {
-                    throw new AmbiguousMatchException("Desteklenen Provider Verilmedi.");
+                    throw new NullReferenceException("Db Repository Referansına Ulaşlamadı");
                 }
+
             }
             catch (Exception e)
             {
@@ -493,18 +472,12 @@ namespace T_API.BLL.Concrete
         {
             try
             {
-                if (ConfigurationSettings.ServerDbInformation.Provider.Equals("MySql"))
-                {
 
-                    if (_realDbRepositoryFactory.CreateRepository(ConfigurationSettings.ServerDbInformation.Provider) is MySqlRealDbRepository realDbRepository)
-                        await realDbRepository.ExecuteQueryOnRemote(query);
-                    else
-                        throw new NullReferenceException("Mysql Real Db Repository Referansına Ulaşlamadı");
-                }
+                if (RemoteDbRepositoryFactory.CreateRepository(ConfigurationSettings.ServerDbInformation.Provider) is MySqlRemoteDbRepository realDbRepository)
+                    await realDbRepository.ExecuteQueryOnRemote(query);
                 else
-                {
-                    throw new AmbiguousMatchException("Desteklenen Provider Verilmedi.");
-                }
+                    throw new NullReferenceException("Mysql Real Db Repository Referansına Ulaşlamadı");
+
             }
             catch (Exception e)
             {
@@ -518,17 +491,19 @@ namespace T_API.BLL.Concrete
             {
                 throw new ArgumentNullException("databaseName", "Database ismi boş gönderilemez");
             }
-            MySqlRealDbRepository realDbRepository =
-                _realDbRepositoryFactory.CreateRepository(provider) as MySqlRealDbRepository;
 
-            if (realDbRepository == null)
+            if (RemoteDbRepositoryFactory.CreateRepository(provider) is MySqlRemoteDbRepository remoteDbRepository)
             {
-                throw new NullReferenceException("Real Db Repository Referansına Ulaşılamadı");
+                var result = await remoteDbRepository.GetTables(databaseName);
+                var mappedResults = _mapper.Map<List<DetailTableDto>>(result);
+                return mappedResults;
+
             }
 
-            var result = await realDbRepository.GetTables(databaseName);
-            var mappedResults = _mapper.Map<List<DetailTableDto>>(result);
-            return mappedResults;
+            throw new NullReferenceException("Real Db Repository Referansına Ulaşılamadı");
+
+
+
         }
         public async Task<DetailTableDto> GetTable(string tableName, string databaseName, string provider)
         {
@@ -537,22 +512,22 @@ namespace T_API.BLL.Concrete
             {
                 throw new ArgumentNullException("databaseName", "Database ismi boş gönderilemez");
             }
-            MySqlRealDbRepository realDbRepository =
-                _realDbRepositoryFactory.CreateRepository(provider) as MySqlRealDbRepository;
 
-            if (realDbRepository == null)
+            if (RemoteDbRepositoryFactory.CreateRepository(provider) is MySqlRemoteDbRepository remoteDbRepository)
             {
-                throw new NullReferenceException("Real Db Repository Referansına Ulaşılamadı");
+                var result = await remoteDbRepository.GetTable(tableName, databaseName);
+                var mappedResults = _mapper.Map<DetailTableDto>(result);
+                return mappedResults;
             }
+            throw new NullReferenceException("Real Db Repository Referansına Ulaşılamadı");
 
-            var result = await realDbRepository.GetTable(tableName, databaseName);
-            var mappedResults = _mapper.Map<DetailTableDto>(result);
-            return mappedResults;
+
+
         }
 
         public async Task<List<string>> GetAvailableProviders()
         {
-            List<string> providers=new List<string>()
+            List<string> providers = new List<string>()
             {
                 "MySql"
             };
@@ -577,7 +552,7 @@ namespace T_API.BLL.Concrete
             guidString = guidString.Replace("+", "");
             guidString = guidString.Substring(0, 5);
             guidString += $"U{userId}DB";
-           
+
             return guidString.ToLower();
         }
 

@@ -12,7 +12,7 @@ using Index = T_API.Entity.Concrete.Index;
 
 namespace T_API.DAL.Concrete
 {
-    public class MySqlRealDbRepository : IRealDbRepository
+    public class MySqlRemoteDbRepository : IRealDbRepository
     {
 
 

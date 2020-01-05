@@ -21,11 +21,9 @@ namespace T_API.BLL.Concrete
 {
     public class DataManager : IDataService
     {
-        private IRealDbRepositoryFactory _realDbRepositoryFactory;
 
-        public DataManager(IRealDbRepositoryFactory realDbRepositoryFactory)
+        public DataManager()
         {
-            _realDbRepositoryFactory = realDbRepositoryFactory;
         }
 
         public async Task<string> Get(string tableName, DbInformation dbInformation)
@@ -33,7 +31,7 @@ namespace T_API.BLL.Concrete
             try
             {
 
-                if (_realDbRepositoryFactory.CreateRepository(dbInformation.Provider) is MySqlRealDbRepository realDbRepository)
+                if (RemoteDbRepositoryFactory.CreateRepository(dbInformation.Provider) is MySqlRemoteDbRepository realDbRepository)
                 {
                     using TransactionScope scope = new TransactionScope();
 
@@ -63,7 +61,7 @@ namespace T_API.BLL.Concrete
             try
             {
 
-                if (_realDbRepositoryFactory.CreateRepository(dbInformation.Provider) is MySqlRealDbRepository realDbRepository)
+                if (RemoteDbRepositoryFactory.CreateRepository(dbInformation.Provider) is MySqlRemoteDbRepository realDbRepository)
                 {
                     var table = await realDbRepository.GetTable(tableName, dbInformation.DatabaseName);
 
@@ -121,7 +119,7 @@ namespace T_API.BLL.Concrete
             try
             {
 
-                if (_realDbRepositoryFactory.CreateRepository(dbInformation.Provider) is MySqlRealDbRepository realDbRepository)
+                if (RemoteDbRepositoryFactory.CreateRepository(dbInformation.Provider) is MySqlRemoteDbRepository realDbRepository)
                 {
                     var table = await realDbRepository.GetTable(tableName, dbInformation.DatabaseName);
 

@@ -49,7 +49,6 @@ namespace T_API.UI
             services.AddScoped<IPackageRepository, PackageRepository>();
             services.AddScoped<IUserService, UserManager>();
             services.AddScoped<IUserRepository, UserRepository>();
-            services.AddTransient<IRealDbRepositoryFactory, RealDbRepositoryFactory>();
             services.AddTransient<IRemoteDbService, RemoteDbManager>();
             services.AddTransient<IDataService, DataManager>();
             services.AddTransient<IPackageService, PackageManager>();

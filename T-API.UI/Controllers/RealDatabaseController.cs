@@ -16,6 +16,7 @@ using T_API.Core.DAL.Concrete;
 using T_API.Core.DTO.RealEndPointManager;
 using T_API.Core.DTO.Table;
 using T_API.Core.DTO.User;
+using T_API.Core.Exception;
 using T_API.Core.Settings;
 using T_API.UI.Extensions;
 
@@ -58,31 +59,45 @@ namespace T_API.UI.Controllers
             }
             catch (Exception e)
             {
-                return BadRequest();
+                return BadRequest(SystemMessage.DuringOperationExceptionMessage);
             }
         }
         [HttpGet("Logout")]
         public async Task<IActionResult> Logout()
         {
-            await _cacheService.RemoveCache(HttpContext.GetNameIdentifier());
-            await _authService.Logout();
-            return Ok();
+            try
+            {
+                await _cacheService.RemoveCache(HttpContext.GetNameIdentifier());
+                await _authService.Logout();
+                return Ok();
+            }
+            catch (Exception e)
+            {
+                return BadRequest(SystemMessage.DuringOperationExceptionMessage);
+            }
         }
 
         [HttpGet("Get/{serviceNumber}/{tableName}")]
         public async Task<IActionResult> Get(int serviceNumber, string tableName, [FromQuery] List<DynamicFilter> filters)
         {
-            int userId = HttpContext.GetNameIdentifier();
-            var db = await _databaseService.GetById(serviceNumber);
-            if (db.UserId != userId)
+            try
             {
-                return Unauthorized("Kullanıcı ve Database Sahibi Eşleşmedi");
+                int userId = HttpContext.GetNameIdentifier();
+                var db = await _databaseService.GetById(serviceNumber);
+                if (db.UserId != userId)
+                {
+                    return Unauthorized(SystemMessage.UnauthorizedOperationExceptionMessage);
+                }
+
+                var dbInfo = _mapper.Map<DbInformation>(db);
+                var data = await _dataService.Get(tableName, dbInfo);
+
+                return Ok(data);
             }
-
-            var dbInfo = _mapper.Map<DbInformation>(db);
-            var data = await _dataService.Get(tableName, dbInfo);
-
-            return Ok(data);
+            catch (Exception e)
+            {
+                return BadRequest(SystemMessage.DuringOperationExceptionMessage);
+            }
         }
         [HttpPost("Add/{serviceNumber}/{tableName}")]
         public async Task<IActionResult> Add(int serviceNumber, string tableName)
@@ -101,11 +116,11 @@ namespace T_API.UI.Controllers
                     return Ok();
                 }
 
-                return Unauthorized("Kullanıcı ve Database Sahibi Eşleşmedi");
+                return Unauthorized(SystemMessage.UnauthorizedOperationExceptionMessage);
             }
             catch (Exception e)
             {
-                return BadRequest();
+                return BadRequest(SystemMessage.DuringOperationExceptionMessage);
             }
         }
 
@@ -124,11 +139,11 @@ namespace T_API.UI.Controllers
                     await _dataService.Update(tableName, dbInfo, obj);
                     return Ok();
                 }
-                return Unauthorized();
+                return Unauthorized(SystemMessage.UnauthorizedOperationExceptionMessage);
             }
             catch (Exception e)
             {
-                return BadRequest();
+                return BadRequest(SystemMessage.DuringOperationExceptionMessage);
 
             }
 

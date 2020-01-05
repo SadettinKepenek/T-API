@@ -13,6 +13,8 @@ namespace T_API.DAL.Abstract
         Task<UserEntity> GetById(int userId);
         Task<UserEntity> GetByUsername(string username);
 
+        Task ChangePassword(int userId, string oldPassword, string newPassword);
+
 
     }
 }

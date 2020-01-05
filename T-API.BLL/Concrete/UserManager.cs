@@ -24,13 +24,13 @@ namespace T_API.BLL.Concrete
             _mapper = mapper;
         }
 
-        
+
         public async Task<int> CreateUser(AddUserDto addUserDto)
         {
 
             try
             {
-                AddUserValidator validator=new AddUserValidator();
+                AddUserValidator validator = new AddUserValidator();
                 var validation = validator.Validate(addUserDto);
                 if (!validation.IsValid)
                 {
@@ -38,7 +38,7 @@ namespace T_API.BLL.Concrete
                 }
 
                 var mappedData = _mapper.Map<UserEntity>(addUserDto);
-                using TransactionScope scope=new TransactionScope();
+                using TransactionScope scope = new TransactionScope();
                 var insertedId = await _userRepository.AddUser(mappedData);
                 if (insertedId == 0)
                 {
@@ -60,13 +60,13 @@ namespace T_API.BLL.Concrete
 
             try
             {
-                DeleteUserValidator validator=new DeleteUserValidator();
+                DeleteUserValidator validator = new DeleteUserValidator();
                 var result = validator.Validate(deleteUserDto);
                 if (!result.IsValid)
                 {
                     throw new ValidationException(result.Errors.ToString());
                 }
-                using TransactionScope scope=new TransactionScope();
+                using TransactionScope scope = new TransactionScope();
                 var mappedData = _mapper.Map<UserEntity>(deleteUserDto);
                 await _userRepository.DeleteUser(mappedData);
                 scope.Complete();
@@ -76,6 +76,31 @@ namespace T_API.BLL.Concrete
 
                 throw ExceptionHandler.HandleException(e);
 
+            }
+        }
+
+        public async Task ChangePassword(int userId, string oldPassword, string newPassword)
+        {
+            try
+            {
+
+                using TransactionScope scope = new TransactionScope();
+
+                var user = await GetById(userId);
+                if (user == null)
+                {
+                    throw new NullReferenceException("User bulunamadı");
+                }
+                if (!user.Password.Equals(oldPassword))
+                    throw new UnauthorizedAccessException("Belirtilen şifre kullanıcının eski şifresi ile uyuşmuyor");
+                if (!oldPassword.Equals(newPassword))
+                    await _userRepository.ChangePassword(userId, oldPassword, newPassword);
+                scope.Complete();
+
+            }
+            catch (Exception e)
+            {
+                throw ExceptionHandler.HandleException(e);
             }
         }
 
@@ -123,7 +148,7 @@ namespace T_API.BLL.Concrete
         {
             try
             {
-                UpdateUserValidator validator=new UpdateUserValidator();
+                UpdateUserValidator validator = new UpdateUserValidator();
                 var result = validator.Validate(updateUserDto);
                 if (!result.IsValid)
                 {

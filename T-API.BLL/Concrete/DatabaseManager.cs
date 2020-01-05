@@ -2,13 +2,11 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using System.Threading;
 using System.Threading.Tasks;
 using System.Transactions;
 using AutoMapper;
 using T_API.BLL.Abstract;
 using T_API.BLL.Validators.Database;
-using T_API.Core.DAL.Concrete;
 using T_API.Core.DTO.Database;
 using T_API.Core.DTO.User;
 using T_API.Core.Exception;
@@ -20,12 +18,14 @@ namespace T_API.BLL.Concrete
 {
     public class DatabaseManager : IDatabaseService
     {
-        private IDatabaseRepository _databaseRepository;
-        private IMapper _mapper;
-        private IRealDbService _realDbService;
-        private IPackageService _packageService;
-        private IUserService _userService;
-        public DatabaseManager(IDatabaseRepository databaseRepository, IMapper mapper, IRealDbService realDbService, IPackageService packageService, IUserService userService)
+        private readonly IDatabaseRepository _databaseRepository;
+        private readonly IMapper _mapper;
+        private readonly IPackageService _packageService;
+        private readonly IRealDbService _realDbService;
+        private readonly IUserService _userService;
+
+        public DatabaseManager(IDatabaseRepository databaseRepository, IMapper mapper, IRealDbService realDbService,
+            IPackageService packageService, IUserService userService)
         {
             _databaseRepository = databaseRepository;
             _mapper = mapper;
@@ -40,33 +40,24 @@ namespace T_API.BLL.Concrete
             try
             {
                 var databases = await _databaseRepository.GetAll();
-                if (databases == null)
-                {
-                    throw new NullReferenceException("Database Bulunamadı");
-                }
+                if (databases == null) throw new NullReferenceException("Database Bulunamadı");
                 var mappedData = _mapper.Map<List<ListDatabaseDto>>(databases);
                 return mappedData;
             }
             catch (Exception e)
             {
-
                 throw ExceptionHandler.HandleException(e);
             }
         }
+
         public async Task<List<ListDatabaseDto>> GetByUser(int userId)
         {
             try
             {
-                if (userId == 0)
-                {
-                    throw new ArgumentNullException("userId", "Kullanıcı Idsi boş olamaz");
-                }
+                if (userId == 0) throw new ArgumentNullException("userId", "Kullanıcı Idsi boş olamaz");
 
                 var databases = await _databaseRepository.GetByUser(userId);
-                if (databases == null)
-                {
-                    throw new NullReferenceException("İstenilen kullanıcıya ulaşılamadı");
-                }
+                if (databases == null) throw new NullReferenceException("İstenilen kullanıcıya ulaşılamadı");
 
                 var mappedEntities = _mapper.Map<List<ListDatabaseDto>>(databases);
                 return mappedEntities;
@@ -76,19 +67,15 @@ namespace T_API.BLL.Concrete
                 throw ExceptionHandler.HandleException(e);
             }
         }
+
         public async Task<List<ListDatabaseDto>> GetByUser(string username)
         {
             try
             {
-                if (String.IsNullOrEmpty(username))
-                {
+                if (string.IsNullOrEmpty(username))
                     throw new ArgumentNullException("username", "Kullanıcı adı boş olamaz");
-                }
                 var databases = await _databaseRepository.GetByUser(username);
-                if (databases == null)
-                {
-                    throw new NullReferenceException("İstenilen kullanıcıya ulaşılamadı");
-                }
+                if (databases == null) throw new NullReferenceException("İstenilen kullanıcıya ulaşılamadı");
 
                 var mappedEntities = _mapper.Map<List<ListDatabaseDto>>(databases);
                 return mappedEntities;
@@ -103,19 +90,14 @@ namespace T_API.BLL.Concrete
         {
             try
             {
-                if (databaseId == 0)
-                {
-                    throw new ArgumentNullException("databaseId", "Database Idsi boş olamaz");
-                }
+                if (databaseId == 0) throw new ArgumentNullException("databaseId", "Database Idsi boş olamaz");
 
                 var databaseEntity = await _databaseRepository.GetById(databaseId);
-                if (databaseEntity == null)
-                {
-                    throw new NullReferenceException("İstenilen database verisine ulaşılamadı");
-                }
+                if (databaseEntity == null) throw new NullReferenceException("İstenilen database verisine ulaşılamadı");
 
                 var mappedEntities = _mapper.Map<DetailDatabaseDto>(databaseEntity);
-                mappedEntities.Tables = await _realDbService.GetTables(databaseEntity.DatabaseName, databaseEntity.Provider);
+                mappedEntities.Tables =
+                    await _realDbService.GetTables(databaseEntity.DatabaseName, databaseEntity.Provider);
 
                 return mappedEntities;
             }
@@ -127,25 +109,13 @@ namespace T_API.BLL.Concrete
 
         public async Task<List<string>> GetDataTypes(string provider)
         {
-            List<string> dataTypes = new List<string>();
+            var dataTypes = new List<string>();
             if (provider.Equals("MySql"))
-            {
-                foreach (FieldInfo field in typeof(MysqlProviderColumnType).GetFields())
-                {
-                    dataTypes.Add(field.GetValue(null) as string);
-                }
-            }
+                dataTypes.AddRange(typeof(MysqlProviderColumnType).GetFields().Select(field => field.GetValue(null) as string));
             else if (provider.Equals("MsSql"))
-            {
-                foreach (FieldInfo field in typeof(SqlServerProviderColumnType).GetFields())
-                {
-                    dataTypes.Add(field.GetValue(null) as string);
-                }
-            }
+                dataTypes.AddRange(typeof(SqlServerProviderColumnType).GetFields().Select(field => field.GetValue(null) as string));
             else
-            {
                 throw new AmbiguousMatchException("Provider türü için support bulunamadı");
-            }
 
             return dataTypes;
         }
@@ -154,91 +124,69 @@ namespace T_API.BLL.Concrete
         {
             try
             {
-                var transactionCompletedEvent = new AutoResetEvent(true);
-
                 var package = await _packageService.GetById(dto.PackageId);
                 var user = await _userService.GetById(dto.UserId);
                 var databases = await _databaseRepository.GetByUser(user.Username);
 
 
                 if (package.Price <= 0.0 && databases.FirstOrDefault(x => x.PackageId == package.PackageId) != null)
-                {
                     throw new UnauthorizedAccessException("Ücretsiz paket birden fazla alınamaz");
-                }
-                if ((Convert.ToDouble(user.Balance) - (package.Price * dto.MonthCount)) >= 0)
-                {
-
-                    var availableServer = await _realDbService.GetAvailableServer(dto.Provider);
-
-                    dto.Port = availableServer.Port;
-                    dto.Server = availableServer.Server;
-                    dto.Username = await _realDbService.GenerateUserName(dto.UserId);
-                    dto.Password = await _realDbService.GeneratePassword(dto.UserId);
-                    dto.DatabaseName = await _realDbService.GenerateDatabaseName(dto.UserId);
-                    dto.IsActive = false;
-                    dto.StartDate = DateTime.Now;
-                    dto.EndDate = DateTime.Now.AddMonths(dto.MonthCount);
-
-                    AddDatabaseValidator validator = new AddDatabaseValidator();
-                    var result = validator.Validate(dto);
-                    if (result.IsValid)
-                    {
-
-                        var mappedEntity = _mapper.Map<Database>(dto);
-
-                        int addDatabaseResult;
-
-                        addDatabaseResult = await _databaseRepository.AddDatabase(mappedEntity);
-                        await _realDbService.CreateDatabaseOnRemote(dto);
-                        var mappedUser = _mapper.Map<UpdateUserDto>(user);
-                        mappedUser.Balance -= Convert.ToDecimal(package.Price * dto.MonthCount);
-                        await _userService.UpdateUser(mappedUser);
-
-
-
-                        return addDatabaseResult;
-                    }
-
-                    throw new ValidationException(result.Errors.ToString());
-                }
-                else
-                {
+                if (!(Convert.ToDouble(user.Balance) - package.Price * dto.MonthCount >= 0))
                     throw new Exception("Bakiye yetersiz.");
-                }
 
+                var availableServer = await _realDbService.GetAvailableServer(dto.Provider);
+                dto.Port = availableServer.Port;
+                dto.Server = availableServer.Server;
+                dto.Username = await _realDbService.GenerateUserName(dto.UserId);
+                dto.Password = await _realDbService.GeneratePassword(dto.UserId);
+                dto.DatabaseName = await _realDbService.GenerateDatabaseName(dto.UserId);
+                dto.IsActive = true;
+                dto.StartDate = DateTime.Now;
+                dto.EndDate = DateTime.Now.AddMonths(dto.MonthCount);
+                var validator = new AddDatabaseValidator();
+                var result = validator.Validate(dto);
+                if (!result.IsValid) throw new ValidationException(result.Errors.ToString());
+
+                var mappedEntity = _mapper.Map<Database>(dto);
+                using var scope = new TransactionScope();
+                var addDatabaseResult = await _databaseRepository.AddDatabase(mappedEntity);
+                var mappedUser = _mapper.Map<UpdateUserDto>(user);
+                mappedUser.Balance -= Convert.ToDecimal(package.Price * dto.MonthCount);
+                await _userService.UpdateUser(mappedUser);
+                Transaction.Current.TransactionCompleted += async (sender, args) =>
+                {
+                    using var inlineTransactionScope = new TransactionScope();
+                    await _realDbService.CreateDatabaseOnRemote(dto);
+                    inlineTransactionScope.Complete();
+                };
+                scope.Complete();
+
+                return addDatabaseResult;
 
             }
             catch (Exception e)
             {
                 throw ExceptionHandler.HandleException(e);
             }
-
         }
 
         public async Task UpdateDatabase(UpdateDatabaseDto dto)
         {
             try
             {
-                if (dto == null)
-                {
-                    throw new NullReferenceException("Bilgiler boş geldi");
-                }
+                if (dto == null) throw new NullReferenceException("Bilgiler boş geldi");
 
-                UpdateDatabaseValidator validator = new UpdateDatabaseValidator();
+                var validator = new UpdateDatabaseValidator();
                 var validation = validator.Validate(dto);
-                if (!validation.IsValid)
-                {
-                    throw new ValidationException(validation.Errors.ToString());
-                }
+                if (!validation.IsValid) throw new ValidationException(validation.Errors.ToString());
 
-                using TransactionScope scope = new TransactionScope();
+                using var scope = new TransactionScope();
                 var mappedData = _mapper.Map<Database>(dto);
                 await _databaseRepository.UpdateDatabase(mappedData);
                 scope.Complete();
             }
             catch (Exception e)
             {
-
                 throw ExceptionHandler.HandleException(e);
             }
         }
@@ -247,27 +195,19 @@ namespace T_API.BLL.Concrete
         {
             try
             {
-                if (dto == null)
-                {
-                    throw new NullReferenceException("Bilgiler boş geldi");
+                if (dto == null) throw new NullReferenceException("Bilgiler boş geldi");
 
-                }
-
-                DeleteDatabaseValidator validator = new DeleteDatabaseValidator();
+                var validator = new DeleteDatabaseValidator();
                 var validation = validator.Validate(dto);
-                if (!validation.IsValid)
-                {
-                    throw new ValidationException(validation.Errors.ToString());
-                }
+                if (!validation.IsValid) throw new ValidationException(validation.Errors.ToString());
 
-                using TransactionScope scope = new TransactionScope();
+                using var scope = new TransactionScope();
                 var mappedData = _mapper.Map<Database>(dto);
                 await _databaseRepository.DeleteDatabase(mappedData);
                 scope.Complete();
             }
             catch (Exception e)
             {
-
                 throw ExceptionHandler.HandleException(e);
             }
         }

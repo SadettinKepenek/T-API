@@ -9,7 +9,10 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using T_API.BLL.Abstract;
 using T_API.Core.DTO.User;
+using T_API.Core.Exception;
+using T_API.UI.Extensions;
 using T_API.UI.Models.Account;
+using T_API.UI.Models.ViewComponents;
 
 namespace T_API.UI.Controllers
 {
@@ -60,6 +63,33 @@ namespace T_API.UI.Controllers
             {
                 TempData["Message"] = "Güncelleme sırasında hata oluştu";
                 return RedirectToAction("Index", "Home");
+            }
+        }
+        [HttpGet]
+        public async Task<IActionResult> ChangePassword()
+        {
+            return View();
+        }
+        [ValidateAntiForgeryToken]
+        [HttpPost]
+        public async Task<IActionResult> ChangePassword(ChangePasswordViewModel model)
+        {
+            if (!ModelState.IsValid)
+            {
+                return View(model);
+            }
+
+            try
+            {
+                int uId = HttpContext.GetNameIdentifier();
+                await _userService.ChangePassword(uId, model.OldPassword, model.NewPassword);
+                TempData["Message"] = "Success";
+                return View();
+            }
+            catch (Exception e)
+            {
+                TempData["Message"] = ExceptionHandler.HandleException(e).Message;
+                return View();
             }
         }
     }

@@ -13,6 +13,7 @@ namespace T_API.BLL.Abstract
         Task<int> CreateUser(AddUserDto addUserDto);
         Task UpdateUser(UpdateUserDto updateUserDto);
         Task DeleteUser(DeleteUserDto deleteUserDto);
-        
+        Task ChangePassword(int userId, string oldPassword, string newPassword);
+
     }
 }

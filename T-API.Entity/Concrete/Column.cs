@@ -1,5 +1,4 @@
-﻿using T_API.Entity.Abstract;
-
+﻿
 namespace T_API.Entity.Concrete
 {
     public class Column

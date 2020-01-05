@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Mvc;
 using T_API.BLL.Abstract;
 using T_API.Core.DTO.User;
 using T_API.Core.Exception;
+using T_API.Core.Settings;
 using T_API.UI.Extensions;
 using T_API.UI.Models.Account;
 using T_API.UI.Models.ViewComponents;
@@ -38,7 +39,7 @@ namespace T_API.UI.Controllers
                 var userProfile =await _userService.GetById(id);
                 if (userProfile==null)
                 {
-                    TempData["Message"] = SystemMessage.NoContentExceptionMessage;
+                    TempData["Message"] = SystemMessages.NoContentExceptionMessage;
                     return RedirectToAction("Index", "Home");
                 }
 
@@ -47,7 +48,7 @@ namespace T_API.UI.Controllers
             }
             catch (Exception e)
             {
-                TempData["Message"] = SystemMessage.DuringOperationExceptionMessage;
+                TempData["Message"] = SystemMessages.DuringOperationExceptionMessage;
                 return RedirectToAction("Index", "Home");
             }
         }
@@ -65,12 +66,12 @@ namespace T_API.UI.Controllers
             {
                 var mappedEntity = _mapper.Map<UpdateUserDto>(viewModel);
                 await _userService.UpdateUser(mappedEntity);
-                TempData["Message"] = SystemMessage.SuccessMessage;
+                TempData["Message"] = SystemMessages.SuccessMessage;
                 return RedirectToAction("Index", "Account");
             }
             catch (Exception e)
             {
-                TempData["Message"] = SystemMessage.DuringOperationExceptionMessage;
+                TempData["Message"] = SystemMessages.DuringOperationExceptionMessage;
                 return RedirectToAction("Index", "Home");
             }
         }
@@ -92,12 +93,12 @@ namespace T_API.UI.Controllers
             {
                 var uId = HttpContext.GetNameIdentifier();
                 await _userService.ChangePassword(uId, model.OldPassword, model.NewPassword);
-                TempData["Message"] = SystemMessage.SuccessMessage;
+                TempData["Message"] = SystemMessages.SuccessMessage;
                 return View();
             }
             catch (Exception e)
             {
-                TempData["Message"] = SystemMessage.DuringOperationExceptionMessage;
+                TempData["Message"] = SystemMessages.DuringOperationExceptionMessage;
                 return View();
             }
         }

@@ -59,7 +59,7 @@ namespace T_API.UI.Controllers
             }
             catch (Exception e)
             {
-                return BadRequest(SystemMessage.DuringOperationExceptionMessage);
+                return BadRequest(SystemMessages.DuringOperationExceptionMessage);
             }
         }
         [HttpGet("Logout")]
@@ -73,7 +73,7 @@ namespace T_API.UI.Controllers
             }
             catch (Exception e)
             {
-                return BadRequest(SystemMessage.DuringOperationExceptionMessage);
+                return BadRequest(SystemMessages.DuringOperationExceptionMessage);
             }
         }
 
@@ -86,7 +86,7 @@ namespace T_API.UI.Controllers
                 var db = await _databaseService.GetById(serviceNumber);
                 if (db.UserId != userId)
                 {
-                    return Unauthorized(SystemMessage.UnauthorizedOperationExceptionMessage);
+                    return Unauthorized(SystemMessages.UnauthorizedOperationExceptionMessage);
                 }
 
                 var dbInfo = _mapper.Map<DbInformation>(db);
@@ -96,7 +96,7 @@ namespace T_API.UI.Controllers
             }
             catch (Exception e)
             {
-                return BadRequest(SystemMessage.DuringOperationExceptionMessage);
+                return BadRequest(SystemMessages.DuringOperationExceptionMessage);
             }
         }
         [HttpPost("Add/{serviceNumber}/{tableName}")]
@@ -116,11 +116,11 @@ namespace T_API.UI.Controllers
                     return Ok();
                 }
 
-                return Unauthorized(SystemMessage.UnauthorizedOperationExceptionMessage);
+                return Unauthorized(SystemMessages.UnauthorizedOperationExceptionMessage);
             }
             catch (Exception e)
             {
-                return BadRequest(SystemMessage.DuringOperationExceptionMessage);
+                return BadRequest(SystemMessages.DuringOperationExceptionMessage);
             }
         }
 
@@ -139,11 +139,11 @@ namespace T_API.UI.Controllers
                     await _dataService.Update(tableName, dbInfo, obj);
                     return Ok();
                 }
-                return Unauthorized(SystemMessage.UnauthorizedOperationExceptionMessage);
+                return Unauthorized(SystemMessages.UnauthorizedOperationExceptionMessage);
             }
             catch (Exception e)
             {
-                return BadRequest(SystemMessage.DuringOperationExceptionMessage);
+                return BadRequest(SystemMessages.DuringOperationExceptionMessage);
 
             }
 

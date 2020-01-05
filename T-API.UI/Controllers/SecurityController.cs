@@ -9,6 +9,8 @@ using Microsoft.AspNetCore.Mvc;
 using T_API.BLL.Abstract;
 using T_API.BLL.Validators.User;
 using T_API.Core.DTO.User;
+using T_API.Core.Exception;
+using T_API.Core.Settings;
 using T_API.UI.Extensions;
 using T_API.UI.Models.Security;
 
@@ -31,9 +33,18 @@ namespace T_API.UI.Controllers
         [HttpGet]
         public async Task<IActionResult> Logout()
         {
-            await _cacheService.RemoveCache(HttpContext.GetNameIdentifier());
-            await _authService.Logout();
-            return RedirectToAction("Index", "Home");
+            try
+            {
+                await _cacheService.RemoveCache(HttpContext.GetNameIdentifier());
+                await _authService.Logout();
+                return RedirectToAction("Index", "Home");
+            }
+            catch (Exception e)
+            {
+                TempData["Message"] = SystemMessages.DuringOperationExceptionMessage;
+                return RedirectToAction("Index", "Home");
+
+            }
         }
 
         [HttpGet]
@@ -49,22 +60,22 @@ namespace T_API.UI.Controllers
         {
             try
             {
-                if (ModelState.IsValid)
+                if (!ModelState.IsValid)
                 {
-                    var mapped = _mapper.Map<LoginUserDto>(model);
-                    await _authService.Login(mapped,false);
-                    return RedirectToAction("Index", "Home");
+                    return View(model);
                 }
                 else
                 {
-                    return View(model);
+                    var mapped = _mapper.Map<LoginUserDto>(model);
+                    await _authService.Login(mapped, false);
+                    return RedirectToAction("Index", "Home");
                 }
             }
             catch (Exception e)
             {
-                
+                TempData["Message"] = SystemMessages.LoginSuccessMessage;
+                return RedirectToAction("Index", "Home");
             }
-            return View(model);
         }
 
         [AllowAnonymous]
@@ -82,23 +93,20 @@ namespace T_API.UI.Controllers
 
             try
             {
-                registerViewModel.Role = "Client";
-                if (ModelState.IsValid)
-                {
-                    var mapped = _mapper.Map<AddUserDto>(registerViewModel);
-                    await _authService.Register(mapped);
-                    return RedirectToAction("Login", "Security");
-                }
-
-                return View(registerViewModel);
+                registerViewModel.Role = SystemRoles.Client;
+                if (!ModelState.IsValid) return View(registerViewModel);
+                var mapped = _mapper.Map<AddUserDto>(registerViewModel);
+                await _authService.Register(mapped);
+                TempData["Message"] = SystemMessages.SuccessMessage;
+                return RedirectToAction("Login", "Security");
 
             }
             catch (Exception e)
             {
-                // ignored
+                TempData["Message"] = SystemMessages.DuringOperationExceptionMessage;
+                return RedirectToAction("Register", "Security");
             }
 
-            return View(registerViewModel);
-        } 
+        }
     }
 }

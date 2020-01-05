@@ -70,13 +70,13 @@ namespace T_API.UI.Controllers
                         DatabaseDto = db
                     });
                 }
-                TempData["Message"] = SystemMessage.NoContentExceptionMessage;
+                TempData["Message"] = SystemMessages.NoContentExceptionMessage;
                 return RedirectToAction("Index", "Database");
 
             }
             catch (Exception e)
             {
-                TempData["Message"] = SystemMessage.NoContentExceptionMessage;
+                TempData["Message"] = SystemMessages.NoContentExceptionMessage;
                 return RedirectToAction("Index", "Database");
             }
         }
@@ -94,7 +94,7 @@ namespace T_API.UI.Controllers
             }
             catch (Exception e)
             {
-                TempData["Message"] = SystemMessage.DuringOperationExceptionMessage;
+                TempData["Message"] = SystemMessages.DuringOperationExceptionMessage;
                 return RedirectToAction("Index", "Database");
             }
         }
@@ -114,14 +114,14 @@ namespace T_API.UI.Controllers
 
                 var dto = _mapper.Map<AddDatabaseDto>(model);
                 _ = await _databaseService.AddDatabase(dto);
-                TempData["Message"] = SystemMessage.SuccessMessage;
+                TempData["Message"] = SystemMessages.SuccessMessage;
                 return RedirectToAction("Index", "Database");
 
 
             }
             catch (Exception e)
             {
-                TempData["Message"] = SystemMessage.DuringOperationExceptionMessage;
+                TempData["Message"] = SystemMessages.DuringOperationExceptionMessage;
                 return RedirectToAction("Index", "Database");
             }
         }
@@ -134,7 +134,7 @@ namespace T_API.UI.Controllers
                 var database = await _databaseService.GetById(serviceId);
                 if (database.UserId != HttpContext.GetNameIdentifier())
                 {
-                    TempData["Message"] = SystemMessage.UnauthorizedOperationExceptionMessage;
+                    TempData["Message"] = SystemMessages.UnauthorizedOperationExceptionMessage;
                     return RedirectToAction("Index", "Database");
                 }
                 EditServiceViewModel model = _mapper.Map<EditServiceViewModel>(database);
@@ -142,7 +142,7 @@ namespace T_API.UI.Controllers
             }
             catch (Exception e)
             {
-                TempData["Message"] = SystemMessage.DuringOperationExceptionMessage;
+                TempData["Message"] = SystemMessages.DuringOperationExceptionMessage;
                 return RedirectToAction("Index", "Database");
             }
         }
@@ -159,11 +159,11 @@ namespace T_API.UI.Controllers
                 {
                     return Ok(dataTypes);
                 }
-                return BadRequest(SystemMessage.NoContentExceptionMessage);
+                return BadRequest(SystemMessages.NoContentExceptionMessage);
             }
             catch (Exception e)
             {
-                return BadRequest(SystemMessage.DuringOperationExceptionMessage);
+                return BadRequest(SystemMessages.DuringOperationExceptionMessage);
             }
         }
 
@@ -180,17 +180,17 @@ namespace T_API.UI.Controllers
                 var db = await _databaseService.GetById(model.DatabaseId);
                 if (db.UserId != HttpContext.GetNameIdentifier())
                 {
-                    return Unauthorized(SystemMessage.UnauthorizedOperationExceptionMessage);
+                    return Unauthorized(SystemMessages.UnauthorizedOperationExceptionMessage);
                 }
                 var dbInformation = _mapper.Map<DbInformation>(db);
                 await _remoteDbService.CreateColumnOnRemote(model, dbInformation);
-                return Ok(SystemMessage.SuccessMessage);
+                return Ok(SystemMessages.SuccessMessage);
             }
             catch (Exception e)
             {
                 if (e is ValidationException)
                     return BadRequest(e.Message);
-                return BadRequest(SystemMessage.DuringOperationExceptionMessage);
+                return BadRequest(SystemMessages.DuringOperationExceptionMessage);
             }
 
         }
@@ -204,18 +204,18 @@ namespace T_API.UI.Controllers
                 var db = await _databaseService.GetById(model.DatabaseId);
                 if (db.UserId != HttpContext.GetNameIdentifier())
                 {
-                    return Unauthorized(SystemMessage.UnauthorizedOperationExceptionMessage);
+                    return Unauthorized(SystemMessages.UnauthorizedOperationExceptionMessage);
                 }
                 var dbInformation = _mapper.Map<DbInformation>(db);
                 await _remoteDbService.AlterColumnOnRemote(model, dbInformation);
-                return Ok(SystemMessage.SuccessMessage);
+                return Ok(SystemMessages.SuccessMessage);
             }
             catch (Exception e)
             {
                 if (e is ValidationException)
                     return BadRequest(e.Message);
 
-                return BadRequest(SystemMessage.DuringOperationExceptionMessage);
+                return BadRequest(SystemMessages.DuringOperationExceptionMessage);
 
             }
 
@@ -231,19 +231,19 @@ namespace T_API.UI.Controllers
                 var db = await _databaseService.GetById(model.DatabaseId);
                 if (db.UserId != HttpContext.GetNameIdentifier())
                 {
-                    return Unauthorized(SystemMessage.UnauthorizedOperationExceptionMessage);
+                    return Unauthorized(SystemMessages.UnauthorizedOperationExceptionMessage);
                 }
                 var dbInformation = _mapper.Map<DbInformation>(db);
 
                 await _remoteDbService.DropColumnOnRemote(model, dbInformation);
-                return Ok(SystemMessage.SuccessMessage);
+                return Ok(SystemMessages.SuccessMessage);
             }
             catch (Exception e)
             {
                 if (e is ValidationException)
                     return BadRequest(e.Message);
 
-                return BadRequest(SystemMessage.DuringOperationExceptionMessage);
+                return BadRequest(SystemMessages.DuringOperationExceptionMessage);
             }
 
         }
@@ -256,19 +256,19 @@ namespace T_API.UI.Controllers
                 var db = await _databaseService.GetById(model.DatabaseId);
                 if (db.UserId != HttpContext.GetNameIdentifier())
                 {
-                    return Unauthorized(SystemMessage.UnauthorizedOperationExceptionMessage);
+                    return Unauthorized(SystemMessages.UnauthorizedOperationExceptionMessage);
                 }
                 var dbInformation = _mapper.Map<DbInformation>(db);
 
                 await _remoteDbService.CreateForeignKeyOnRemote(model, dbInformation);
-                return Ok(SystemMessage.SuccessMessage);
+                return Ok(SystemMessages.SuccessMessage);
             }
             catch (Exception e)
             {
                 if (e is ValidationException)
                     return BadRequest(e.Message);
 
-                return BadRequest(SystemMessage.DuringOperationExceptionMessage);
+                return BadRequest(SystemMessages.DuringOperationExceptionMessage);
             }
 
         }
@@ -283,18 +283,18 @@ namespace T_API.UI.Controllers
                 var db = await _databaseService.GetById(model.DatabaseId);
                 if (db.UserId != HttpContext.GetNameIdentifier())
                 {
-                    return Unauthorized(SystemMessage.UnauthorizedOperationExceptionMessage);
+                    return Unauthorized(SystemMessages.UnauthorizedOperationExceptionMessage);
                 }
                 var dbInformation = _mapper.Map<DbInformation>(db);
                 await _remoteDbService.AlterForeignKeyOnRemote(model, dbInformation);
-                return Ok(SystemMessage.SuccessMessage);
+                return Ok(SystemMessages.SuccessMessage);
             }
             catch (Exception e)
             {
                 if (e is ValidationException)
                     return BadRequest(e.Message);
 
-                return BadRequest(SystemMessage.DuringOperationExceptionMessage);
+                return BadRequest(SystemMessages.DuringOperationExceptionMessage);
             }
 
         }
@@ -307,18 +307,18 @@ namespace T_API.UI.Controllers
                 var db = await _databaseService.GetById(model.DatabaseId);
                 if (db.UserId != HttpContext.GetNameIdentifier())
                 {
-                    return Unauthorized(SystemMessage.UnauthorizedOperationExceptionMessage);
+                    return Unauthorized(SystemMessages.UnauthorizedOperationExceptionMessage);
                 }
                 var dbInformation = _mapper.Map<DbInformation>(db);
                 await _remoteDbService.DropForeignKeyOnRemote(model, dbInformation);
-                return Ok(SystemMessage.SuccessMessage);
+                return Ok(SystemMessages.SuccessMessage);
             }
             catch (Exception e)
             {
                 if (e is ValidationException)
                     return BadRequest(e.Message);
 
-                return BadRequest(SystemMessage.DuringOperationExceptionMessage);
+                return BadRequest(SystemMessages.DuringOperationExceptionMessage);
             }
 
         }
@@ -335,14 +335,14 @@ namespace T_API.UI.Controllers
                 var userId = HttpContext.GetNameIdentifier();
                 if (database.UserId != userId)
                 {
-                    return Unauthorized(SystemMessage.UnauthorizedOperationExceptionMessage);
+                    return Unauthorized(SystemMessages.UnauthorizedOperationExceptionMessage);
                 }
 
                 return Ok(database);
             }
             catch (Exception e)
             {
-                return BadRequest(SystemMessage.DuringOperationExceptionMessage);
+                return BadRequest(SystemMessages.DuringOperationExceptionMessage);
             }
 
         }
@@ -357,19 +357,19 @@ namespace T_API.UI.Controllers
                 var db = await _databaseService.GetById(databaseId);
                 if (db.UserId != userId)
                 {
-                    return Unauthorized(SystemMessage.UnauthorizedOperationExceptionMessage);
+                    return Unauthorized(SystemMessages.UnauthorizedOperationExceptionMessage);
                 }
                 var table = await _remoteDbService.GetTable(tableName, db.DatabaseName, provider);
                 if (table == null)
                 {
-                    return BadRequest(SystemMessage.NoContentExceptionMessage);
+                    return BadRequest(SystemMessages.NoContentExceptionMessage);
                 }
 
                 return Ok(table);
             }
             catch (Exception e)
             {
-                return BadRequest(SystemMessage.DuringOperationExceptionMessage);
+                return BadRequest(SystemMessages.DuringOperationExceptionMessage);
             }
 
         }
@@ -385,7 +385,7 @@ namespace T_API.UI.Controllers
                 var userId = HttpContext.GetNameIdentifier();
                 if (userId != db.UserId)
                 {
-                    TempData["Message"] = SystemMessage.UnauthorizedOperationExceptionMessage;
+                    TempData["Message"] = SystemMessages.UnauthorizedOperationExceptionMessage;
                     return RedirectToAction("Index", "Database");
                 }
 
@@ -404,7 +404,7 @@ namespace T_API.UI.Controllers
             }
             catch (Exception e)
             {
-                TempData["Message"] = SystemMessage.DuringOperationExceptionMessage;
+                TempData["Message"] = SystemMessages.DuringOperationExceptionMessage;
                 return RedirectToAction("Index", "Database");
             }
 
@@ -427,7 +427,7 @@ namespace T_API.UI.Controllers
                 var userId = HttpContext.GetNameIdentifier();
                 if (userId != db.UserId)
                 {
-                    TempData["Message"] = SystemMessage.UnauthorizedOperationExceptionMessage;
+                    TempData["Message"] = SystemMessages.UnauthorizedOperationExceptionMessage;
                     return RedirectToAction("Index", "Database");
                 }
 
@@ -441,12 +441,12 @@ namespace T_API.UI.Controllers
                 var dbInfo = _mapper.Map<DbInformation>(db);
                 await _remoteDbService.CreateTableOnRemote(mappedEntity, dbInfo);
 
-                TempData["Message"] = SystemMessage.SuccessMessage;
+                TempData["Message"] = SystemMessages.SuccessMessage;
                 return RedirectToAction("EditService", "Database", new { serviceId = model.DatabaseId });
             }
             catch (Exception e)
             {
-                TempData["Message"] = SystemMessage.DuringOperationExceptionMessage;
+                TempData["Message"] = SystemMessages.DuringOperationExceptionMessage;
                 return RedirectToAction("Index", "Database");
             }
         }

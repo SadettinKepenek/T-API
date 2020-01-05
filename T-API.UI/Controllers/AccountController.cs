@@ -34,7 +34,7 @@ namespace T_API.UI.Controllers
         [HttpGet("[controller]/Settings")]
         public async Task<IActionResult> Index()
         {
-            var id = Convert.ToInt32(HttpContext.User.Claims.FirstOrDefault(x=>x.Type==ClaimTypes.NameIdentifier)?.Value);
+            var id = HttpContext.GetNameIdentifier();;
             var userProfile =await _userService.GetById(id);
             if (userProfile==null)
             {

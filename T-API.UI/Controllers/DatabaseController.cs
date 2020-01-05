@@ -31,12 +31,12 @@ namespace T_API.UI.Controllers
         private IRemoteDbService _remoteDbService;
         private IMemoryCache _cache;
         private IPackageService _packageService;
-        public DatabaseController(IDatabaseService databaseService, IMapper mapper, IRemoteDbService remoteDbService,  IMemoryCache cache, IPackageService packageService)
+        public DatabaseController(IDatabaseService databaseService, IMapper mapper, IRemoteDbService remoteDbService, IMemoryCache cache, IPackageService packageService)
         {
             _databaseService = databaseService;
             _mapper = mapper;
             _remoteDbService = remoteDbService;
-            
+
             _cache = cache;
             _packageService = packageService;
         }
@@ -59,53 +59,69 @@ namespace T_API.UI.Controllers
         [HttpGet]
         public async Task<IActionResult> ServiceDetail(int serviceNo)
         {
-            if (serviceNo == 0)
+            try
             {
+
+                var db = await _databaseService.GetById(serviceNo);
+                if (db.UserId == HttpContext.GetNameIdentifier())
+                {
+                    return View(new ServiceDetailViewModel
+                    {
+                        DatabaseDto = db
+                    });
+                }
+                TempData["Message"] = SystemMessage.NoContentExceptionMessage;
+                return RedirectToAction("Index", "Database");
+
+            }
+            catch (Exception e)
+            {
+                TempData["Message"] = SystemMessage.NoContentExceptionMessage;
                 return RedirectToAction("Index", "Database");
             }
-
-            var db = await _databaseService.GetById(serviceNo);
-            if (db == null)
-            {
-                TempData["Message"] = $"{serviceNo} Numaralı database verilerine ulaşılamadı";
-            }
-            return View(new ServiceDetailViewModel
-            {
-                DatabaseDto = db
-            });
         }
 
         [HttpGet]
         public async Task<IActionResult> CreateService()
         {
-            CreateServiceViewModel model = new CreateServiceViewModel();
-            model.Packages =await _packageService.Get();
-            model.Providers =await _remoteDbService.GetAvailableProviders();
-            model.UserId = HttpContext.GetNameIdentifier();
-            return View(model);
+            try
+            {
+                CreateServiceViewModel model = new CreateServiceViewModel();
+                model.Packages = await _packageService.Get();
+                model.Providers = await _remoteDbService.GetAvailableProviders();
+                model.UserId = HttpContext.GetNameIdentifier();
+                return View(model);
+            }
+            catch (Exception e)
+            {
+                TempData["Message"] = SystemMessage.DuringOperationExceptionMessage;
+                return RedirectToAction("Index", "Database");
+            }
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> CreateService(CreateServiceViewModel model)
         {
-            if (!ModelState.IsValid)
-            {
-                model.Packages = await _packageService.Get();
-                model.Providers = await _remoteDbService.GetAvailableProviders();
-                return View(model);
-            }
-
             try
             {
+                if (!ModelState.IsValid)
+                {
+                    model.Packages = await _packageService.Get();
+                    model.Providers = await _remoteDbService.GetAvailableProviders();
+                    return View(model);
+                }
+
                 var dto = _mapper.Map<AddDatabaseDto>(model);
                 _ = await _databaseService.AddDatabase(dto);
-                TempData["Message"] = "Database Başarıyla Eklendi";
+                TempData["Message"] = SystemMessage.SuccessMessage;
                 return RedirectToAction("Index", "Database");
+
+
             }
             catch (Exception e)
             {
-                TempData["Message"] = "Database Oluşturulurken hata oluştu";
+                TempData["Message"] = SystemMessage.DuringOperationExceptionMessage;
                 return RedirectToAction("Index", "Database");
             }
         }
@@ -113,26 +129,22 @@ namespace T_API.UI.Controllers
         [HttpGet]
         public async Task<IActionResult> EditService(int serviceId)
         {
-            var database = await _databaseService.GetById(serviceId);
-            if (database == null)
+            try
             {
-                TempData["Message"] = "İstenilen database'e ulaşılamadı";
+                var database = await _databaseService.GetById(serviceId);
+                if (database.UserId != HttpContext.GetNameIdentifier())
+                {
+                    TempData["Message"] = SystemMessage.UnauthorizedOperationExceptionMessage;
+                    return RedirectToAction("Index", "Database");
+                }
+                EditServiceViewModel model = _mapper.Map<EditServiceViewModel>(database);
+                return View(model);
+            }
+            catch (Exception e)
+            {
+                TempData["Message"] = SystemMessage.DuringOperationExceptionMessage;
                 return RedirectToAction("Index", "Database");
             }
-
-            int nameIdentifier = HttpContext.GetNameIdentifier();
-            if (database.UserId != nameIdentifier)
-            {
-                TempData["Message"] = "İstenilen database'e ulaşılamadı";
-                return RedirectToAction("Index", "Database");
-            }
-            EditServiceViewModel model = _mapper.Map<EditServiceViewModel>(database);
-
-
-
-
-
-            return View(model);
         }
 
 
@@ -140,12 +152,19 @@ namespace T_API.UI.Controllers
 
         public async Task<IActionResult> GetDataTypes(string provider)
         {
-            var dataTypes = await _databaseService.GetDataTypes(provider: provider);
-            if (dataTypes != null && dataTypes.Count != 0)
+            try
             {
-                return Ok(dataTypes);
+                var dataTypes = await _databaseService.GetDataTypes(provider: provider);
+                if (dataTypes != null && dataTypes.Count != 0)
+                {
+                    return Ok(dataTypes);
+                }
+                return BadRequest(SystemMessage.NoContentExceptionMessage);
             }
-            return NoContent();
+            catch (Exception e)
+            {
+                return BadRequest(SystemMessage.DuringOperationExceptionMessage);
+            }
         }
 
 
@@ -155,32 +174,23 @@ namespace T_API.UI.Controllers
         public async Task<IActionResult> AddColumn([FromBody] AddColumnDto model)
         {
 
-            if (model == null)
-                return BadRequest("Gönderilen veri boş");
+
             try
             {
                 var db = await _databaseService.GetById(model.DatabaseId);
-                if (db == null)
+                if (db.UserId != HttpContext.GetNameIdentifier())
                 {
-                    throw new NullReferenceException("Database bulunamadı");
+                    return Unauthorized(SystemMessage.UnauthorizedOperationExceptionMessage);
                 }
-
                 var dbInformation = _mapper.Map<DbInformation>(db);
-
-                if (dbInformation == null)
-                {
-                    throw new NullReferenceException("Database bulunamadı");
-                }
-
                 await _remoteDbService.CreateColumnOnRemote(model, dbInformation);
-                return Ok("Success");
+                return Ok(SystemMessage.SuccessMessage);
             }
             catch (Exception e)
             {
                 if (e is ValidationException)
                     return BadRequest(e.Message);
-
-                return BadRequest(e.Message + "\n" + e.StackTrace);
+                return BadRequest(SystemMessage.DuringOperationExceptionMessage);
             }
 
         }
@@ -189,32 +199,24 @@ namespace T_API.UI.Controllers
         public async Task<IActionResult> UpdateColumn([FromBody] UpdateColumnDto model)
         {
 
-            if (model == null)
-                return BadRequest("Gönderilen veri boş");
             try
             {
                 var db = await _databaseService.GetById(model.DatabaseId);
-                if (db == null)
+                if (db.UserId != HttpContext.GetNameIdentifier())
                 {
-                    throw new NullReferenceException("Database bulunamadı");
+                    return Unauthorized(SystemMessage.UnauthorizedOperationExceptionMessage);
                 }
-
                 var dbInformation = _mapper.Map<DbInformation>(db);
-
-                if (dbInformation == null)
-                {
-                    throw new NullReferenceException("Database bulunamadı");
-                }
-
                 await _remoteDbService.AlterColumnOnRemote(model, dbInformation);
-                return Ok("Success");
+                return Ok(SystemMessage.SuccessMessage);
             }
             catch (Exception e)
             {
                 if (e is ValidationException)
                     return BadRequest(e.Message);
 
-                return BadRequest(e.Message + "\n" + e.StackTrace);
+                return BadRequest(SystemMessage.DuringOperationExceptionMessage);
+
             }
 
         }
@@ -227,27 +229,21 @@ namespace T_API.UI.Controllers
             try
             {
                 var db = await _databaseService.GetById(model.DatabaseId);
-                if (db == null)
+                if (db.UserId != HttpContext.GetNameIdentifier())
                 {
-                    throw new NullReferenceException("Database bulunamadı");
+                    return Unauthorized(SystemMessage.UnauthorizedOperationExceptionMessage);
                 }
-
                 var dbInformation = _mapper.Map<DbInformation>(db);
 
-                if (dbInformation == null)
-                {
-                    throw new NullReferenceException("Database bulunamadı");
-                }
-
                 await _remoteDbService.DropColumnOnRemote(model, dbInformation);
-                return Ok("Success");
+                return Ok(SystemMessage.SuccessMessage);
             }
             catch (Exception e)
             {
                 if (e is ValidationException)
                     return BadRequest(e.Message);
 
-                return BadRequest(e.Message + "\n" + e.StackTrace);
+                return BadRequest(SystemMessage.DuringOperationExceptionMessage);
             }
 
         }
@@ -255,33 +251,24 @@ namespace T_API.UI.Controllers
         [HttpPost]
         public async Task<IActionResult> AddForeignKey([FromBody] AddForeignKeyDto model)
         {
-
-            if (model == null)
-                return BadRequest("Gönderilen veri boş");
             try
             {
                 var db = await _databaseService.GetById(model.DatabaseId);
-                if (db == null)
+                if (db.UserId != HttpContext.GetNameIdentifier())
                 {
-                    throw new NullReferenceException("Database bulunamadı");
+                    return Unauthorized(SystemMessage.UnauthorizedOperationExceptionMessage);
                 }
-
                 var dbInformation = _mapper.Map<DbInformation>(db);
 
-                if (dbInformation == null)
-                {
-                    throw new NullReferenceException("Database bulunamadı");
-                }
-
                 await _remoteDbService.CreateForeignKeyOnRemote(model, dbInformation);
-                return Ok("Success");
+                return Ok(SystemMessage.SuccessMessage);
             }
             catch (Exception e)
             {
                 if (e is ValidationException)
                     return BadRequest(e.Message);
 
-                return BadRequest(e.Message + "\n" + e.StackTrace);
+                return BadRequest(SystemMessage.DuringOperationExceptionMessage);
             }
 
         }
@@ -294,27 +281,20 @@ namespace T_API.UI.Controllers
             try
             {
                 var db = await _databaseService.GetById(model.DatabaseId);
-                if (db == null)
+                if (db.UserId != HttpContext.GetNameIdentifier())
                 {
-                    throw new NullReferenceException("Database bulunamadı");
+                    return Unauthorized(SystemMessage.UnauthorizedOperationExceptionMessage);
                 }
-
                 var dbInformation = _mapper.Map<DbInformation>(db);
-
-                if (dbInformation == null)
-                {
-                    throw new NullReferenceException("Database bulunamadı");
-                }
-
                 await _remoteDbService.AlterForeignKeyOnRemote(model, dbInformation);
-                return Ok("Success");
+                return Ok(SystemMessage.SuccessMessage);
             }
             catch (Exception e)
             {
                 if (e is ValidationException)
                     return BadRequest(e.Message);
 
-                return BadRequest(e.Message + "\n" + e.StackTrace);
+                return BadRequest(SystemMessage.DuringOperationExceptionMessage);
             }
 
         }
@@ -322,32 +302,23 @@ namespace T_API.UI.Controllers
         public async Task<IActionResult> DeleteForeignKey([FromBody] DeleteForeignKeyDto model)
         {
 
-            if (model == null)
-                return BadRequest("Gönderilen veri boş");
             try
             {
                 var db = await _databaseService.GetById(model.DatabaseId);
-                if (db == null)
+                if (db.UserId != HttpContext.GetNameIdentifier())
                 {
-                    throw new NullReferenceException("Database bulunamadı");
+                    return Unauthorized(SystemMessage.UnauthorizedOperationExceptionMessage);
                 }
-
                 var dbInformation = _mapper.Map<DbInformation>(db);
-
-                if (dbInformation == null)
-                {
-                    throw new NullReferenceException("Database bulunamadı");
-                }
-
                 await _remoteDbService.DropForeignKeyOnRemote(model, dbInformation);
-                return Ok("Success");
+                return Ok(SystemMessage.SuccessMessage);
             }
             catch (Exception e)
             {
                 if (e is ValidationException)
                     return BadRequest(e.Message);
 
-                return BadRequest(e.Message + "\n" + e.StackTrace);
+                return BadRequest(SystemMessage.DuringOperationExceptionMessage);
             }
 
         }
@@ -360,22 +331,18 @@ namespace T_API.UI.Controllers
             try
             {
                 var database = await _databaseService.GetById(databaseId);
-                if (database == null)
-                {
-                    return NoContent();
-                }
 
                 var userId = HttpContext.GetNameIdentifier();
                 if (database.UserId != userId)
                 {
-                    return BadRequest("User Id uyuşmuyor");
+                    return Unauthorized(SystemMessage.UnauthorizedOperationExceptionMessage);
                 }
 
                 return Ok(database);
             }
             catch (Exception e)
             {
-                return BadRequest(e.StackTrace);
+                return BadRequest(SystemMessage.DuringOperationExceptionMessage);
             }
 
         }
@@ -386,27 +353,23 @@ namespace T_API.UI.Controllers
         {
             try
             {
-                if (String.IsNullOrEmpty(tableName) || string.IsNullOrEmpty(provider) || databaseId <= 0)
-                    return BadRequest("Parametreler yanlış ! Database Id,Table Name,Provider");
-
                 var userId = HttpContext.GetNameIdentifier();
                 var db = await _databaseService.GetById(databaseId);
-
                 if (db.UserId != userId)
                 {
-                    return BadRequest("User veya Database uyuşmuyor");
+                    return Unauthorized(SystemMessage.UnauthorizedOperationExceptionMessage);
                 }
                 var table = await _remoteDbService.GetTable(tableName, db.DatabaseName, provider);
                 if (table == null)
                 {
-                    return NoContent();
+                    return BadRequest(SystemMessage.NoContentExceptionMessage);
                 }
 
                 return Ok(table);
             }
             catch (Exception e)
             {
-                return BadRequest(e.StackTrace);
+                return BadRequest(SystemMessage.DuringOperationExceptionMessage);
             }
 
         }
@@ -418,16 +381,11 @@ namespace T_API.UI.Controllers
             try
             {
                 var db = await _databaseService.GetById(databaseId);
-                if (db == null)
-                {
-                    TempData["Message"] = $"{databaseId} numaralı veritabanı bulunamadı";
-                    return RedirectToAction("Index", "Database");
-                }
 
                 var userId = HttpContext.GetNameIdentifier();
                 if (userId != db.UserId)
                 {
-                    TempData["Message"] = $"{databaseId} numaralı veritabanı bulunamadı";
+                    TempData["Message"] = SystemMessage.UnauthorizedOperationExceptionMessage;
                     return RedirectToAction("Index", "Database");
                 }
 
@@ -446,7 +404,8 @@ namespace T_API.UI.Controllers
             }
             catch (Exception e)
             {
-                throw ExceptionHandler.HandleException(e);
+                TempData["Message"] = SystemMessage.DuringOperationExceptionMessage;
+                return RedirectToAction("Index", "Database");
             }
 
         }
@@ -459,27 +418,17 @@ namespace T_API.UI.Controllers
             {
                 return View(model);
             }
-            else
+
+            try
             {
                 var db = await _databaseService.GetById(model.DatabaseId);
-                if (db == null)
-                {
-                    TempData["Message"] = $"{model.DatabaseId} numaralı veritabanı bulunamadı";
-                    return RedirectToAction("Index", "Database");
-                }
+
 
                 var userId = HttpContext.GetNameIdentifier();
                 if (userId != db.UserId)
                 {
-                    TempData["Message"] = $"{model.DatabaseId} numaralı veritabanı bulunamadı";
+                    TempData["Message"] = SystemMessage.UnauthorizedOperationExceptionMessage;
                     return RedirectToAction("Index", "Database");
-                }
-
-
-                if (model.Columns == null || model.Columns.Count == 0)
-                {
-                    TempData["Message"] = "Herhangi bir sütun eklenmedi";
-                    return View(model);
                 }
 
                 foreach (AddColumnDto addColumnDto in model.Columns)
@@ -491,8 +440,15 @@ namespace T_API.UI.Controllers
                 var mappedEntity = _mapper.Map<AddTableDto>(model);
                 var dbInfo = _mapper.Map<DbInformation>(db);
                 await _remoteDbService.CreateTableOnRemote(mappedEntity, dbInfo);
+
+                TempData["Message"] = SystemMessage.SuccessMessage;
+                return RedirectToAction("EditService", "Database", new { serviceId = model.DatabaseId });
             }
-            return RedirectToAction("EditService", "Database", new { serviceId = model.DatabaseId });
+            catch (Exception e)
+            {
+                TempData["Message"] = SystemMessage.DuringOperationExceptionMessage;
+                return RedirectToAction("Index", "Database");
+            }
         }
 
     }

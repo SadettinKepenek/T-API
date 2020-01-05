@@ -5,6 +5,7 @@ using System.Reflection;
 using System.Threading.Tasks;
 using System.Transactions;
 using AutoMapper;
+using Microsoft.Extensions.Caching.Memory;
 using T_API.BLL.Abstract;
 using T_API.BLL.Validators.Database;
 using T_API.Core.DTO.Database;
@@ -23,15 +24,16 @@ namespace T_API.BLL.Concrete
         private readonly IPackageService _packageService;
         private readonly IRealDbService _realDbService;
         private readonly IUserService _userService;
-
+        private IMemoryCache _cache;
         public DatabaseManager(IDatabaseRepository databaseRepository, IMapper mapper, IRealDbService realDbService,
-            IPackageService packageService, IUserService userService)
+            IPackageService packageService, IUserService userService, IMemoryCache cache)
         {
             _databaseRepository = databaseRepository;
             _mapper = mapper;
             _realDbService = realDbService;
             _packageService = packageService;
             _userService = userService;
+            _cache = cache;
         }
 
 
@@ -39,9 +41,12 @@ namespace T_API.BLL.Concrete
         {
             try
             {
-                var databases = await _databaseRepository.GetAll();
-                if (databases == null) throw new NullReferenceException("Database Bulunamadı");
-                var mappedData = _mapper.Map<List<ListDatabaseDto>>(databases);
+                var mappedData=await _cache.GetOrCreateAsync(CacheKeys.DatabaseKey(), async x =>
+                {
+                    x.SlidingExpiration = CacheKeys.SlidingExpirationCaching;
+                    var databases =await _databaseRepository.GetAll();
+                    return _mapper.Map<List<ListDatabaseDto>>(databases);
+                });
                 return mappedData;
             }
             catch (Exception e)
@@ -56,10 +61,14 @@ namespace T_API.BLL.Concrete
             {
                 if (userId == 0) throw new ArgumentNullException("userId", "Kullanıcı Idsi boş olamaz");
 
-                var databases = await _databaseRepository.GetByUser(userId);
-                if (databases == null) throw new NullReferenceException("İstenilen kullanıcıya ulaşılamadı");
 
-                var mappedEntities = _mapper.Map<List<ListDatabaseDto>>(databases);
+                var mappedEntities=await _cache.GetOrCreateAsync(CacheKeys.DatabaseKeyByUser(userId), async x =>
+                {
+                    x.SlidingExpiration = CacheKeys.SlidingExpirationCaching;
+                    var databases = await _databaseRepository.GetByUser(userId);
+                    return _mapper.Map<List<ListDatabaseDto>>(databases);
+
+                });
                 return mappedEntities;
             }
             catch (Exception e)
@@ -74,10 +83,15 @@ namespace T_API.BLL.Concrete
             {
                 if (string.IsNullOrEmpty(username))
                     throw new ArgumentNullException("username", "Kullanıcı adı boş olamaz");
-                var databases = await _databaseRepository.GetByUser(username);
-                if (databases == null) throw new NullReferenceException("İstenilen kullanıcıya ulaşılamadı");
 
-                var mappedEntities = _mapper.Map<List<ListDatabaseDto>>(databases);
+
+                var mappedEntities = await _cache.GetOrCreateAsync(CacheKeys.DatabaseKeyByUser(username), async x =>
+                {
+                    x.SlidingExpiration = CacheKeys.SlidingExpirationCaching;
+                    var databases = await _databaseRepository.GetByUser(username);
+                    return _mapper.Map<List<ListDatabaseDto>>(databases);
+
+                });
                 return mappedEntities;
             }
             catch (Exception e)
@@ -92,12 +106,13 @@ namespace T_API.BLL.Concrete
             {
                 if (databaseId == 0) throw new ArgumentNullException("databaseId", "Database Idsi boş olamaz");
 
-                var databaseEntity = await _databaseRepository.GetById(databaseId);
-                if (databaseEntity == null) throw new NullReferenceException("İstenilen database verisine ulaşılamadı");
+                var mappedEntities = await _cache.GetOrCreateAsync(CacheKeys.DatabaseKeyById(databaseId), async x =>
+                {
+                    x.SlidingExpiration = CacheKeys.SlidingExpirationCaching;
+                    var databases = await _databaseRepository.GetById(databaseId);
+                    return _mapper.Map<DetailDatabaseDto>(databases);
 
-                var mappedEntities = _mapper.Map<DetailDatabaseDto>(databaseEntity);
-                mappedEntities.Tables =
-                    await _realDbService.GetTables(databaseEntity.DatabaseName, databaseEntity.Provider);
+                });
 
                 return mappedEntities;
             }

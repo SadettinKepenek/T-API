@@ -28,14 +28,14 @@ namespace T_API.UI.Controllers
     {
         private IDatabaseService _databaseService;
         private IMapper _mapper;
-        private IRealDbService _realDbService;
+        private IRemoteDbService _remoteDbService;
         private IMemoryCache _cache;
         private IPackageService _packageService;
-        public DatabaseController(IDatabaseService databaseService, IMapper mapper, IRealDbService realDbService,  IMemoryCache cache, IPackageService packageService)
+        public DatabaseController(IDatabaseService databaseService, IMapper mapper, IRemoteDbService remoteDbService,  IMemoryCache cache, IPackageService packageService)
         {
             _databaseService = databaseService;
             _mapper = mapper;
-            _realDbService = realDbService;
+            _remoteDbService = remoteDbService;
             
             _cache = cache;
             _packageService = packageService;
@@ -80,7 +80,7 @@ namespace T_API.UI.Controllers
         {
             CreateServiceViewModel model = new CreateServiceViewModel();
             model.Packages =await _packageService.Get();
-            model.Providers =await _realDbService.GetAvailableProviders();
+            model.Providers =await _remoteDbService.GetAvailableProviders();
             model.UserId = HttpContext.GetNameIdentifier();
             return View(model);
         }
@@ -92,7 +92,7 @@ namespace T_API.UI.Controllers
             if (!ModelState.IsValid)
             {
                 model.Packages = await _packageService.Get();
-                model.Providers = await _realDbService.GetAvailableProviders();
+                model.Providers = await _remoteDbService.GetAvailableProviders();
                 return View(model);
             }
 
@@ -172,7 +172,7 @@ namespace T_API.UI.Controllers
                     throw new NullReferenceException("Database bulunamadı");
                 }
 
-                await _realDbService.CreateColumnOnRemote(model, dbInformation);
+                await _remoteDbService.CreateColumnOnRemote(model, dbInformation);
                 return Ok("Success");
             }
             catch (Exception e)
@@ -206,7 +206,7 @@ namespace T_API.UI.Controllers
                     throw new NullReferenceException("Database bulunamadı");
                 }
 
-                await _realDbService.AlterColumnOnRemote(model, dbInformation);
+                await _remoteDbService.AlterColumnOnRemote(model, dbInformation);
                 return Ok("Success");
             }
             catch (Exception e)
@@ -239,7 +239,7 @@ namespace T_API.UI.Controllers
                     throw new NullReferenceException("Database bulunamadı");
                 }
 
-                await _realDbService.DropColumnOnRemote(model, dbInformation);
+                await _remoteDbService.DropColumnOnRemote(model, dbInformation);
                 return Ok("Success");
             }
             catch (Exception e)
@@ -273,7 +273,7 @@ namespace T_API.UI.Controllers
                     throw new NullReferenceException("Database bulunamadı");
                 }
 
-                await _realDbService.CreateForeignKeyOnRemote(model, dbInformation);
+                await _remoteDbService.CreateForeignKeyOnRemote(model, dbInformation);
                 return Ok("Success");
             }
             catch (Exception e)
@@ -306,7 +306,7 @@ namespace T_API.UI.Controllers
                     throw new NullReferenceException("Database bulunamadı");
                 }
 
-                await _realDbService.AlterForeignKeyOnRemote(model, dbInformation);
+                await _remoteDbService.AlterForeignKeyOnRemote(model, dbInformation);
                 return Ok("Success");
             }
             catch (Exception e)
@@ -339,7 +339,7 @@ namespace T_API.UI.Controllers
                     throw new NullReferenceException("Database bulunamadı");
                 }
 
-                await _realDbService.DropForeignKeyOnRemote(model, dbInformation);
+                await _remoteDbService.DropForeignKeyOnRemote(model, dbInformation);
                 return Ok("Success");
             }
             catch (Exception e)
@@ -404,7 +404,7 @@ namespace T_API.UI.Controllers
                 {
                     return BadRequest("User veya Database uyuşmuyor");
                 }
-                var table = await _realDbService.GetTable(tableName, db.DatabaseName, provider);
+                var table = await _remoteDbService.GetTable(tableName, db.DatabaseName, provider);
                 if (table == null)
                 {
                     return NoContent();
@@ -501,7 +501,7 @@ namespace T_API.UI.Controllers
                 }
                 var mappedEntity = _mapper.Map<AddTableDto>(model);
                 var dbInfo = _mapper.Map<DbInformation>(db);
-                await _realDbService.CreateTableOnRemote(mappedEntity, dbInfo);
+                await _remoteDbService.CreateTableOnRemote(mappedEntity, dbInfo);
             }
             return RedirectToAction("EditService", "Database", new { serviceId = model.DatabaseId });
         }

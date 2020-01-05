@@ -26,14 +26,14 @@ using Index = T_API.Entity.Concrete.Index;
 
 namespace T_API.BLL.Concrete
 {
-    public class RealDbManager : IRealDbService
+    public class RemoteDbManager : IRemoteDbService
     {
         private IRealDbRepositoryFactory _realDbRepositoryFactory;
         private IMapper _mapper;
 
         //Factory Design Pattern
 
-        public RealDbManager(IRealDbRepositoryFactory realDbRepositoryFactory, IMapper mapper)
+        public RemoteDbManager(IRealDbRepositoryFactory realDbRepositoryFactory, IMapper mapper)
         {
             _realDbRepositoryFactory = realDbRepositoryFactory;
             _mapper = mapper;

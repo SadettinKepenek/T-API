@@ -22,15 +22,15 @@ namespace T_API.BLL.Concrete
         private readonly IDatabaseRepository _databaseRepository;
         private readonly IMapper _mapper;
         private readonly IPackageService _packageService;
-        private readonly IRealDbService _realDbService;
+        private readonly IRemoteDbService _remoteDbService;
         private readonly IUserService _userService;
         private IMemoryCache _cache;
-        public DatabaseManager(IDatabaseRepository databaseRepository, IMapper mapper, IRealDbService realDbService,
+        public DatabaseManager(IDatabaseRepository databaseRepository, IMapper mapper, IRemoteDbService remoteDbService,
             IPackageService packageService, IUserService userService, IMemoryCache cache)
         {
             _databaseRepository = databaseRepository;
             _mapper = mapper;
-            _realDbService = realDbService;
+            _remoteDbService = remoteDbService;
             _packageService = packageService;
             _userService = userService;
             _cache = cache;
@@ -149,12 +149,12 @@ namespace T_API.BLL.Concrete
                 if (!(Convert.ToDouble(user.Balance) - package.Price * dto.MonthCount >= 0))
                     throw new Exception("Bakiye yetersiz.");
 
-                var availableServer = await _realDbService.GetAvailableServer(dto.Provider);
+                var availableServer = await _remoteDbService.GetAvailableServer(dto.Provider);
                 dto.Port = availableServer.Port;
                 dto.Server = availableServer.Server;
-                dto.Username = await _realDbService.GenerateUserName(dto.UserId);
-                dto.Password = await _realDbService.GeneratePassword(dto.UserId);
-                dto.DatabaseName = await _realDbService.GenerateDatabaseName(dto.UserId);
+                dto.Username = await _remoteDbService.GenerateUserName(dto.UserId);
+                dto.Password = await _remoteDbService.GeneratePassword(dto.UserId);
+                dto.DatabaseName = await _remoteDbService.GenerateDatabaseName(dto.UserId);
                 dto.IsActive = true;
                 dto.StartDate = DateTime.Now;
                 dto.EndDate = DateTime.Now.AddMonths(dto.MonthCount);
@@ -171,7 +171,7 @@ namespace T_API.BLL.Concrete
                 Transaction.Current.TransactionCompleted += async (sender, args) =>
                 {
                     using var inlineTransactionScope = new TransactionScope();
-                    await _realDbService.CreateDatabaseOnRemote(dto);
+                    await _remoteDbService.CreateDatabaseOnRemote(dto);
                     inlineTransactionScope.Complete();
                 };
                 scope.Complete();

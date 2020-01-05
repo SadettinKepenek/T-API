@@ -11,7 +11,7 @@ using T_API.Entity.Concrete;
 
 namespace T_API.BLL.Abstract
 {
-    public interface IRealDbService
+    public interface IRemoteDbService
     {
         Task CreateDatabaseOnRemote(AddDatabaseDto database);
         Task CreateTableOnRemote(AddTableDto database, DbInformation dbInformation);

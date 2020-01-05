@@ -26,15 +26,15 @@ namespace T_API.UI.Controllers
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     public class RealDatabaseController : ControllerBase
     {
-        private IRealDbService _realDbService;
+        private IRemoteDbService _remoteDbService;
         private IDatabaseService _databaseService;
         private IAuthService _authService;
         private IMapper _mapper;
         private IDataService _dataService;
 
-        public RealDatabaseController(IRealDbService realDbService, IDatabaseService databaseService, IAuthService authService, IMapper mapper, IDataService dataService)
+        public RealDatabaseController(IRemoteDbService remoteDbService, IDatabaseService databaseService, IAuthService authService, IMapper mapper, IDataService dataService)
         {
-            _realDbService = realDbService;
+            _remoteDbService = remoteDbService;
             _databaseService = databaseService;
             _authService = authService;
             _mapper = mapper;

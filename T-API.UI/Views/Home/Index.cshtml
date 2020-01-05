@@ -4,18 +4,45 @@
     ViewData["Title"] = "Dashboard";
 }
 
-<div class="row">
+<div class="row mx-auto">
     <div class="col-md-12">
         <div class="jumbotron jumbotron-fluid">
             <div class="container">
                 <h1 class="display-4">T-API Version 0.1 Beta</h1>
-                <p class="lead">Welcome To T-API. For Now,T-API has an one provider support which is MySql.You can create starter pack for a month.</p>
+                <p class="lead">Welcome @Model.User.Firstname.ToUpperInvariant() @Model.User.Lastname.ToUpperInvariant(). For Now,T-API has an one provider support which is MySql.You can create starter pack for a month.</p>
             </div>
         </div>
     </div>
 </div>
-<div class="row">
-    <div class="col-md-12 mx-auto">
+<div class="row mx-auto">
+    <div class="col-md-12">
+        <h5 class="display-4">Dashboard</h5>
+        <hr/>
+        <div class="row">
+            <div class="col-md-6 mx-auto">
+                <a asp-action="Index" asp-controller="Database" class="btn btn-warning">
+                    Suspended Service <span class="badge badge-light">@Model.Databases.AsQueryable().Count(x => x.IsActive == false)</span>
+                </a>
+                <a asp-action="Index" asp-controller="Database" class="btn btn-danger">
+                    Canceled Service <span class="badge badge-light">@Model.Databases.AsQueryable().Count(x => x.IsActive == false)</span>
+                </a>
+                <a asp-action="Index" asp-controller="Database" class="btn btn-success">
+                    Active Service <span class="badge badge-light">@Model.Databases.AsQueryable().Count(x => x.IsActive)</span>
+                </a>
+            </div>
+
+        </div>
+        <div class="row">
+            <div class="col-md-12">
+                <hr />
+
+            </div>
+        </div>
+
+
+
+    </div>
+    <div class="col-md-12 ">
         <h5 class="display-4">Available Packages</h5>
         <hr />
 
@@ -139,6 +166,7 @@
         </table>
 
     </div>
+
 </div>
 
 

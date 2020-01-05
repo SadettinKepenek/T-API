@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.SqlServer.Server;
 using T_API.BLL.Abstract;
+using T_API.UI.Extensions;
 using T_API.UI.Models;
 using T_API.UI.Models.Home;
 
@@ -17,15 +18,21 @@ namespace T_API.UI.Controllers
     public class HomeController : Controller
     {
         private IPackageService _packageService;
-        public HomeController(IPackageService packageService)
+        private IUserService _userService;
+        private IDatabaseService _databaseService;
+        public HomeController(IPackageService packageService, IUserService userService, IDatabaseService databaseService)
         {
             _packageService = packageService;
+            _userService = userService;
+            _databaseService = databaseService;
         }
 
         public async Task<IActionResult> Index()
         {
             IndexViewModel viewModel=new IndexViewModel();
             viewModel.Packages = await _packageService.Get();
+            viewModel.User = await _userService.GetById(HttpContext.GetNameIdentifier());
+            viewModel.Databases = await _databaseService.GetByUser(HttpContext.GetNameIdentifier());
             return View(viewModel);
         }
         public async Task<IActionResult> Documentation()

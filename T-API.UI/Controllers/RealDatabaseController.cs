@@ -31,14 +31,16 @@ namespace T_API.UI.Controllers
         private IAuthService _authService;
         private IMapper _mapper;
         private IDataService _dataService;
+        private ICacheService _cacheService;
 
-        public RealDatabaseController(IRemoteDbService remoteDbService, IDatabaseService databaseService, IAuthService authService, IMapper mapper, IDataService dataService)
+        public RealDatabaseController(IRemoteDbService remoteDbService, IDatabaseService databaseService, IAuthService authService, IMapper mapper, IDataService dataService, ICacheService cacheService)
         {
             _remoteDbService = remoteDbService;
             _databaseService = databaseService;
             _authService = authService;
             _mapper = mapper;
             _dataService = dataService;
+            _cacheService = cacheService;
         }
 
 
@@ -62,6 +64,7 @@ namespace T_API.UI.Controllers
         [HttpGet("Logout")]
         public async Task<IActionResult> Logout()
         {
+            await _cacheService.RemoveCache(HttpContext.GetNameIdentifier());
             await _authService.Logout();
             return Ok();
         }

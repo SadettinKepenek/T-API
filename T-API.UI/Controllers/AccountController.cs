@@ -95,11 +95,6 @@ namespace T_API.UI.Controllers
             }
         }
 
-        [HttpGet]
-        public async Task<IActionResult> ResetCache()
-        {
-            await _cacheService.RemoveCache(HttpContext.GetNameIdentifier());
-            return RedirectToAction("Index", "Account");
-        }
+       
     }
 }

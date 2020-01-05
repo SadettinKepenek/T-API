@@ -442,7 +442,6 @@ namespace T_API.UI.Controllers
                     DatabaseName = db.DatabaseName,
                     DatabaseId = db.DatabaseId
                 };
-                //addTableViewModel.Columns.Add(new AddColumnDto());
                 return View(addTableViewModel);
             }
             catch (Exception e)
@@ -496,6 +495,5 @@ namespace T_API.UI.Controllers
             return RedirectToAction("EditService", "Database", new { serviceId = model.DatabaseId });
         }
 
-        // TODO Add Table AJax yapılacak
     }
 }

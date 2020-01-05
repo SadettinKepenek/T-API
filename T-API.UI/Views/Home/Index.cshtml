@@ -1,15 +1,144 @@
-﻿@{
+﻿@using T_API.Core.DTO.DatabasePackage
+@model T_API.UI.Models.Home.IndexViewModel
+@{
     ViewData["Title"] = "Dashboard";
 }
 
-<div class="container">
-    <div class="jumbotron jumbotron-fluid">
-        <div class="container">
-            <h1 class="display-4">T-API Version 0.1 Beta</h1>
-            <p class="lead">Welcome To T-API. For Now,T-API has an one provider support which is MySql.You can create starter pack for a month.</p>
+<div class="row">
+    <div class="col-md-12">
+        <div class="jumbotron jumbotron-fluid">
+            <div class="container">
+                <h1 class="display-4">T-API Version 0.1 Beta</h1>
+                <p class="lead">Welcome To T-API. For Now,T-API has an one provider support which is MySql.You can create starter pack for a month.</p>
+            </div>
         </div>
     </div>
-    <div class="row">
+</div>
+<div class="row">
+    <div class="col-md-12 mx-auto">
+        <h5 class="display-4">Available Packages</h5>
+        <hr />
+
+        <table class="table table-bordered table-striped table-responsive">
+            <thead class="thead-dark">
+                <tr class="text-center">
+                    <th>#</th>
+                    <th>Api</th>
+                    <th>Auth</th>
+                    <th>Storage</th>
+                    <th>View</th>
+                    <th>SP</th>
+                    <th>Trigger</th>
+                    <th>UDF</th>
+                    <th>Jobs</th>
+                    <th>Max Column</th>
+                    <th>Max Table</th>
+                    <th>Max SP</th>
+                    <th>Max UDF</th>
+                    <th>Max Trigger</th>
+                    <th>Max Job</th>
+                    <th>Max View</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                @foreach (DetailDatabasePackageDto package in Model.Packages)
+                {
+                    <tr class="text-center">
+                        <td>@package.PackageName</td>
+                        <td>
+                            @if (package.IsApiSupport)
+                            {
+                                <i class="fas fa-check-circle"></i>
+                            }
+                            else
+                            {
+                                <i class="far fa-times-circle"></i>
+                            }
+                        </td>
+                        <td>
+                            @if (package.IsAuthSupport)
+                            {
+                                <i class="fas fa-check-circle"></i>
+                            }
+                            else
+                            {
+                                <i class="far fa-times-circle"></i>
+                            }
+                        </td>
+                        <td>
+                            @if (package.IsStorageSupport)
+                            {
+                                <i class="fas fa-check-circle"></i>
+                            }
+                            else
+                            {
+                                <i class="far fa-times-circle"></i>
+                            }
+                        </td>
+                        <td>
+                            @if (package.IsViewSupport)
+                            {
+                                <i class="fas fa-check-circle"></i>
+                            }
+                            else
+                            {
+                                <i class="far fa-times-circle"></i>
+                            }
+                        </td>
+                        <td>
+                            @if (package.IsStoredProcedureSupport)
+                            {
+                                <i class="fas fa-check-circle"></i>
+                            }
+                            else
+                            {
+                                <i class="far fa-times-circle"></i>
+                            }
+                        </td>
+                        <td>
+                            @if (package.IsTriggerSupport)
+                            {
+                                <i class="fas fa-check-circle"></i>
+                            }
+                            else
+                            {
+                                <i class="far fa-times-circle"></i>
+                            }
+                        </td>
+                        <td>
+                            @if (package.IsUserDefinedFunctionSupport)
+                            {
+                                <i class="fas fa-check-circle"></i>
+                            }
+                            else
+                            {
+                                <i class="far fa-times-circle"></i>
+                            }
+                        </td>
+                        <td>
+                            @if (package.IsJobSupport)
+                            {
+                                <i class="fas fa-check-circle"></i>
+                            }
+                            else
+                            {
+                                <i class="far fa-times-circle"></i>
+                            }
+                        </td>
+                        <td>@package.MaxColumnPerTable</td>
+                        <td>@package.MaxTableCount</td>
+                        <td>@package.MaxStoredProcedureCount</td>
+                        <td>@package.MaxUserDefinedFunctionCount</td>
+                        <td>@package.MaxTriggerCount</td>
+                        <td>@package.MaxJobCount</td>
+                        <td>@package.MaxViewCount</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
 
     </div>
 </div>
+
+

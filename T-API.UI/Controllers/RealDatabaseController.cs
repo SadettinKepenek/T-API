@@ -65,25 +65,39 @@ namespace T_API.UI.Controllers
         [HttpGet("Logout")]
         public async Task<IActionResult> Logout()
         {
-            await _cacheService.RemoveCache(HttpContext.GetNameIdentifier());
-            await _authService.Logout();
-            return Ok();
+            try
+            {
+                await _cacheService.RemoveCache(HttpContext.GetNameIdentifier());
+                await _authService.Logout();
+                return Ok();
+            }
+            catch (Exception e)
+            {
+                return BadRequest(SystemMessage.DuringOperationExceptionMessage);
+            }
         }
 
         [HttpGet("Get/{serviceNumber}/{tableName}")]
         public async Task<IActionResult> Get(int serviceNumber, string tableName, [FromQuery] List<DynamicFilter> filters)
         {
-            int userId = HttpContext.GetNameIdentifier();
-            var db = await _databaseService.GetById(serviceNumber);
-            if (db.UserId != userId)
+            try
             {
-                return Unauthorized(SystemMessage.UnauthorizedOperationExceptionMessage);
+                int userId = HttpContext.GetNameIdentifier();
+                var db = await _databaseService.GetById(serviceNumber);
+                if (db.UserId != userId)
+                {
+                    return Unauthorized(SystemMessage.UnauthorizedOperationExceptionMessage);
+                }
+
+                var dbInfo = _mapper.Map<DbInformation>(db);
+                var data = await _dataService.Get(tableName, dbInfo);
+
+                return Ok(data);
             }
-
-            var dbInfo = _mapper.Map<DbInformation>(db);
-            var data = await _dataService.Get(tableName, dbInfo);
-
-            return Ok(data);
+            catch (Exception e)
+            {
+                return BadRequest(SystemMessage.DuringOperationExceptionMessage);
+            }
         }
         [HttpPost("Add/{serviceNumber}/{tableName}")]
         public async Task<IActionResult> Add(int serviceNumber, string tableName)

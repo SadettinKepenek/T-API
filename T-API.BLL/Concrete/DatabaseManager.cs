@@ -111,11 +111,9 @@ namespace T_API.BLL.Concrete
         {
             var dataTypes = new List<string>();
             if (provider.Equals("MySql"))
-                foreach (var field in typeof(MysqlProviderColumnType).GetFields())
-                    dataTypes.Add(field.GetValue(null) as string);
+                dataTypes.AddRange(typeof(MysqlProviderColumnType).GetFields().Select(field => field.GetValue(null) as string));
             else if (provider.Equals("MsSql"))
-                foreach (var field in typeof(SqlServerProviderColumnType).GetFields())
-                    dataTypes.Add(field.GetValue(null) as string);
+                dataTypes.AddRange(typeof(SqlServerProviderColumnType).GetFields().Select(field => field.GetValue(null) as string));
             else
                 throw new AmbiguousMatchException("Provider türü için support bulunamadı");
 
@@ -133,43 +131,38 @@ namespace T_API.BLL.Concrete
 
                 if (package.Price <= 0.0 && databases.FirstOrDefault(x => x.PackageId == package.PackageId) != null)
                     throw new UnauthorizedAccessException("Ücretsiz paket birden fazla alınamaz");
-                if (Convert.ToDouble(user.Balance) - package.Price * dto.MonthCount >= 0)
+                if (!(Convert.ToDouble(user.Balance) - package.Price * dto.MonthCount >= 0))
+                    throw new Exception("Bakiye yetersiz.");
+
+                var availableServer = await _realDbService.GetAvailableServer(dto.Provider);
+                dto.Port = availableServer.Port;
+                dto.Server = availableServer.Server;
+                dto.Username = await _realDbService.GenerateUserName(dto.UserId);
+                dto.Password = await _realDbService.GeneratePassword(dto.UserId);
+                dto.DatabaseName = await _realDbService.GenerateDatabaseName(dto.UserId);
+                dto.IsActive = true;
+                dto.StartDate = DateTime.Now;
+                dto.EndDate = DateTime.Now.AddMonths(dto.MonthCount);
+                var validator = new AddDatabaseValidator();
+                var result = validator.Validate(dto);
+                if (!result.IsValid) throw new ValidationException(result.Errors.ToString());
+
+                var mappedEntity = _mapper.Map<Database>(dto);
+                using var scope = new TransactionScope();
+                var addDatabaseResult = await _databaseRepository.AddDatabase(mappedEntity);
+                var mappedUser = _mapper.Map<UpdateUserDto>(user);
+                mappedUser.Balance -= Convert.ToDecimal(package.Price * dto.MonthCount);
+                await _userService.UpdateUser(mappedUser);
+                Transaction.Current.TransactionCompleted += async (sender, args) =>
                 {
-                    var availableServer = await _realDbService.GetAvailableServer(dto.Provider);
-                    dto.Port = availableServer.Port;
-                    dto.Server = availableServer.Server;
-                    dto.Username = await _realDbService.GenerateUserName(dto.UserId);
-                    dto.Password = await _realDbService.GeneratePassword(dto.UserId);
-                    dto.DatabaseName = await _realDbService.GenerateDatabaseName(dto.UserId);
-                    dto.IsActive = true;
-                    dto.StartDate = DateTime.Now;
-                    dto.EndDate = DateTime.Now.AddMonths(dto.MonthCount);
+                    using var inlineTransactionScope = new TransactionScope();
+                    await _realDbService.CreateDatabaseOnRemote(dto);
+                    inlineTransactionScope.Complete();
+                };
+                scope.Complete();
 
-                    var validator = new AddDatabaseValidator();
-                    var result = validator.Validate(dto);
-                    if (result.IsValid)
-                    {
-                        var mappedEntity = _mapper.Map<Database>(dto);
-                        using var scope = new TransactionScope();
-                        var addDatabaseResult = await _databaseRepository.AddDatabase(mappedEntity);
-                        var mappedUser = _mapper.Map<UpdateUserDto>(user);
-                        mappedUser.Balance -= Convert.ToDecimal(package.Price * dto.MonthCount);
-                        await _userService.UpdateUser(mappedUser);
-                        Transaction.Current.TransactionCompleted += async (sender, args) =>
-                        {
-                            using var inlineTransactionScope = new TransactionScope();
-                            await _realDbService.CreateDatabaseOnRemote(dto);
-                            inlineTransactionScope.Complete();
-                        };
-                        scope.Complete();
+                return addDatabaseResult;
 
-                        return addDatabaseResult;
-                    }
-
-                    throw new ValidationException(result.Errors.ToString());
-                }
-
-                throw new Exception("Bakiye yetersiz.");
             }
             catch (Exception e)
             {

@@ -41,7 +41,7 @@ namespace T_API.BLL.Concrete
         {
             try
             {
-                var mappedData=await _cache.GetOrCreateAsync("_Databases", async x =>
+                var mappedData=await _cache.GetOrCreateAsync(CacheKeys.DatabaseKey(), async x =>
                 {
                     x.SlidingExpiration = CacheKeys.SlidingExpirationCaching;
                     var databases =await _databaseRepository.GetAll();
@@ -62,7 +62,7 @@ namespace T_API.BLL.Concrete
                 if (userId == 0) throw new ArgumentNullException("userId", "Kullanıcı Idsi boş olamaz");
 
 
-                var mappedEntities=await _cache.GetOrCreateAsync($"_Databases_User_{userId}", async x =>
+                var mappedEntities=await _cache.GetOrCreateAsync(CacheKeys.DatabaseKeyByUser(userId), async x =>
                 {
                     x.SlidingExpiration = CacheKeys.SlidingExpirationCaching;
                     var databases = await _databaseRepository.GetByUser(userId);
@@ -85,7 +85,7 @@ namespace T_API.BLL.Concrete
                     throw new ArgumentNullException("username", "Kullanıcı adı boş olamaz");
 
 
-                var mappedEntities = await _cache.GetOrCreateAsync($"_Databases_User_{username}", async x =>
+                var mappedEntities = await _cache.GetOrCreateAsync(CacheKeys.DatabaseKeyByUser(username), async x =>
                 {
                     x.SlidingExpiration = CacheKeys.SlidingExpirationCaching;
                     var databases = await _databaseRepository.GetByUser(username);
@@ -106,7 +106,7 @@ namespace T_API.BLL.Concrete
             {
                 if (databaseId == 0) throw new ArgumentNullException("databaseId", "Database Idsi boş olamaz");
 
-                var mappedEntities = await _cache.GetOrCreateAsync($"_Databases_Database_{databaseId}", async x =>
+                var mappedEntities = await _cache.GetOrCreateAsync(CacheKeys.DatabaseKeyById(databaseId), async x =>
                 {
                     x.SlidingExpiration = CacheKeys.SlidingExpirationCaching;
                     var databases = await _databaseRepository.GetById(databaseId);

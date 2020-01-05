@@ -14,7 +14,6 @@ namespace T_API.DAL.Concrete
 {
     public class UserRepository : IUserRepository
     {
-        // TODO CreateConnection dynamic tipte bir connection döndürüyor bunun kontrol edilmesi gerekli
 
 
         public UserRepository()
@@ -253,6 +252,37 @@ namespace T_API.DAL.Concrete
             {
                 throw ExceptionHandler.HandleException(e);
             }
+        }
+
+        public async Task ChangePassword(int userId, string oldPassword, string newPassword)
+        {
+            try
+            {
+                using var conn = DbConnectionFactory.CreateConnection(ConfigurationSettings.DbInformation);
+
+
+                const string sql = "Update users set Password = @password" +
+                                   " where UserId = @userId and Password=@oldPassword";
+
+                var cmd = conn.CreateCommand(sql);
+
+
+                using (cmd)
+                {
+                    cmd.AddParameter("userId", userId);
+                    cmd.AddParameter("oldPassword", oldPassword);
+                    cmd.AddParameter("password", newPassword);
+
+                    cmd.ExecuteNonQuery();
+                }
+
+
+            }
+            catch (Exception e)
+            {
+                throw ExceptionHandler.HandleException(e);
+            }
+
         }
     }
 }

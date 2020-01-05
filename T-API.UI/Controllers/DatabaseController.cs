@@ -365,17 +365,11 @@ namespace T_API.UI.Controllers
                     return NoContent();
                 }
 
-                var userId = Convert.ToInt32(HttpContext.User.Claims
-                    .FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)
-                    ?.Value);
-
+                var userId = HttpContext.GetNameIdentifier();
                 if (database.UserId != userId)
                 {
                     return BadRequest("User Id uyuşmuyor");
                 }
-
-
-                //model.UserId = Convert.ToInt32(HttpContext.User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value);
 
                 return Ok(database);
             }
@@ -392,12 +386,10 @@ namespace T_API.UI.Controllers
         {
             try
             {
-                if (String.IsNullOrEmpty(tableName) || String.IsNullOrEmpty(provider) || databaseId <= 0)
+                if (String.IsNullOrEmpty(tableName) || string.IsNullOrEmpty(provider) || databaseId <= 0)
                     return BadRequest("Parametreler yanlış ! Database Id,Table Name,Provider");
 
-                var userId = Convert.ToInt32(HttpContext.User.Claims
-                    .FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)
-                    ?.Value);
+                var userId = HttpContext.GetNameIdentifier();
                 var db = await _databaseService.GetById(databaseId);
 
                 if (db.UserId != userId)
@@ -409,8 +401,6 @@ namespace T_API.UI.Controllers
                 {
                     return NoContent();
                 }
-
-                //model.UserId = Convert.ToInt32(HttpContext.User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value);
 
                 return Ok(table);
             }

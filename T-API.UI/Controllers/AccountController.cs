@@ -22,11 +22,13 @@ namespace T_API.UI.Controllers
         private IUserService _userService;
 
         private IMapper _mapper;
+        private ICacheService _cacheService;
 
-        public AccountController(IUserService userService, IMapper mapper)
+        public AccountController(IUserService userService, IMapper mapper, ICacheService cacheService)
         {
             _userService = userService;
             _mapper = mapper;
+            _cacheService = cacheService;
         }
 
         [HttpGet("[controller]/Settings")]
@@ -91,6 +93,13 @@ namespace T_API.UI.Controllers
                 TempData["Message"] = ExceptionHandler.HandleException(e).Message;
                 return View();
             }
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> ResetCache()
+        {
+            await _cacheService.RemoveCache(HttpContext.GetNameIdentifier());
+            return RedirectToAction("Index", "Account");
         }
     }
 }

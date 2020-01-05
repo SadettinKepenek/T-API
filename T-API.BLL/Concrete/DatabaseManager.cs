@@ -110,7 +110,9 @@ namespace T_API.BLL.Concrete
                 {
                     x.SlidingExpiration = CacheKeys.SlidingExpirationCaching;
                     var databases = await _databaseRepository.GetById(databaseId);
-                    return _mapper.Map<DetailDatabaseDto>(databases);
+                    var detailDatabaseDto = _mapper.Map<DetailDatabaseDto>(databases);
+                    detailDatabaseDto.Tables = await _remoteDbService.GetTables(databases.DatabaseName, databases.Provider);
+                    return detailDatabaseDto;
 
                 });
 

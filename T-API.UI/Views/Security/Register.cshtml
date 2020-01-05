@@ -3,41 +3,46 @@
     ViewData["Title"] = "Register";
 }
 
-<div class="container" style="padding: 10px">
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-md-12 mx-auto">
 
-    <form asp-controller="Security" asp-action="Register" asp-antiforgery="true" method="post">
-        <div class="form-group">
-            <label asp-for="Firstname">Firstname</label>
-            <input type="text" class="form-control" asp-for="Firstname" placeholder="Firstname">
-            <span asp-validation-for="Firstname" class="text-danger"></span>
-        </div>
-        <div class="form-group">
-            <label asp-for="Lastname">Lastname</label>
-            <input type="text" class="form-control" asp-for="Lastname" placeholder="Lastname">
-            <span asp-validation-for="Lastname" class="text-danger"></span>
-        </div>
-        <div class="form-group">
-            <label asp-for="PhoneNumber">Phone Number</label>
-            <input type="tel" class="form-control" asp-for="PhoneNumber" placeholder="PhoneNumber">
-            <span asp-validation-for="PhoneNumber" class="text-danger"></span>
-        </div>
-        <div class="form-group">
-            <label asp-for="Username">Username</label>
-            <input type="text" class="form-control" asp-for="Username" placeholder="Username">
-            <span asp-validation-for="Username" class="text-danger"></span>
-        </div>
-        <div class="form-group">
-            <label asp-for="Password">Password</label>
-            <input type="password" class="form-control" asp-for="Password" placeholder="Password">
-            <span asp-validation-for="Password" class="text-danger"></span>
-        </div>
-        <div class="form-group">
-            <label asp-for="Email">Email</label>
-            <input type="email" class="form-control" asp-for="Email" placeholder="Email">
-            <span asp-validation-for="Email" class="text-danger"></span>
-        </div>
-        <button type="submit" class="btn btn-primary">Save</button>
+            <form asp-controller="Security" asp-action="Register" asp-antiforgery="true" method="post">
+                <div class="form-group">
+                    <label asp-for="Firstname">Firstname</label>
+                    <input type="text" class="form-control" asp-for="Firstname" placeholder="Firstname">
+                    <span asp-validation-for="Firstname" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="Lastname">Lastname</label>
+                    <input type="text" class="form-control" asp-for="Lastname" placeholder="Lastname">
+                    <span asp-validation-for="Lastname" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="PhoneNumber">Phone Number</label>
+                    <input type="tel" class="form-control" asp-for="PhoneNumber" placeholder="PhoneNumber">
+                    <span asp-validation-for="PhoneNumber" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="Username">Username</label>
+                    <input type="text" class="form-control" asp-for="Username" placeholder="Username">
+                    <span asp-validation-for="Username" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="Password">Password</label>
+                    <input type="password" class="form-control" asp-for="Password" placeholder="Password">
+                    <span asp-validation-for="Password" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="Email">Email</label>
+                    <input type="email" class="form-control" asp-for="Email" placeholder="Email">
+                    <span asp-validation-for="Email" class="text-danger"></span>
+                </div>
+                <button type="submit" class="btn btn-primary">Save</button>
 
-    </form>
+            </form>
+        </div>
+
+    </div>
 </div>
 

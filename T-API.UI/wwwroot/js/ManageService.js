@@ -994,6 +994,14 @@ var deleteForeignKey = function deleteForeignKey(foreignKey, tableName) {
 var dropTable = function dropTable() {
     var activeTable = $('#v-pills-tab-tables').children('.nav-link.active');
     var tableName = activeTable.data('id');
-    
+    $('#confirmationModal').modal('toggle');
+    $('#confirmationModalTitle').html(tableName.toUpperCase() + ' Adlı Tabloyu Silmek istediğinizden Emin Misiniz?');
+    $('#confirmationModalBody').html('Bilginize Silinen verilerin geri dönüştürülme işlemi mümkün değildir.');
+    $('#confirmationModalSaveButton').html("Tabloyu Sil");
+
+
+
+};
+var dropTableRequest = function dropTableRequest(tableName) {
 
 };

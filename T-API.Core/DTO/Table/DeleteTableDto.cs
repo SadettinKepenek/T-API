@@ -4,6 +4,6 @@
     {
         public string TableName { get; set; }
         public string DatabaseName { get; set; }
-
+        public int DatabaseId { get; set; }
     }
 }

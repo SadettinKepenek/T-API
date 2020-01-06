@@ -105,6 +105,33 @@ namespace T_API.BLL.Concrete
 
         }
 
+        public async Task DropTableOnRemote(DeleteTableDto table, DbInformation dbInformation)
+        {
+            try
+            {
+                if (SqlCodeGeneratorFactory.CreateGenerator(dbInformation.Provider) is MySqlCodeGenerator mySqlCodeGenerator)
+                {
+                    DeleteTableValidator validator = new DeleteTableValidator();
+                    var validationResult = validator.Validate(table);
+                    if (validationResult.IsValid)
+                    {
+                        var mappedEntity = _mapper.Map<Table>(table);
+                        var command = mySqlCodeGenerator.GenerateDropTableQuery(mappedEntity);
+                        await ExecuteQueryOnRemote(command, dbInformation);
+
+                    }
+                    else
+                    {
+                        throw new ValidationException(validationResult.ToString());
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                throw ExceptionHandler.HandleException(e);
+            }
+        }
+
         /// <summary>
         /// İstenilen veri tabanında belirtilen tabloya sütun eklemek için kullanılan servis.
         /// </summary>

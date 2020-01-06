@@ -111,7 +111,6 @@ var init = function init(databaseId, dbProvider) {
                 window.updateColumnDto.ColumnName = column.columnName;
                 var dataType = column.dataType.replace(/[()]/g, '');
                 dataType = dataType.replace(/[0-9]/g, '');;
-                console.log(dataType);
                 window.updateColumnDto.DataType = dataType;
 
 
@@ -536,6 +535,7 @@ var getDatabase = function getDatabase(databaseId) {
         type: 'GET',
         success: function (data, textStatus, xhr) {
             window.databaseTables = data.tables;
+            window.databaseName = data.databaseName;
             parseDatabase(data.tables);
         },
         complete: function (xhr, textStatus) {
@@ -994,14 +994,40 @@ var deleteForeignKey = function deleteForeignKey(foreignKey, tableName) {
 var dropTable = function dropTable() {
     var activeTable = $('#v-pills-tab-tables').children('.nav-link.active');
     var tableName = activeTable.data('id');
-    $('#confirmationModal').modal('toggle');
+    $('#confirmationModal').fadeIn('toggle');
     $('#confirmationModalTitle').html(tableName.toUpperCase() + ' Adlı Tabloyu Silmek istediğinizden Emin Misiniz?');
     $('#confirmationModalBody').html('Bilginize Silinen verilerin geri dönüştürülme işlemi mümkün değildir.');
     $('#confirmationModalSaveButton').html("Tabloyu Sil");
-
+    $('#confirmationModalSaveButton').on('click', function (e) {
+        $('#confirmationModal').fadeOut('toggle');
+        dropTableRequest(tableName);
+    });
 
 
 };
 var dropTableRequest = function dropTableRequest(tableName) {
 
+    var dto = new DeleteTableDto(window.databaseId, window.databaseName, tableName);
+
+
+    $.ajax({
+        type: 'DELETE',
+        beforeSend: function (request) {
+            request.setRequestHeader("Content-Type", "application/json");
+        },
+        url: 'https://localhost:44383/Database/DeleteTable',
+        data: JSON.stringify(dto),
+        contentType: "application/json",
+        success: function (data) {
+            getDatabase(window.databaseId);
+        },
+        error: function (XMLHttpRequest, textStatus, errorThrown) {
+
+            $('#errorModalTitle').text('Hata!');
+            $('#errorModalBodyText').text(XMLHttpRequest.responseText);
+            $('#errorModal').modal('show');
+        },
+        done: function (data) {
+        }
+    });
 };

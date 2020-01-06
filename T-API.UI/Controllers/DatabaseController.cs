@@ -31,7 +31,8 @@ namespace T_API.UI.Controllers
         private IRemoteDbService _remoteDbService;
         private IMemoryCache _cache;
         private IPackageService _packageService;
-        public DatabaseController(IDatabaseService databaseService, IMapper mapper, IRemoteDbService remoteDbService, IMemoryCache cache, IPackageService packageService)
+        private ICacheService _cacheService;
+        public DatabaseController(IDatabaseService databaseService, IMapper mapper, IRemoteDbService remoteDbService, IMemoryCache cache, IPackageService packageService, ICacheService cacheService)
         {
             _databaseService = databaseService;
             _mapper = mapper;
@@ -39,6 +40,7 @@ namespace T_API.UI.Controllers
 
             _cache = cache;
             _packageService = packageService;
+            _cacheService = cacheService;
         }
 
 
@@ -94,7 +96,8 @@ namespace T_API.UI.Controllers
             }
             catch (Exception e)
             {
-                TempData["Message"] = SystemMessages.DuringOperationExceptionMessage;
+                TempData["Message"] =
+                    e is DatabaseException ? e.Message : SystemMessages.DuringOperationExceptionMessage;
                 return RedirectToAction("Index", "Database");
             }
         }
@@ -121,7 +124,8 @@ namespace T_API.UI.Controllers
             }
             catch (Exception e)
             {
-                TempData["Message"] = SystemMessages.DuringOperationExceptionMessage;
+                TempData["Message"] =
+                    e is DatabaseException ? e.Message : SystemMessages.DuringOperationExceptionMessage;
                 return RedirectToAction("Index", "Database");
             }
         }
@@ -142,7 +146,8 @@ namespace T_API.UI.Controllers
             }
             catch (Exception e)
             {
-                TempData["Message"] = SystemMessages.DuringOperationExceptionMessage;
+                TempData["Message"] =
+                    e is DatabaseException ? e.Message : SystemMessages.DuringOperationExceptionMessage;
                 return RedirectToAction("Index", "Database");
             }
         }
@@ -190,6 +195,8 @@ namespace T_API.UI.Controllers
             {
                 if (e is ValidationException)
                     return BadRequest(e.Message);
+                if (e is DatabaseException)
+                    return BadRequest(e.Message);
                 return BadRequest(SystemMessages.DuringOperationExceptionMessage);
             }
 
@@ -214,7 +221,8 @@ namespace T_API.UI.Controllers
             {
                 if (e is ValidationException)
                     return BadRequest(e.Message);
-
+                if (e is DatabaseException)
+                    return BadRequest(e.Message);
                 return BadRequest(SystemMessages.DuringOperationExceptionMessage);
 
             }
@@ -242,6 +250,8 @@ namespace T_API.UI.Controllers
             {
                 if (e is ValidationException)
                     return BadRequest(e.Message);
+                if (e is DatabaseException)
+                    return BadRequest(e.Message);
 
                 return BadRequest(SystemMessages.DuringOperationExceptionMessage);
             }
@@ -267,7 +277,8 @@ namespace T_API.UI.Controllers
             {
                 if (e is ValidationException)
                     return BadRequest(e.Message);
-
+                if (e is DatabaseException)
+                    return BadRequest(e.Message);
                 return BadRequest(SystemMessages.DuringOperationExceptionMessage);
             }
 
@@ -293,7 +304,8 @@ namespace T_API.UI.Controllers
             {
                 if (e is ValidationException)
                     return BadRequest(e.Message);
-
+                if (e is DatabaseException)
+                    return BadRequest(e.Message);
                 return BadRequest(SystemMessages.DuringOperationExceptionMessage);
             }
 
@@ -317,7 +329,8 @@ namespace T_API.UI.Controllers
             {
                 if (e is ValidationException)
                     return BadRequest(e.Message);
-
+                if (e is DatabaseException)
+                    return BadRequest(e.Message);
                 return BadRequest(SystemMessages.DuringOperationExceptionMessage);
             }
 
@@ -330,9 +343,12 @@ namespace T_API.UI.Controllers
         {
             try
             {
+                var userId = HttpContext.GetNameIdentifier();
+
+
+                await _cacheService.RemoveCache(userId);
                 var database = await _databaseService.GetById(databaseId);
 
-                var userId = HttpContext.GetNameIdentifier();
                 if (database.UserId != userId)
                 {
                     return Unauthorized(SystemMessages.UnauthorizedOperationExceptionMessage);
@@ -342,6 +358,8 @@ namespace T_API.UI.Controllers
             }
             catch (Exception e)
             {
+                if (e is DatabaseException)
+                    return BadRequest(e.Message);
                 return BadRequest(SystemMessages.DuringOperationExceptionMessage);
             }
 
@@ -369,6 +387,8 @@ namespace T_API.UI.Controllers
             }
             catch (Exception e)
             {
+                if (e is DatabaseException)
+                    return BadRequest(e.Message);
                 return BadRequest(SystemMessages.DuringOperationExceptionMessage);
             }
 
@@ -404,7 +424,8 @@ namespace T_API.UI.Controllers
             }
             catch (Exception e)
             {
-                TempData["Message"] = SystemMessages.DuringOperationExceptionMessage;
+                TempData["Message"] =
+                    e is DatabaseException ? e.Message : SystemMessages.DuringOperationExceptionMessage;
                 return RedirectToAction("Index", "Database");
             }
 
@@ -446,7 +467,8 @@ namespace T_API.UI.Controllers
             }
             catch (Exception e)
             {
-                TempData["Message"] = SystemMessages.DuringOperationExceptionMessage;
+                TempData["Message"] =
+                    e is DatabaseException ? e.Message : SystemMessages.DuringOperationExceptionMessage;
                 return RedirectToAction("Index", "Database");
             }
         }

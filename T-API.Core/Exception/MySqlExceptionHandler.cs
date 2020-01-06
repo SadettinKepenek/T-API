@@ -131,6 +131,26 @@ namespace T_API.Core.Exception
                 return new DatabaseException("Hatalı Stored Procedure Ismi Girildi.", ex.InnerException);
             }
 
+            if (ex.Number == 1828 || ex.Number==1829)
+            {
+                return new DatabaseException("İstenilen sütun drop edilemez.Lütfen herhangi bir foreign key yada index'e bağlı olup olmadığını kontrol ediniz.", ex.InnerException);
+            }
+
+            if (ex.Number == 1853)
+            {
+                return new DatabaseException("İstenilen column primary key olduğu için düşürülemez.Lütfen bu column'u düşürmek istiyorsanız yeni bir primary key" +
+                                             " tanımlayınız.",ex.InnerException);
+            }
+            if (ex.Number == 3108)
+            {
+                return new DatabaseException("You cannot drop or rename a generated column if another column refers to it. You must either drop those columns as well, or redefine them not to refer to the generated column.", ex.InnerException);
+            }
+
+            if (ex.Number == 3941)
+            {
+                return new DatabaseException("Altering constraint enforcement is not supported for the constraint. Enforcement state alter is not supported for the PRIMARY, UNIQUE and FOREIGN KEY type constraints.",ex.InnerException);
+            }
+
             return new DatabaseException("Veritabanı Hatası.", ex.InnerException);
         }
 

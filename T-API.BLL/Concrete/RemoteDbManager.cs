@@ -54,14 +54,7 @@ namespace T_API.BLL.Concrete
                     {
                         var mappedEntity = _mapper.Map<Database>(database);
                         string createDatabaseCommand = generator.GenerateCreateDatabaseQuery(mappedEntity);
-                        if (!String.IsNullOrEmpty(createDatabaseCommand))
-                        {
-                            await ExecuteQueryOnRemote(createDatabaseCommand);
-                        }
-                        else
-                        {
-                            throw new NullReferenceException("Create Database Sql Referansı Bulunamadı");
-                        }
+                        await ExecuteQueryOnRemote(createDatabaseCommand);
                     }
                     else
                     {
@@ -95,16 +88,9 @@ namespace T_API.BLL.Concrete
                     if (validationResult.IsValid)
                     {
                         var mappedEntity = _mapper.Map<Table>(table);
-                        string command = mySqlCodeGenerator.GenerateCreateTableQuery(mappedEntity);
-                        if (!String.IsNullOrEmpty(command))
-                        {
+                        var command = mySqlCodeGenerator.GenerateCreateTableQuery(mappedEntity);
+                        await ExecuteQueryOnRemote(command, dbInformation);
 
-                            await ExecuteQueryOnRemote(command, dbInformation);
-                        }
-                        else
-                        {
-                            throw new NullReferenceException("Create Table Sql Referansı Bulunamadı");
-                        }
                     }
                     else
                     {
@@ -136,21 +122,13 @@ namespace T_API.BLL.Concrete
                     if (validationResult.IsValid)
                     {
                         var entity = _mapper.Map<Column>(column);
-
-                        Table table = new Table
-                        {
-                            TableName = column.TableName,
-                            DatabaseName = dbInformation.DatabaseName
-                        };
+                        var dbTable = await GetTable(column.TableName, dbInformation.DatabaseName,
+                            dbInformation.Provider);
+                        var table = _mapper.Map<Table>(dbTable);
                         string command = codeGenerator.GenerateAddColumnQuery(entity, table);
-                        if (!String.IsNullOrEmpty(command))
-                        {
-                            await ExecuteQueryOnRemote(command, dbInformation);
-                        }
-                        else
-                        {
-                            throw new NullReferenceException("Create Table Sql Referansı Bulunamadı");
-                        }
+                        await ExecuteQueryOnRemote(command, dbInformation);
+
+
                     }
                     else
                     {
@@ -175,55 +153,31 @@ namespace T_API.BLL.Concrete
                     var validationResult = validator.Validate(column);
                     if (validationResult.IsValid)
                     {
-                        var databaseEntity = await GetTable(column.TableName, dbInformation.DatabaseName,
+                        var dbTable = await GetTable(column.TableName, dbInformation.DatabaseName,
                             dbInformation.Provider);
-                        if (databaseEntity != null)
+                        var table = _mapper.Map<Table>(dbTable);
+                        var queries = new List<string>();
+                        if (column.OldColumn != null)
                         {
-                            var table = new Table
+                            if (column.OldColumn.Unique && column.Unique == false)
                             {
-                                TableName = column.TableName,
-                                DatabaseName = dbInformation.DatabaseName
-                            };
-                            List<string> queries = new List<string>();
-
-                            if (column.OldColumn != null)
-                            {
-                                if (column.OldColumn.Unique && column.Unique == false)
-                                {
-                                    var idx = databaseEntity.Keys.FirstOrDefault(x =>
-                                        x.KeyColumn == column.ColumnName && x.TableName == column.TableName);
-                                    queries.Add(codeGenerator.GenerateDropKeyQuery(_mapper.Map<Key>(idx), table));
-                                }
-
-                                if (column.OldColumn.PrimaryKey && column.PrimaryKey == false)
-                                {
-                                    var idx = databaseEntity.Keys.FirstOrDefault(x =>
-                                        x.KeyColumn == column.ColumnName && x.TableName == column.TableName);
-                                    queries.Add(codeGenerator.GenerateDropKeyQuery(_mapper.Map<Key>(idx), table));
-                                }
+                                var idx = dbTable.Keys.FirstOrDefault(x =>
+                                    x.KeyColumn == column.ColumnName && x.TableName == column.TableName);
+                                queries.Add(codeGenerator.GenerateDropKeyQuery(_mapper.Map<Key>(idx), table));
                             }
 
-                            column.DefaultValue = null;
-                            var mappedEntity = _mapper.Map<Column>(column);
-
-
-                            string command = codeGenerator.GenerateModifyColumnQuery(mappedEntity, table);
-                            queries.Add(command);
-
-
-                            if (!String.IsNullOrEmpty(command))
+                            if (column.OldColumn.PrimaryKey && column.PrimaryKey == false)
                             {
-                                await ExecuteQueryOnRemote(queries, dbInformation);
-                            }
-                            else
-                            {
-                                throw new NullReferenceException("Create Table Sql Referansı Bulunamadı");
+                                var idx = dbTable.Keys.FirstOrDefault(x =>
+                                    x.KeyColumn == column.ColumnName && x.TableName == column.TableName);
+                                queries.Add(codeGenerator.GenerateDropKeyQuery(_mapper.Map<Key>(idx), table));
                             }
                         }
-                        else
-                        {
-                            throw new ArgumentNullException("Database", "Database Entity Null");
-                        }
+                        column.DefaultValue = null;
+                        var mappedEntity = _mapper.Map<Column>(column);
+                        string command = codeGenerator.GenerateModifyColumnQuery(mappedEntity, table);
+                        queries.Add(command);
+                        await ExecuteQueryOnRemote(queries, dbInformation);
                     }
                     else
                     {
@@ -250,31 +204,11 @@ namespace T_API.BLL.Concrete
                     {
                         var databaseEntity = await GetTable(column.TableName, dbInformation.DatabaseName,
                             dbInformation.Provider);
-                        if (databaseEntity != null)
-                        {
 
-                            var mappedEntity = _mapper.Map<Column>(column);
-                            Table table = new Table
-                            {
-                                TableName = column.TableName,
-                                DatabaseName = dbInformation.DatabaseName
-                            };
-
-                            string command = codeGenerator.GenerateDropColumnQuery(mappedEntity, table);
-
-                            if (!String.IsNullOrEmpty(command))
-                            {
-                                await ExecuteQueryOnRemote(command, dbInformation);
-                            }
-                            else
-                            {
-                                throw new NullReferenceException("Create Table Sql Referansı Bulunamadı");
-                            }
-                        }
-                        else
-                        {
-                            throw new ArgumentNullException("Database", "Database Entity Null");
-                        }
+                        var mappedEntity = _mapper.Map<Column>(column);
+                        var table = _mapper.Map<Table>(databaseEntity);
+                        var command = databaseEntity.Columns.Count == 1 ? codeGenerator.GenerateDropTableQuery(table) : codeGenerator.GenerateDropColumnQuery(mappedEntity, table);
+                        await ExecuteQueryOnRemote(command, dbInformation);
                     }
                     else
                     {
@@ -300,25 +234,15 @@ namespace T_API.BLL.Concrete
                     var validationResult = validator.Validate(foreignKey);
                     if (validationResult.IsValid)
                     {
-                        var mappedEntity = _mapper.Map<ForeignKey>(foreignKey);
+                        var mappedForeignKey = _mapper.Map<ForeignKey>(foreignKey);
 
-                        Table table = new Table
-                        {
-                            TableName = foreignKey.SourceTable,
-                            DatabaseName = dbInformation.DatabaseName,
-                        };
-                        table.ForeignKeys.Add(mappedEntity);
+                        var dbTable = await GetTable(foreignKey.SourceTable, dbInformation.DatabaseName,
+                            dbInformation.Provider);
+                        var table = _mapper.Map<Table>(dbTable);
 
+                        string command = codeGenerator.GenerateAddForeignKeyQuery(mappedForeignKey, table);
 
-                        string command = codeGenerator.GenerateAddForeignKeyQuery(mappedEntity, table);
-                        if (!String.IsNullOrEmpty(command))
-                        {
-                            await ExecuteQueryOnRemote(command, dbInformation);
-                        }
-                        else
-                        {
-                            throw new NullReferenceException("Create Foreign Key Sql Referansı Bulunamadı");
-                        }
+                        await ExecuteQueryOnRemote(command, dbInformation);
                     }
                     else
                     {
@@ -349,11 +273,9 @@ namespace T_API.BLL.Concrete
                     {
                         var mappedNew = _mapper.Map<ForeignKey>(foreignKey);
                         var mappedOld = _mapper.Map<ForeignKey>(foreignKey.OldForeignKey);
-                        Table table = new Table
-                        {
-                            TableName = foreignKey.SourceTable,
-                            DatabaseName = dbInformation.DatabaseName,
-                        };
+                        var dbTable = await GetTable(foreignKey.SourceTable, dbInformation.DatabaseName,
+                            dbInformation.Provider);
+                        var table = _mapper.Map<Table>(dbTable);
 
                         List<string> queries = new List<string>
                         {
@@ -391,13 +313,12 @@ namespace T_API.BLL.Concrete
                     if (validationResult.IsValid)
                     {
                         var mappedNew = _mapper.Map<ForeignKey>(foreignKey);
-                        Table table = new Table
-                        {
-                            TableName = foreignKey.SourceTable,
-                            DatabaseName = dbInformation.DatabaseName,
-                        };
 
-                        List<string> queries = new List<string>
+                        var dbTable = await GetTable(foreignKey.SourceTable, dbInformation.DatabaseName,
+                            dbInformation.Provider);
+                        var table = _mapper.Map<Table>(dbTable);
+
+                        var queries = new List<string>
                         {
                             codeGenerator.GenerateDropRelationQuery(mappedNew, table)
                         };
@@ -487,20 +408,23 @@ namespace T_API.BLL.Concrete
         }
         public async Task<List<DetailTableDto>> GetTables(string databaseName, string provider)
         {
-            if (String.IsNullOrEmpty(databaseName))
+            try
             {
-                throw new ArgumentNullException("databaseName", "Database ismi boş gönderilemez");
-            }
 
-            if (RemoteDbRepositoryFactory.CreateRepository(provider) is MySqlRemoteDbRepository remoteDbRepository)
+                if (RemoteDbRepositoryFactory.CreateRepository(provider) is MySqlRemoteDbRepository remoteDbRepository)
+                {
+                    var result = await remoteDbRepository.GetTables(databaseName);
+                    var mappedResults = _mapper.Map<List<DetailTableDto>>(result);
+                    return mappedResults;
+
+                }
+
+                throw new NullReferenceException("Real Db Repository Referansına Ulaşılamadı");
+            }
+            catch (Exception e)
             {
-                var result = await remoteDbRepository.GetTables(databaseName);
-                var mappedResults = _mapper.Map<List<DetailTableDto>>(result);
-                return mappedResults;
-
+                throw ExceptionHandler.HandleException(e);
             }
-
-            throw new NullReferenceException("Real Db Repository Referansına Ulaşılamadı");
 
 
 
@@ -508,18 +432,20 @@ namespace T_API.BLL.Concrete
         public async Task<DetailTableDto> GetTable(string tableName, string databaseName, string provider)
         {
 
-            if (String.IsNullOrEmpty(databaseName))
+            try
             {
-                throw new ArgumentNullException("databaseName", "Database ismi boş gönderilemez");
+                if (RemoteDbRepositoryFactory.CreateRepository(provider) is MySqlRemoteDbRepository remoteDbRepository)
+                {
+                    var result = await remoteDbRepository.GetTable(tableName, databaseName);
+                    var mappedResults = _mapper.Map<DetailTableDto>(result);
+                    return mappedResults;
+                }
+                throw new NullReferenceException("Real Db Repository Referansına Ulaşılamadı");
             }
-
-            if (RemoteDbRepositoryFactory.CreateRepository(provider) is MySqlRemoteDbRepository remoteDbRepository)
+            catch (Exception e)
             {
-                var result = await remoteDbRepository.GetTable(tableName, databaseName);
-                var mappedResults = _mapper.Map<DetailTableDto>(result);
-                return mappedResults;
+                throw ExceptionHandler.HandleException(e);
             }
-            throw new NullReferenceException("Real Db Repository Referansına Ulaşılamadı");
 
 
 

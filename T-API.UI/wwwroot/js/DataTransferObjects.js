@@ -36,6 +36,18 @@ class UpdateColumnDto {
         this.Provider = provider;
     }
 }
+
+class DeleteTableDto {
+    TableName = '';
+    DatabaseName = '';
+    DatabaseId = '';
+    constructor(databaseId, databaseName,tableName) {
+        this.DatabaseId = databaseId;
+        this.DatabaseName = databaseName;
+        this.TableName = tableName;
+    }
+};
+
 class AddForeignKey {
     SourceTable = '';
     SourceColumn = '';

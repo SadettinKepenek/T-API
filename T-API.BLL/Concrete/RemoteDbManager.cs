@@ -111,12 +111,12 @@ namespace T_API.BLL.Concrete
             {
                 if (SqlCodeGeneratorFactory.CreateGenerator(dbInformation.Provider) is MySqlCodeGenerator mySqlCodeGenerator)
                 {
-                    AddTableValidator validator = new AddTableValidator();
+                    DeleteTableValidator validator = new DeleteTableValidator();
                     var validationResult = validator.Validate(table);
                     if (validationResult.IsValid)
                     {
                         var mappedEntity = _mapper.Map<Table>(table);
-                        var command = mySqlCodeGenerator.GenerateCreateTableQuery(mappedEntity);
+                        var command = mySqlCodeGenerator.GenerateDropTableQuery(mappedEntity);
                         await ExecuteQueryOnRemote(command, dbInformation);
 
                     }

@@ -273,7 +273,7 @@ namespace T_API.UI.Controllers
                 }
                 var dbInformation = _mapper.Map<DbInformation>(db);
 
-                await _remoteDbService.DropColumnOnRemote(model, dbInformation);
+                await _remoteDbService.DropTableOnRemote(model, dbInformation);
                 return Ok(SystemMessages.SuccessMessage);
             }
             catch (Exception e)

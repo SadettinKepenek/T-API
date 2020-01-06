@@ -261,6 +261,7 @@ var systemCheck = function systemCheck() {
 };
 
 
+
 var parseDatabase = function parseDatabase(table) {
     var tabTables = $('#v-pills-tab-tables');
     var tableContent = $('#v-pills-tabContent-tables');
@@ -988,4 +989,11 @@ var deleteForeignKey = function deleteForeignKey(foreignKey, tableName) {
         done: function (data) {
         }
     });
+};
+
+var dropTable = function dropTable() {
+    var activeTable = $('#v-pills-tab-tables').children('.nav-link.active');
+    var tableName = activeTable.data('id');
+    
+
 };

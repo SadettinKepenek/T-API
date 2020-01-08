@@ -27,10 +27,6 @@
     <Folder Include="Areas\Admin\Data\" />
   </ItemGroup>
 
-  <ItemGroup>
-    <None Include=".circleci\config.yml" />
-  </ItemGroup>
-
 
 
 </Project>

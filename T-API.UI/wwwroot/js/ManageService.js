@@ -1,5 +1,5 @@
 ﻿window.tableCount = 0;
-
+baseUrl = "http://t-api-bash.herokuapp.com/";
 
 // JS Dosyasını Initialize eder
 var init = function init(databaseId, dbProvider) {
@@ -33,7 +33,9 @@ var init = function init(databaseId, dbProvider) {
         $('#addForeignKeyModal').on('shown.bs.modal',
             function (e) {
                 if (window.databaseTables === null || window.foreignKeys === null) {
-                    showCriticalError('Hata', 'Veritabanı yüklenirken hata oluştu lütfen daha sonra tekrar deneyiniz..', "https://localhost:44383/Database/")
+                    showCriticalError('Hata',
+                        'Veritabanı yüklenirken hata oluştu lütfen daha sonra tekrar deneyiniz..',
+                        baseUrl + "/Database/");
                     return;
                 }
 
@@ -97,7 +99,7 @@ var init = function init(databaseId, dbProvider) {
                 if (window.databaseTables === null || window.databaseTables === undefined)
                     showCriticalError('Hata',
                         'Veritabanı yüklenirken hata oluştu lütfen daha sonra tekrar deneyiniz..',
-                        "https://localhost:44383/Database/");
+                        baseUrl+"/Database/");
                 $('#updateColumnForm').trigger('reset');
                 $('#updateDataLength').fadeOut();
                 getDataTypes(window.dbProvider, 'updateDataType');
@@ -154,7 +156,7 @@ var init = function init(databaseId, dbProvider) {
             if (window.databaseTables === null || window.databaseTables === undefined)
                 showCriticalError('Hata',
                     'Veritabanı yüklenirken hata oluştu lütfen daha sonra tekrar deneyiniz..',
-                    "https://localhost:44383/Database/");
+                    baseUrl+"/Database/");
             $('#updateForeignKeyForm').trigger('reset');
 
             $('#updateForeignKeySourceColumn').find('option').not(':first').remove();
@@ -323,7 +325,9 @@ var parseDatabase = function parseDatabase(table) {
 var initDataTableForForeigns = function initDataTableForForeigns(tableName) {
 
     if (window.databaseTables === null || window.databaseTables === undefined) {
-        showCriticalError('Hata', 'Veritabanı yüklenirken hata oluştu lütfen daha sonra tekrar deneyiniz..', "https://localhost:44383/Database/")
+        showCriticalError('Hata',
+            'Veritabanı yüklenirken hata oluştu lütfen daha sonra tekrar deneyiniz..',
+            baseUrl + "/Database/");
     }
 
     var data = window.databaseTables.find(x => x.tableName === tableName);
@@ -366,7 +370,9 @@ var initDataTableForForeigns = function initDataTableForForeigns(tableName) {
 
         });
     } else {
-        showCriticalError('Hata', 'Veritabanı yüklenirken hata oluştu lütfen daha sonra tekrar deneyiniz..', "https://localhost:44383/Database/")
+        showCriticalError('Hata',
+            'Veritabanı yüklenirken hata oluştu lütfen daha sonra tekrar deneyiniz..',
+            baseUrl + "/Database/");
     }
 
 
@@ -417,7 +423,9 @@ var getForeignKeyButtonString = function getForeignKeyButtonString(data) {
 var initDataTableForColumns = function initDataTableForColumns(tableName) {
 
     if (window.databaseTables === null || window.databaseTables === undefined) {
-        showCriticalError('Hata', 'Veritabanı yüklenirken hata oluştu lütfen daha sonra tekrar deneyiniz..', "https://localhost:44383/Database/")
+        showCriticalError('Hata',
+            'Veritabanı yüklenirken hata oluştu lütfen daha sonra tekrar deneyiniz..',
+            baseUrl + "/Database/");
     }
 
     var data = window.databaseTables.find(x => x.tableName === tableName);
@@ -464,7 +472,9 @@ var initDataTableForColumns = function initDataTableForColumns(tableName) {
 
         });
     } else {
-        showCriticalError('Hata', 'Veritabanı yüklenirken hata oluştu lütfen daha sonra tekrar deneyiniz..', "https://localhost:44383/Database/")
+        showCriticalError('Hata',
+            'Veritabanı yüklenirken hata oluştu lütfen daha sonra tekrar deneyiniz..',
+            baseUrl + "/Database/");
     }
 
 
@@ -477,12 +487,16 @@ var getColumnsByTableName = function getColumns(tableName) {
         if (found) {
             return found;
         } else {
-            showCriticalError('Hata', 'Veritabanı yüklenirken hata oluştu lütfen daha sonra tekrar deneyiniz..', "https://localhost:44383/Database/")
+            showCriticalError('Hata',
+                'Veritabanı yüklenirken hata oluştu lütfen daha sonra tekrar deneyiniz..',
+                baseUrl + "/Database/");
             return null;
         }
 
     } else {
-        showCriticalError('Hata', 'Veritabanı yüklenirken hata oluştu lütfen daha sonra tekrar deneyiniz..', "https://localhost:44383/Database/")
+        showCriticalError('Hata',
+            'Veritabanı yüklenirken hata oluştu lütfen daha sonra tekrar deneyiniz..',
+            baseUrl + "/Database/");
         return null;
     }
 };
@@ -531,7 +545,7 @@ var getDatabase = function getDatabase(databaseId) {
     tableContent.empty();
 
     $.ajax({
-        url: 'https://localhost:44383/Database/GetDatabase?databaseId=' + databaseId,
+        url: baseUrl+'/Database/GetDatabase?databaseId=' + databaseId,
         type: 'GET',
         success: function (data, textStatus, xhr) {
             window.databaseTables = data.tables;
@@ -548,7 +562,7 @@ var getDatabase = function getDatabase(databaseId) {
         $('#errorModalBodyText').text('Veritabanı yüklenirken hata oluştu lütfen daha sonra tekrar deneyiniz..!');
         $('#errorModal').modal('show');
         $('#errorModal').on('hidden.bs.modal', function (e) {
-            window.location.replace("https://localhost:44383/Database/");
+            window.location.replace(baseUrl+"/Database/");
         });
     });
 };
@@ -556,7 +570,7 @@ var getDatabase = function getDatabase(databaseId) {
 // Tablo ismine ve providere göre tablo getirilir.
 var getTable = function getTable(tableName, provider) {
     $.ajax({
-        url: 'https://localhost:44383/Database/GetTable?databaseId=' + window.databaseId
+        url: baseUrl+'/Database/GetTable?databaseId=' + window.databaseId
             + '&tableName=' + tableName + '&provider=' + provider,
         type: 'GET',
         success: function (data, textStatus, xhr) {
@@ -572,7 +586,7 @@ var getTable = function getTable(tableName, provider) {
         $('#errorModalBodyText').text('Veritabanı yüklenirken hata oluştu lütfen daha sonra tekrar deneyiniz..!');
         $('#errorModal').modal('show');
         $('#errorModal').on('hidden.bs.modal', function (e) {
-            window.location.replace("https://localhost:44383/Database/");
+            window.location.replace(baseUrl+"/Database/");
         });
     });
 };
@@ -580,7 +594,7 @@ var getTable = function getTable(tableName, provider) {
 // Kullanılabilir veri tipi providere bağlı olarak getirilir.
 var getDataTypes = function getDataTypes(provider, selectId) {
     $.ajax({
-        url: 'https://localhost:44383/Database/GetDataTypes?provider=' + provider,
+        url: baseUrl+'/Database/GetDataTypes?provider=' + provider,
         type: 'GET',
         success: function (data, textStatus, xhr) {
             $('#' + selectId).find('option').not(':first').remove();
@@ -601,7 +615,7 @@ var getDataTypes = function getDataTypes(provider, selectId) {
         $('#errorModalBodyText').text('Veri Tipleri yüklenirken hata oluştu lütfen daha sonra tekrar deneyiniz..!');
         $('#errorModal').modal('show');
         $('#errorModal').on('hidden.bs.modal', function (e) {
-            window.location.replace("https://localhost:44383/Database/");
+            window.location.replace(baseUrl+"/Database/");
         });
     });
 
@@ -827,7 +841,7 @@ var addColumn = function addColumn(columnObj) {
         beforeSend: function (request) {
             request.setRequestHeader("Content-Type", "application/json");
         },
-        url: 'https://localhost:44383/Database/AddColumn',
+        url: baseUrl+'/Database/AddColumn',
         data: JSON.stringify(columnObj),
         contentType: "application/json",
         success: function (data) {
@@ -851,7 +865,7 @@ var addForeignKey = function addForeignKey(foreignKey) {
         beforeSend: function (request) {
             request.setRequestHeader("Content-Type", "application/json");
         },
-        url: 'https://localhost:44383/Database/AddForeignKey',
+        url: baseUrl+'/Database/AddForeignKey',
         data: JSON.stringify(foreignKey),
         contentType: "application/json",
         success: function (data) {
@@ -875,7 +889,7 @@ var updateColumn = function updateColumn(columnObj) {
         beforeSend: function (request) {
             request.setRequestHeader("Content-Type", "application/json");
         },
-        url: 'https://localhost:44383/Database/UpdateColumn',
+        url: baseUrl+'/Database/UpdateColumn',
         data: JSON.stringify(columnObj),
         contentType: "application/json",
         success: function (data) {
@@ -883,7 +897,7 @@ var updateColumn = function updateColumn(columnObj) {
             $('#updateColumnModal').modal('toggle');
         },
         error: function (XMLHttpRequest, textStatus, errorThrown) {
-            showCriticalError('Hata', 'Veritabanı yüklenirken hata oluştu lütfen daha sonra tekrar deneyiniz..', "https://localhost:44383/Database/")
+            showCriticalError('Hata', 'Veritabanı yüklenirken hata oluştu lütfen daha sonra tekrar deneyiniz..', baseUrl+"/Database/")
         },
         done: function (data) {
 
@@ -912,7 +926,7 @@ var deleteColumn = function deleteColumn(columnName, tableName) {
         beforeSend: function (request) {
             request.setRequestHeader("Content-Type", "application/json");
         },
-        url: 'https://localhost:44383/Database/DeleteColumn',
+        url: baseUrl+'/Database/DeleteColumn',
         data: JSON.stringify(data),
         contentType: "application/json",
         success: function (data) {
@@ -938,7 +952,7 @@ var updateForeignKey = function updateForeignKey(foreignKey) {
         beforeSend: function (request) {
             request.setRequestHeader("Content-Type", "application/json");
         },
-        url: 'https://localhost:44383/Database/UpdateForeignKey',
+        url: baseUrl+'/Database/UpdateForeignKey',
         data: JSON.stringify(foreignKey),
         contentType: "application/json",
         success: function (data) {
@@ -974,7 +988,7 @@ var deleteForeignKey = function deleteForeignKey(foreignKey, tableName) {
         beforeSend: function (request) {
             request.setRequestHeader("Content-Type", "application/json");
         },
-        url: 'https://localhost:44383/Database/DeleteForeignKey',
+        url: baseUrl+'/Database/DeleteForeignKey',
         data: JSON.stringify(data),
         contentType: "application/json",
         success: function (data) {
@@ -1015,7 +1029,7 @@ var dropTableRequest = function dropTableRequest(tableName) {
         beforeSend: function (request) {
             request.setRequestHeader("Content-Type", "application/json");
         },
-        url: 'https://localhost:44383/Database/DeleteTable',
+        url: baseUrl+'/Database/DeleteTable',
         data: JSON.stringify(dto),
         contentType: "application/json",
         success: function (data) {

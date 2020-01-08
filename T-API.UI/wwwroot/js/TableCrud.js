@@ -1,4 +1,4 @@
-﻿baseUrl = "http://t-api-bash.herokuapp.com/";
+﻿baseUrl = "http://t-api-bash.herokuapp.com";
 
 var init = function init(databaseId, databaseName, provider) {
     var table = $('#addTableColumns').DataTable({

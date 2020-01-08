@@ -11,10 +11,10 @@ namespace T_API.Core.Settings
         {
             Provider = "MySql",
             Port = "3306",
-            Password = "PJvi50C7GJeo56H",
-            Username = "u8206796_userTAP",
-            DatabaseName = "u8206796_dbTAPI",
-            Server = "94.73.170.109"
+            Password = "Berkay.0535",
+            Username = "byalcin",
+            DatabaseName = "maindb",
+            Server = "8.208.25.150"
         };
 
         public static DbInformation ServerDbInformation { get; } = new DbInformation
@@ -22,9 +22,9 @@ namespace T_API.Core.Settings
             Provider = "MySql",
             Port = "3306",
             Password = "Berkay.0535",
-            Username = "root",
+            Username = "byalcin",
             DatabaseName = "",
-            Server = "localhost"
+            Server = "8.208.25.150"
         };
         public static string SecretKey { get; } =
             "THIS IS USED TO SIGN AND VERIFY JWT TOKENS, REPLACE IT WITH YOUR OWN SECRET, IT CAN BE ANY STRING";

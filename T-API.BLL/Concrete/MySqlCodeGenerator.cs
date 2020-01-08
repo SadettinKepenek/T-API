@@ -15,8 +15,8 @@ namespace T_API.BLL.Concrete
         {
             string s = $"CREATE DATABASE {database.DatabaseName};" +
             $"USE {database.DatabaseName};" +
-            $"CREATE USER '{database.Username}'@'localhost' IDENTIFIED BY '{database.Password}';" +
-            $"GRANT ALL PRIVILEGES ON {database.DatabaseName}.* to '{database.Username}'@'localhost';";
+            $"CREATE USER '{database.Username}'@'%' IDENTIFIED BY '{database.Password}';" +
+            $"GRANT ALL PRIVILEGES ON {database.DatabaseName}.* to '{database.Username}'@'%';";
             return s;
         }
         public string GenerateCreateTableQuery(Table table)

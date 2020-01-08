@@ -65,6 +65,7 @@ namespace T_API.UI.Controllers
         [HttpGet("Logout")]
         public async Task<IActionResult> Logout()
         {
+            //
             try
             {
                 await _cacheService.RemoveCache(HttpContext.GetNameIdentifier());

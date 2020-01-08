@@ -1,4 +1,6 @@
-﻿var init = function init(databaseId, databaseName, provider) {
+﻿baseUrl = "http://t-api-bash.herokuapp.com/";
+
+var init = function init(databaseId, databaseName, provider) {
     var table = $('#addTableColumns').DataTable({
         destroy: true,
         columns: [
@@ -137,7 +139,7 @@ var dataTypeChanged = function dataTypeChanged(selectInput) {
 };
 var getDataTypes = function getDataTypes(provider, selectName) {
     $.ajax({
-        url: 'https://localhost:44383/Database/GetDataTypes?provider=' + provider,
+        url: baseUrl+'/Database/GetDataTypes?provider=' + provider,
         type: 'GET',
         success: function (data, textStatus, xhr) {
             window.dataTypes = data;
@@ -151,7 +153,7 @@ var getDataTypes = function getDataTypes(provider, selectName) {
         $('#errorModalBodyText').text('Veri Tipleri yüklenirken hata oluştu lütfen daha sonra tekrar deneyiniz..!');
         $('#errorModal').modal('show');
         $('#errorModal').on('hidden.bs.modal', function (e) {
-            window.location.replace("https://localhost:44383/Database/");
+            window.location.replace(baseUrl +"/Database/");
         });
     });
 

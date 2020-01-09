@@ -63,7 +63,7 @@ namespace T_API.BLL.Concrete
 
                 if (RemoteDbRepositoryFactory.CreateRepository(dbInformation.Provider) is MySqlRemoteDbRepository realDbRepository)
                 {
-                    var table = await realDbRepository.GetTable(tableName, dbInformation.DatabaseName);
+                    var table = await realDbRepository.GetTable(tableName, dbInformation);
 
                     if (table != null)
                     {
@@ -121,7 +121,7 @@ namespace T_API.BLL.Concrete
 
                 if (RemoteDbRepositoryFactory.CreateRepository(dbInformation.Provider) is MySqlRemoteDbRepository realDbRepository)
                 {
-                    var table = await realDbRepository.GetTable(tableName, dbInformation.DatabaseName);
+                    var table = await realDbRepository.GetTable(tableName, dbInformation);
 
                     if (table != null)
                     {

@@ -1,5 +1,7 @@
 ﻿window.tableCount = 0;
-baseUrl = "http://t-api-bash.herokuapp.com";
+
+baseUrl = location.protocol + '//' + location.hostname + (location.port ? ':' + location.port : '');
+
 
 // JS Dosyasını Initialize eder
 var init = function init(databaseId, dbProvider) {

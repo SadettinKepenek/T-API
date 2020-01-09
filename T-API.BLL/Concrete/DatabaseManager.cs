@@ -8,6 +8,7 @@ using AutoMapper;
 using Microsoft.Extensions.Caching.Memory;
 using T_API.BLL.Abstract;
 using T_API.BLL.Validators.Database;
+using T_API.Core.DAL.Concrete;
 using T_API.Core.DTO.Database;
 using T_API.Core.DTO.User;
 using T_API.Core.Exception;
@@ -111,7 +112,9 @@ namespace T_API.BLL.Concrete
                     x.SlidingExpiration = CacheKeys.SlidingExpirationCaching;
                     var databases = await _databaseRepository.GetById(databaseId);
                     var detailDatabaseDto = _mapper.Map<DetailDatabaseDto>(databases);
-                    detailDatabaseDto.Tables = await _remoteDbService.GetTables(databases.DatabaseName, databases.Provider);
+                    var dbInfo = _mapper.Map<DbInformation>(detailDatabaseDto);
+
+                    detailDatabaseDto.Tables = await _remoteDbService.GetTables(dbInfo);
                     return detailDatabaseDto;
 
                 });

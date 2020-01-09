@@ -88,6 +88,7 @@ namespace T_API.UI.MappingProfiles
 
 
             CreateMap<DetailDatabaseDto, DbInformation>().ReverseMap();
+            CreateMap<Database, DbInformation>().ReverseMap();
 
 
             CreateMap<DetailDatabasePackageDto, DatabasePackage>().ReverseMap();

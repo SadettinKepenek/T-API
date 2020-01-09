@@ -29,8 +29,8 @@ namespace T_API.BLL.Abstract
         Task ExecuteQueryOnRemote(string query);
 
 
-        Task<List<DetailTableDto>> GetTables(string databaseName,string provider);
-        Task<DetailTableDto> GetTable(string tableName, string databaseName, string provider);
+        Task<List<DetailTableDto>> GetTables(DbInformation dbInformation);
+        Task<DetailTableDto> GetTable(string tableName, DbInformation dbInformation);
 
         Task<List<string>> GetAvailableProviders();
         Task<DbInformation> GetAvailableServer(string provider);

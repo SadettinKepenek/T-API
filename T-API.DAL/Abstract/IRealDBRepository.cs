@@ -20,8 +20,8 @@ namespace T_API.DAL.Abstract
 
         Task<DataTable> Get(string query, DbInformation dbInformation);
 
-        Task<List<Table>> GetTables(string databaseName);
-        Task<Table> GetTable(string tableName, string databaseName);
+        Task<List<Table>> GetTables(DbInformation dbInformation);
+        Task<Table> GetTable(string tableName, DbInformation dbInformation);
 
 
         Task<List<ForeignKey>> GetForeignKeys(string databaseName);

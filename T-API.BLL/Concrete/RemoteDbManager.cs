@@ -149,8 +149,7 @@ namespace T_API.BLL.Concrete
                     if (validationResult.IsValid)
                     {
                         var entity = _mapper.Map<Column>(column);
-                        var dbTable = await GetTable(column.TableName, dbInformation.DatabaseName,
-                            dbInformation.Provider);
+                        var dbTable = await GetTable(column.TableName, dbInformation);
                         var table = _mapper.Map<Table>(dbTable);
                         string command = codeGenerator.GenerateAddColumnQuery(entity, table);
                         await ExecuteQueryOnRemote(command, dbInformation);
@@ -180,8 +179,7 @@ namespace T_API.BLL.Concrete
                     var validationResult = validator.Validate(column);
                     if (validationResult.IsValid)
                     {
-                        var dbTable = await GetTable(column.TableName, dbInformation.DatabaseName,
-                            dbInformation.Provider);
+                        var dbTable = await GetTable(column.TableName, dbInformation);
                         var table = _mapper.Map<Table>(dbTable);
                         var queries = new List<string>();
                         if (column.OldColumn != null)
@@ -229,8 +227,7 @@ namespace T_API.BLL.Concrete
                     var validationResult = validator.Validate(column);
                     if (validationResult.IsValid)
                     {
-                        var databaseEntity = await GetTable(column.TableName, dbInformation.DatabaseName,
-                            dbInformation.Provider);
+                        var databaseEntity = await GetTable(column.TableName, dbInformation);
 
                         var mappedEntity = _mapper.Map<Column>(column);
                         var table = _mapper.Map<Table>(databaseEntity);
@@ -263,8 +260,7 @@ namespace T_API.BLL.Concrete
                     {
                         var mappedForeignKey = _mapper.Map<ForeignKey>(foreignKey);
 
-                        var dbTable = await GetTable(foreignKey.SourceTable, dbInformation.DatabaseName,
-                            dbInformation.Provider);
+                        var dbTable = await GetTable(foreignKey.SourceTable, dbInformation);
                         var table = _mapper.Map<Table>(dbTable);
 
                         string command = codeGenerator.GenerateAddForeignKeyQuery(mappedForeignKey, table);
@@ -300,8 +296,7 @@ namespace T_API.BLL.Concrete
                     {
                         var mappedNew = _mapper.Map<ForeignKey>(foreignKey);
                         var mappedOld = _mapper.Map<ForeignKey>(foreignKey.OldForeignKey);
-                        var dbTable = await GetTable(foreignKey.SourceTable, dbInformation.DatabaseName,
-                            dbInformation.Provider);
+                        var dbTable = await GetTable(foreignKey.SourceTable, dbInformation);
                         var table = _mapper.Map<Table>(dbTable);
 
                         List<string> queries = new List<string>
@@ -341,8 +336,7 @@ namespace T_API.BLL.Concrete
                     {
                         var mappedNew = _mapper.Map<ForeignKey>(foreignKey);
 
-                        var dbTable = await GetTable(foreignKey.SourceTable, dbInformation.DatabaseName,
-                            dbInformation.Provider);
+                        var dbTable = await GetTable(foreignKey.SourceTable, dbInformation);
                         var table = _mapper.Map<Table>(dbTable);
 
                         var queries = new List<string>
@@ -433,14 +427,14 @@ namespace T_API.BLL.Concrete
             }
 
         }
-        public async Task<List<DetailTableDto>> GetTables(string databaseName, string provider)
+        public async Task<List<DetailTableDto>> GetTables(DbInformation dbInformation)
         {
             try
             {
 
-                if (RemoteDbRepositoryFactory.CreateRepository(provider) is MySqlRemoteDbRepository remoteDbRepository)
+                if (RemoteDbRepositoryFactory.CreateRepository(dbInformation.Provider) is MySqlRemoteDbRepository remoteDbRepository)
                 {
-                    var result = await remoteDbRepository.GetTables(databaseName);
+                    var result = await remoteDbRepository.GetTables(dbInformation);
                     var mappedResults = _mapper.Map<List<DetailTableDto>>(result);
                     return mappedResults;
 
@@ -456,14 +450,15 @@ namespace T_API.BLL.Concrete
 
 
         }
-        public async Task<DetailTableDto> GetTable(string tableName, string databaseName, string provider)
+        public async Task<DetailTableDto> GetTable(string tableName, DbInformation dbInformation)
         {
 
             try
             {
-                if (RemoteDbRepositoryFactory.CreateRepository(provider) is MySqlRemoteDbRepository remoteDbRepository)
+                
+                if (RemoteDbRepositoryFactory.CreateRepository(dbInformation.Provider) is MySqlRemoteDbRepository remoteDbRepository)
                 {
-                    var result = await remoteDbRepository.GetTable(tableName, databaseName);
+                    var result = await remoteDbRepository.GetTable(tableName, dbInformation);
                     var mappedResults = _mapper.Map<DetailTableDto>(result);
                     return mappedResults;
                 }

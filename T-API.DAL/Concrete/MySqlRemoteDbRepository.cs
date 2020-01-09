@@ -119,13 +119,13 @@ namespace T_API.DAL.Concrete
         /// </summary>
         /// <param name="databaseName">Veritabanı adı</param>
         /// <returns>Veritabanı Tabloları</returns>
-        public async Task<List<Table>> GetTables(string databaseName)
+        public async Task<List<Table>> GetTables(DbInformation dbInformation)
         {
-            using (var conn = DbConnectionFactory.CreateConnection(ConfigurationSettings.ServerDbInformation))
+            using (var conn = DbConnectionFactory.CreateConnection(dbInformation))
             {
 
 
-                var cmd = conn.CreateCommand(MySqlQueryTemplates.GetTable(databaseName));
+                var cmd = conn.CreateCommand(MySqlQueryTemplates.GetTable(dbInformation.DatabaseName));
 
                 using (cmd)
                 {
@@ -149,7 +149,7 @@ namespace T_API.DAL.Concrete
                             if (tables.All(x => x.TableName != group.Key))
                             {
                                 var table = ParseTable(group);
-                                table.DatabaseName = databaseName;
+                                table.DatabaseName = dbInformation.DatabaseName;
                                 tables.Add(table);
                             }
                         }
@@ -309,12 +309,12 @@ namespace T_API.DAL.Concrete
             key.KeyName = uniqueKeyName;
             return key;
         }
-        public async Task<Table> GetTable(string tableName, string databaseName)
+        public async Task<Table> GetTable(string tableName, DbInformation dbInformation)
         {
-            using (var conn = DbConnectionFactory.CreateConnection(ConfigurationSettings.ServerDbInformation))
+            using (var conn = DbConnectionFactory.CreateConnection(dbInformation))
             {
 
-                var cmd = conn.CreateCommand(MySqlQueryTemplates.GetTable(databaseName, tableName));
+                var cmd = conn.CreateCommand(MySqlQueryTemplates.GetTable(dbInformation.DatabaseName, tableName));
 
                 using (cmd)
                 {
@@ -325,7 +325,7 @@ namespace T_API.DAL.Concrete
                         dt.Load(sqlReader);
 
                         var table = ParseTable(dt);
-                        table.DatabaseName = databaseName;
+                        table.DatabaseName = dbInformation.DatabaseName;
                         return table;
                     }
                     catch (Exception ex)

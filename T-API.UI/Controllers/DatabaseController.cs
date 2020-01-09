@@ -407,7 +407,9 @@ namespace T_API.UI.Controllers
                 {
                     return Unauthorized(SystemMessages.UnauthorizedOperationExceptionMessage);
                 }
-                var table = await _remoteDbService.GetTable(tableName, db.DatabaseName, provider);
+                var dbInfo = _mapper.Map<DbInformation>(db);
+
+                var table = await _remoteDbService.GetTable(tableName, dbInfo);
                 if (table == null)
                 {
                     return BadRequest(SystemMessages.NoContentExceptionMessage);

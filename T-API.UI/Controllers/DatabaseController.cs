@@ -118,6 +118,7 @@ namespace T_API.UI.Controllers
                 var dto = _mapper.Map<AddDatabaseDto>(model);
                 _ = await _databaseService.AddDatabase(dto);
                 TempData["Message"] = SystemMessages.SuccessMessage;
+                await _cacheService.RemoveCache(HttpContext.GetNameIdentifier());
                 return RedirectToAction("Index", "Database");
 
 
@@ -189,6 +190,7 @@ namespace T_API.UI.Controllers
                 }
                 var dbInformation = _mapper.Map<DbInformation>(db);
                 await _remoteDbService.CreateColumnOnRemote(model, dbInformation);
+                await _cacheService.RemoveCache(HttpContext.GetNameIdentifier());
                 return Ok(SystemMessages.SuccessMessage);
             }
             catch (Exception e)
@@ -215,6 +217,7 @@ namespace T_API.UI.Controllers
                 }
                 var dbInformation = _mapper.Map<DbInformation>(db);
                 await _remoteDbService.AlterColumnOnRemote(model, dbInformation);
+                await _cacheService.RemoveCache(HttpContext.GetNameIdentifier());
                 return Ok(SystemMessages.SuccessMessage);
             }
             catch (Exception e)
@@ -244,6 +247,7 @@ namespace T_API.UI.Controllers
                 var dbInformation = _mapper.Map<DbInformation>(db);
 
                 await _remoteDbService.DropColumnOnRemote(model, dbInformation);
+                await _cacheService.RemoveCache(HttpContext.GetNameIdentifier());
                 return Ok(SystemMessages.SuccessMessage);
             }
             catch (Exception e)
@@ -274,6 +278,7 @@ namespace T_API.UI.Controllers
                 var dbInformation = _mapper.Map<DbInformation>(db);
 
                 await _remoteDbService.DropTableOnRemote(model, dbInformation);
+                await _cacheService.RemoveCache(HttpContext.GetNameIdentifier());
                 return Ok(SystemMessages.SuccessMessage);
             }
             catch (Exception e)
@@ -301,6 +306,7 @@ namespace T_API.UI.Controllers
                 var dbInformation = _mapper.Map<DbInformation>(db);
 
                 await _remoteDbService.CreateForeignKeyOnRemote(model, dbInformation);
+                await _cacheService.RemoveCache(HttpContext.GetNameIdentifier());
                 return Ok(SystemMessages.SuccessMessage);
             }
             catch (Exception e)
@@ -328,6 +334,7 @@ namespace T_API.UI.Controllers
                 }
                 var dbInformation = _mapper.Map<DbInformation>(db);
                 await _remoteDbService.AlterForeignKeyOnRemote(model, dbInformation);
+                await _cacheService.RemoveCache(HttpContext.GetNameIdentifier());
                 return Ok(SystemMessages.SuccessMessage);
             }
             catch (Exception e)
@@ -353,6 +360,7 @@ namespace T_API.UI.Controllers
                 }
                 var dbInformation = _mapper.Map<DbInformation>(db);
                 await _remoteDbService.DropForeignKeyOnRemote(model, dbInformation);
+                await _cacheService.RemoveCache(HttpContext.GetNameIdentifier());
                 return Ok(SystemMessages.SuccessMessage);
             }
             catch (Exception e)
@@ -493,7 +501,7 @@ namespace T_API.UI.Controllers
                 var mappedEntity = _mapper.Map<AddTableDto>(model);
                 var dbInfo = _mapper.Map<DbInformation>(db);
                 await _remoteDbService.CreateTableOnRemote(mappedEntity, dbInfo);
-
+                await _cacheService.RemoveCache(HttpContext.GetNameIdentifier());
                 TempData["Message"] = SystemMessages.SuccessMessage;
                 return RedirectToAction("EditService", "Database", new { serviceId = model.DatabaseId });
             }

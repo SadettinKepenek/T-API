@@ -50,6 +50,7 @@ namespace T_API.UI.Controllers
         [HttpGet]
         public async Task<IActionResult> Login()
         {
+
             return View();
         }
 
@@ -68,6 +69,7 @@ namespace T_API.UI.Controllers
                 {
                     var mapped = _mapper.Map<LoginUserDto>(model);
                     await _authService.Login(mapped, false);
+                    await _cacheService.RemoveCache(HttpContext.GetNameIdentifier());
                     return RedirectToAction("Index", "Home");
                 }
             }

@@ -93,7 +93,8 @@ namespace T_API.BLL.Concrete
             {
 
                 var database = await _databaseRepository.Get(dbInformation.DatabaseName);
-                if (database.Tables.Count + 1 > database.Package.MaxTableCount)
+                var dbTables =await GetTables(dbInformation);
+                if (dbTables.Count + 1 > database.Package.MaxTableCount)
                 {
                     throw new DatabaseException($"{dbInformation.DatabaseName} için {database.Package.PackageName} paketinin sınırları aşıldı !");
                 }
@@ -193,8 +194,8 @@ namespace T_API.BLL.Concrete
             try
             {
                 var database = await _databaseRepository.Get(dbInformation.DatabaseName);
-
-                var o = database.Tables.FirstOrDefault(x => x.TableName == column.TableName);
+                var dbTables = await GetTables(dbInformation);
+                var o = dbTables.FirstOrDefault(x => x.TableName == column.TableName);
                 if (o != null)
                 {
                     if (o.Columns.Count + 1 > database.Package.MaxColumnPerTable)

@@ -40,6 +40,8 @@ var init = function init(databaseId, databaseName, provider) {
             table.row.add([
                 getColumnNameString(), getDataTypeString(), getDataLengthString(), getDefaultValueString(), getIsUniqueString(), getIsPrimaryString(), getNotNullString(), getAutoIncString(), getHasLengthString(), getIndexString()
             ]).draw(false);
+
+
             window.columnCount++;
         });
 
@@ -68,12 +70,15 @@ var getDataTypeString = function getDataTypeString() {
     var dataTypeStr = '<select onchange="dataTypeChanged(this);" class="form-control" size="1" id="row-' + window.columnCount + '-dataType" name="Columns[' + window.columnCount + '].DataType" required="required">';
 
     $('#' + 'row-' + window.columnCount + '-dataType').find('option').not(':first').remove();
-    dataTypeStr += '<option  disabled="disabled">Data Type</option>';
+    dataTypeStr += '<option selected disabled="disabled">Data Type</option>';
 
     window.dataTypes.forEach(function (d) {
         dataTypeStr += '<option value=' + d + '>' + d + '</option>';
     });
     dataTypeStr += '</select>';
+
+
+
     return dataTypeStr;
 };
 
@@ -110,7 +115,6 @@ var getAutoIncString = function getAutoIncString() {
     return autoIncStr;
 };
 var dataTypeChanged = function dataTypeChanged(selectInput) {
-
 
     var rowId = selectInput.id.replace("row-", "");
     rowId = rowId.replace("-dataType", "");

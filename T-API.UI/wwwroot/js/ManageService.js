@@ -295,13 +295,78 @@ var init = function init(databaseId, dbProvider) {
 
             });
 
+        //update key show event
+        $('#updateKeyModal').on('shown.bs.modal',
+            function (e) {
 
+
+                setTimeout(function () {
+                    if (window.databaseTables === null || window.keys === null) {
+                        showCriticalError('Hata',
+                            'Veritabanı yüklenirken hata oluştu lütfen daha sonra tekrar deneyiniz..',
+                            baseUrl + "/Database/");
+                        return;
+                    }
+
+
+                    $('#updateKeyForm').trigger('reset');
+                    $('#updateKeyColumn').find('option').not(':first').remove();
+
+                    var tableName = $(e.relatedTarget).data('id');
+                    var keyName = $(e.relatedTarget).data('keyname');
+                    var table = window.databaseTables.filter(x => x.tableName === tableName)[0];
+                    var oldKey = table.keys.find(x => x.keyName === keyName);
+
+
+
+                    window.UpdateKeyDto = new UpdateKeyDto(parseInt(window.databaseId), window.dbProvider);
+                    window.UpdateKeyDto.TableName = tableName;
+                    window.UpdateKeyDto.Provider = window.dbProvider;
+                    window.UpdateKeyDto.OldKey = oldKey;
+                    window.UpdateKeyDto.KeyName = keyName;
+
+
+
+                    //window.UpdateKeyDto.IsPrimary = oldKey.isPrimary;
+                    $('#updateKeyTableName').val(tableName);
+                    $('#updateKeyProviderInfo').val(window.UpdateKeyDto.Provider);
+                    $('#updateKeyName').val(keyName);
+
+
+                    $('#updateKeyIsPrimary').prop('checked', oldKey.isPrimary);
+                    $('#updateKeyIsPrimary').val(oldKey.isPrimary).change();
+
+                    if (table === null || table === undefined) {
+                        showCriticalError('Hata',
+                            'Veritabanı yüklenirken hata oluştu lütfen daha sonra tekrar deneyiniz..',
+                            baseUrl + "/Database/");
+                        return;
+                    }
+
+                    table.columns.forEach(function (column) {
+
+                        $('#updateKeyColumn').append($('<option>',
+                            {
+                                value: column.columnName,
+                                text: column.columnName
+                            }));
+
+                    });
+                    $("#updateKeyColumn").val(oldKey.keyColumn).change();
+                }, 100);
+
+
+
+
+
+
+            });
         //Loading barı kapatır.
         $('#loadingSpinner').fadeOut();
 
         // Sistemi belirtilen sürede bir yeniler. ex.10dk
         setInterval(systemCheck, 600000);
-    }, 1500);
+    }, 2500);
     // addColumnModal Shown Event
 
 
@@ -677,8 +742,14 @@ var showCriticalError = function showCriticialError(title, body, href) {
     $('#errorModal').on('hidden.bs.modal', function (e) {
         window.location.replace(href);
     });
-}
+};
 
+var showWarningError = function showWarningError(title, body) {
+    $('#errorModalTitle').text(title);
+    $('#errorModalBodyText').text(body);
+    $('#errorModal').modal('show');
+
+};
 // Source Column için kullanılacak sütunun uygunluğuna bakılır.
 var checkRelationColumnAvailability = function checkRelationColumnAvailability(columnName, tableName) {
     var targetCheck = true;
@@ -742,7 +813,6 @@ var getTable = function getTable(tableName, provider) {
             + '&tableName=' + tableName + '&provider=' + provider,
         type: 'GET',
         success: function (data, textStatus, xhr) {
-            console.log(data);
         },
         complete: function (xhr, textStatus) {
 
@@ -1028,6 +1098,34 @@ var prepareInputChangeEvents = function prepareInputChangeEvents() {
         window.addKeyDto.IsPrimary = this.checked;
     });
 
+    //Update Key Modal
+
+    $('#updateKeyModalSubmit').click(function (e) {
+        e.preventDefault();
+        if (window.addColumnDto === null) {
+            $('#errorModalTitle').text('Hata!');
+            $('#errorModalBodyText').text('Herhangi bir veri gönderilmedi..!');
+            $('#errorModal').modal('show');
+        }
+        updateKey(window.UpdateKeyDto);
+    });
+    $('#updateKeyName').on('input', function (e) {
+        if (this.value.search(' ') >= 0) {
+            alert('Lütfen Key isimlerinde boşluk bırakmayınız');
+
+            $('#updateKeyName').val(this.value.replace(/\s/g, ''));
+            window.UpdateKeyDto.KeyName = $('#updateKeyName').val();
+        } else {
+            window.UpdateKeyDto.KeyName = $('#updateKeyName').val();
+        }
+    });
+
+    $('#updateKeyColumn').on('change', function (e) {
+        window.UpdateKeyDto.KeyColumn = this.value;
+    });
+    $('#updateKeyIsPrimary').on('change', function () {
+        window.UpdateKeyDto.IsPrimary = this.checked;
+    });
 
 };
 
@@ -1080,7 +1178,36 @@ var addKey = function addKey(keyObj) {
     });
 };
 
+//Update Key
+var updateKey = function updateKey(keyObj) {
+    if (window.UpdateKeyDto.IsPrimary === true) {
+        showWarningError('Hata', 'Primary Key Değiştirilemez. ..');
+        return;
+    }
+    $.ajax({
+        type: 'POST',
+        beforeSend: function (request) {
 
+
+
+            request.setRequestHeader("Content-Type", "application/json");
+        },
+        url: baseUrl + '/Database/UpdateKey',
+        data: JSON.stringify(keyObj),
+        contentType: "application/json",
+        success: function (data) {
+            getDatabase(keyObj.DatabaseId);
+            $('#updateKeyModal').modal('toggle');
+        },
+        error: function (XMLHttpRequest, textStatus, errorThrown) {
+            $('#errorModalTitle').text('Hata!');
+            $('#errorModalBodyText').text(XMLHttpRequest.responseText);
+            $('#errorModal').modal('show');
+        },
+        done: function (data) {
+        }
+    });
+};
 
 // Relationship ekleme (Server-Side)
 var addForeignKey = function addForeignKey(foreignKey) {
@@ -1167,6 +1294,37 @@ var deleteColumn = function deleteColumn(columnName, tableName) {
     });
 };
 
+//delete key
+var deleteKey = function deleteKey(keyName, tableName) {
+
+    var key = window.databaseTables.find(x => x.tableName === tableName).keys
+        .find(y => y.keyName === keyName);
+    console.log(key);
+    var dto = new DeleteKeyDto(keyName, tableName, window.dbProvider, window.databaseId);
+    if (key.isPrimary)
+        showWarningError("Hata!", "Primary Key Drop Edilemez.");
+    else
+        $.ajax({
+            type: 'DELETE',
+            beforeSend: function (request) {
+                request.setRequestHeader("Content-Type", "application/json");
+            },
+            url: baseUrl + '/Database/DeleteKey',
+            data: JSON.stringify(dto),
+            contentType: "application/json",
+            success: function (data) {
+                getDatabase(window.databaseId);
+            },
+            error: function (XMLHttpRequest, textStatus, errorThrown) {
+
+                $('#errorModalTitle').text('Hata!');
+                $('#errorModalBodyText').text(XMLHttpRequest.responseText);
+                $('#errorModal').modal('show');
+            },
+            done: function (data) {
+            }
+        });
+};
 
 
 // Update Relation

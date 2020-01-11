@@ -10,7 +10,30 @@
         this.Provider = provider;
     }
 }
-
+class DeleteKeyDto {
+    KeyName = '';
+    TableName = '';
+    Provider = '';
+    DatabaseId = 0;
+    constructor(KeyName, TableName, Provider, DatabaseId) {
+        this.Provider = Provider;
+        this.DatabaseId = DatabaseId;
+        this.KeyName = KeyName;
+        this.TableName = TableName;
+    }
+}
+class UpdateKeyDto {
+    KeyName = '';
+    DatabaseId = 0;
+    KeyColumn = '';
+    IsPrimary = false;
+    TableName = '';
+    OldKey = null;
+    constructor(databaseId, provider) {
+        this.DatabaseId = databaseId;
+        this.Provider = provider;
+    }
+}
 
 class AddColumnDto {
     TableName = '';

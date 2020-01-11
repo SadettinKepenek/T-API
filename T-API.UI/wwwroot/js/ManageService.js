@@ -289,7 +289,7 @@ var init = function init(databaseId, dbProvider) {
                                 }));
                         }
 
-                        
+
                     });
                 }
 
@@ -354,7 +354,7 @@ var parseDatabase = function parseDatabase(table) {
         tableContentString += '<h5 class="text-center">Columns</h5>';
         tableContentString += '<hr/>';
         tableContentString += '<div class="row">';
-        tableContentString += '<table class="table table-striped  table-bordered" id="databaseTable_Columns_' + table.tableName + '"></table>';
+        tableContentString += '<table class="table table-striped  table-bordered text-center " id="databaseTable_Columns_' + table.tableName + '"></table>';
         tableContentString += '</div>';
         // Add Foreign Key Section
         tableContentString += '<h5 class="text-center">Foreign Keys</h5>';
@@ -584,10 +584,29 @@ var initDataTableForColumns = function initDataTableForColumns(tableName) {
                 { data: "columnName", title: "Column Name" },
                 { data: "dataType", title: "Data Type" },
                 { data: "dataLength", title: "Data Length" },
-                { data: "primaryKey", title: "Primary Key?" },
-                { data: "unique", title: "Unique?" },
-                { data: "autoInc", title: "Auto Increment?" },
-                { data: "notNull", title: "Not Null?" },
+                {
+                    data: "primaryKey", title: "Primary Key?", render: function (data, type, row, meta) {
+                        return iconGeneratorForDataTables(type, data);
+
+                    }
+                },
+                {
+                    data: "unique", title: "Unique?", render: function (data, type, row, meta) {
+                        return iconGeneratorForDataTables(type, data);
+
+                    }
+                },
+                {
+                    data: "autoInc", title: "Auto Increment?", render: function (data, type, row, meta) {
+                        return iconGeneratorForDataTables(type, data);
+
+                    }
+                },
+                {
+                    data: "notNull", title: "Not Null?", render: function (data, type, row, meta) {
+                        return iconGeneratorForDataTables(type, data);
+                    }
+                },
                 {
                     data: null,
                     render: function (data, type, row, meta) {
@@ -603,7 +622,8 @@ var initDataTableForColumns = function initDataTableForColumns(tableName) {
             "paging": false,
             "ordering": false,
             "info": false,
-            "searching": false
+            "searching": false,
+
 
         });
     } else {
@@ -614,6 +634,20 @@ var initDataTableForColumns = function initDataTableForColumns(tableName) {
 
 
 };
+
+var iconGeneratorForDataTables = function iconGeneratorForDataTables(type, data) {
+    if (type === 'display') {
+        //
+        if (data) {
+            return '<i class="fas fa-check-circle"></i>';
+        } else {
+            return '<i class="far fa-times-circle"></i>';
+        }
+    } else {
+        return data;
+    }
+};
+
 // Tablo ismine göre tableın sütunlarını getirir.
 var getColumnsByTableName = function getColumns(tableName) {
     if (window.databaseTables) {
@@ -976,7 +1010,7 @@ var prepareInputChangeEvents = function prepareInputChangeEvents() {
         }
         addKey(window.addKeyDto);
     });
-    $('#addKeyName').on('input', function(e) {
+    $('#addKeyName').on('input', function (e) {
         if (this.value.search(' ') >= 0) {
             alert('Lütfen Key isimlerinde boşluk bırakmayınız');
 
@@ -987,7 +1021,7 @@ var prepareInputChangeEvents = function prepareInputChangeEvents() {
         }
     });
 
-    $('#addKeyColumn').on('change', function(e) {
+    $('#addKeyColumn').on('change', function (e) {
         window.addKeyDto.KeyColumn = this.value;
     });
     $('#addKeyIsPrimary').on('change', function () {

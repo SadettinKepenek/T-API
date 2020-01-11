@@ -14,47 +14,42 @@
 
 <script src="~/js/ManageService.js"></script>
 <script src="~/js/DataTransferObjects.js"></script>
+<style type="text/css">
+    table.dataTable tbody td {
+        vertical-align: middle;
+        
+    }
+   
+</style>
 
 
 
-<div class="form-group">
-    <label asp-for="Username">Database Username</label>
-    <input type="text" class="form-control" placeholder="Enter Username" asp-for="Username" readonly="readonly">
-    <span class="text-danger" asp-validation-for="Username"></span>
+<div class="container-fluid">
+    <div class="form-group">
+        <label asp-for="DatabaseName">Database Name</label>
+        <input type="text" class="form-control" placeholder="" asp-for="DatabaseName" readonly="readonly">
+        <span class="text-danger" asp-validation-for="DatabaseName"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="Provider">Provider</label>
+        <input type="text" class="form-control" placeholder="" asp-for="Provider" readonly="readonly">
+        <span class="text-danger" asp-validation-for="Provider"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="StartDate">Start Date</label>
+        <input type="datetime-local" class="form-control" placeholder="" asp-for="StartDate" readonly="readonly">
+        <span class="text-danger" asp-validation-for="StartDate"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="EndDate">End Date</label>
+        <input type="datetime-local" class="form-control" placeholder="" asp-for="EndDate" readonly="readonly">
+        <span class="text-danger" asp-validation-for="EndDate"></span>
+    </div>
+
+    <input asp-for="UserId" hidden="hidden" />
+    <input asp-for="DatabaseId" hidden="hidden" />
 </div>
 
-<div class="form-group">
-    <label asp-for="DatabaseName">Database Name</label>
-    <input type="text" class="form-control" placeholder="" asp-for="DatabaseName" readonly="readonly">
-    <span class="text-danger" asp-validation-for="DatabaseName"></span>
-</div>
-<div class="form-group">
-    <label asp-for="Server">Server</label>
-    <input type="text" class="form-control" placeholder="" asp-for="Server" readonly="readonly">
-    <span class="text-danger" asp-validation-for="Server"></span>
-</div>
-<div class="form-group">
-    <label asp-for="Port">Port</label>
-    <input type="text" class="form-control" placeholder="" asp-for="Port" readonly="readonly">
-    <span class="text-danger" asp-validation-for="Port"></span>
-</div>
-<div class="form-group">
-    <label asp-for="Provider">Provider</label>
-    <input type="text" class="form-control" placeholder="" asp-for="Provider" readonly="readonly">
-    <span class="text-danger" asp-validation-for="Provider"></span>
-</div>
-<div class="form-group">
-    <label asp-for="StartDate">Start Date</label>
-    <input type="datetime-local" class="form-control" placeholder="" asp-for="StartDate" readonly="readonly">
-    <span class="text-danger" asp-validation-for="StartDate"></span>
-</div>
-<div class="form-group">
-    <label asp-for="EndDate">End Date</label>
-    <input type="datetime-local" class="form-control" placeholder="" asp-for="EndDate" readonly="readonly">
-    <span class="text-danger" asp-validation-for="EndDate"></span>
-</div>
-<input asp-for="UserId" hidden="hidden" />
-<input asp-for="DatabaseId" hidden="hidden" />
 
 <div class="loading" id="loadingSpinner">Loading;</div>
 <div class="container-fluid">

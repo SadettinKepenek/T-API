@@ -97,7 +97,8 @@ namespace T_API.UI.Controllers
             }
             catch (Exception e)
             {
-                return BadRequest(e.Message);
+                if (e is DatabaseException) return BadRequest(e.Message);
+                return BadRequest(SystemMessages.DuringOperationExceptionMessage);
             }
         }
         [HttpPost("Add/{serviceNumber}/{tableName}")]
@@ -121,7 +122,8 @@ namespace T_API.UI.Controllers
             }
             catch (Exception e)
             {
-                return BadRequest(e.Message);
+                if (e is DatabaseException) return BadRequest(e.Message);
+                return BadRequest(SystemMessages.DuringOperationExceptionMessage);
             }
         }
 
@@ -144,7 +146,9 @@ namespace T_API.UI.Controllers
             }
             catch (Exception e)
             {
-                return BadRequest(e.Message);
+                if (e is DatabaseException) return BadRequest(e.Message);
+
+                return BadRequest(SystemMessages.DuringOperationExceptionMessage);
 
             }
 

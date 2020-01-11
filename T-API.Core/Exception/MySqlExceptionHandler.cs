@@ -36,7 +36,7 @@ namespace T_API.Core.Exception
                 return new DatabaseException("Tablo oluşturulurken hata oluştu", ex.InnerException);
             }
 
-            if (ex.Number == (int)MySqlErrorCode.DuplicateUnique)
+            if (ex.Number == (int)MySqlErrorCode.DuplicateUnique || ex.Number==1062)
             {
                 return new DatabaseException("Eklenilen veri için zaten kayıt mevcut", ex.InnerException);
             }

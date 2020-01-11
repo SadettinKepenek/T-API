@@ -212,11 +212,39 @@ namespace T_API.DAL.Concrete
 
                 #endregion
 
+                #region Indices
+
+                var indices = groupedColumn.Where(x => String.IsNullOrEmpty(x.Field<string>("INDEX_NAME")) == false);
+
+                foreach (DataRow index in indices)
+                {
+                    if (((string) index["INDEX_NAME"]).Contains("index") && table.Indices.All(x => x.IndexName != index["INDEX_NAME"] as string))
+                    {
+                        var idx = ParseIndex(index);
+                        table.Indices.Add(idx);
+                    }
+                }
+
+                #endregion
 
 
             }
 
             return table;
+        }
+
+        private static Index ParseIndex(DataRow index)
+        {
+            Index key = new Index
+            {
+                IndexColumn = index["COLUMN_NAME"] as string,
+                TableName = index["TABLE_NAME"] as string,
+                IndexName = index["INDEX_NAME"] as string,
+                IsUnique = Convert.ToBoolean(index["NON_UNIQUE"])
+            };
+
+
+            return key;
         }
 
         private static Table ParseTable(DataTable dt)

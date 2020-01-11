@@ -2,7 +2,7 @@
 @using T_API.UI.Extensions
 @model T_API.UI.Models.Database.EditServiceViewModel
 @{
-    ViewData["Title"] = "EditService";
+    ViewData["Title"] = $"Manage Service {Model.DatabaseName}";
 }
 @inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Xsrf
 @functions{

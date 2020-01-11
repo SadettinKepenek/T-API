@@ -6,7 +6,7 @@
 
 <h4>@TempData["Message"]</h4>
 <table class="table table-light table-hover">
-    <thead class="thead-dark">
+    <thead class="thead-dark text-center">
         <tr>
             <th scope="col">#</th>
             <th scope="col">Database Server</th>
@@ -22,28 +22,27 @@
     <tbody>
         @foreach (ListDatabaseDto database in Model.Databases)
         {
-            <tr>
+            <tr class="text-center">
                 <th scope="row">@database.DatabaseId</th>
                 <td>@database.Server.Trim()</td>
                 <td>@database.Provider.Trim()</td>
                 <td>@database.StartDate</td>
                 <td>@database.EndDate</td>
-                <td>@(database.IsActive ? "Aktif" : "Pasif")</td>
                 <td>
-                    <div class="btn-group btn-group-sm dropright">
-                        <button type="button" class="btn btn-secondary">
-                            Detail
-                        </button>
-                        <button type="button" class="btn btn-secondary dropdown-toggle dropdown-toggle-split" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                            <span class="sr-only">Manage</span>
-                        </button>
-                        <div class="dropdown-menu">
-                            <a class="dropdown-item" asp-action="EditService" asp-controller="Database" asp-route-serviceId="@database.DatabaseId">Edit Service</a>
-                            <a class="dropdown-item" href="#">Suspend Service</a>
-                            <a class="dropdown-item" href="#">Remove Service</a>
-                            <!-- Dropdown menu links -->
-                        </div>
-                    </div>
+                    @if (database.IsActive)
+                    {
+                        <i class="fas fa-check-circle"></i>
+                    }
+                    else
+                    {
+                        <i class="far fa-times-circle"></i>
+                    }
+                </td>
+                <td>
+                    <a asp-action="EditService" asp-controller="Database" asp-route-serviceId="@database.DatabaseId" class="btn btn-secondary btn-sm">
+                        Manage
+                    </a>
+
                 </td>
             </tr>
 

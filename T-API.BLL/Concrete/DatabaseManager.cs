@@ -42,12 +42,12 @@ namespace T_API.BLL.Concrete
         {
             try
             {
-                var mappedData=await _cache.GetOrCreateAsync(CacheKeys.DatabaseKey(), async x =>
-                {
-                    x.SlidingExpiration = CacheKeys.SlidingExpirationCaching;
-                    var databases =await _databaseRepository.GetAll();
-                    return _mapper.Map<List<ListDatabaseDto>>(databases);
-                });
+                var mappedData = await _cache.GetOrCreateAsync(CacheKeys.DatabaseKey(), async x =>
+                  {
+                      x.SlidingExpiration = CacheKeys.SlidingExpirationCaching;
+                      var databases = await _databaseRepository.GetAll();
+                      return _mapper.Map<List<ListDatabaseDto>>(databases);
+                  });
                 return mappedData;
             }
             catch (Exception e)
@@ -63,13 +63,13 @@ namespace T_API.BLL.Concrete
                 if (userId == 0) throw new ArgumentNullException("userId", "Kullanıcı Idsi boş olamaz");
 
 
-                var mappedEntities=await _cache.GetOrCreateAsync(CacheKeys.DatabaseKeyByUser(userId), async x =>
-                {
-                    x.SlidingExpiration = CacheKeys.SlidingExpirationCaching;
-                    var databases = await _databaseRepository.GetByUser(userId);
-                    return _mapper.Map<List<ListDatabaseDto>>(databases);
+                var mappedEntities = await _cache.GetOrCreateAsync(CacheKeys.DatabaseKeyByUser(userId), async x =>
+                  {
+                      x.SlidingExpiration = CacheKeys.SlidingExpirationCaching;
+                      var databases = await _databaseRepository.GetByUser(userId);
+                      return _mapper.Map<List<ListDatabaseDto>>(databases);
 
-                });
+                  });
                 return mappedEntities;
             }
             catch (Exception e)
@@ -149,8 +149,14 @@ namespace T_API.BLL.Concrete
                 var databases = await _databaseRepository.GetByUser(user.Username);
 
 
-                if (package.Price <= 0.0 && databases.FirstOrDefault(x => x.PackageId == package.PackageId) != null)
-                    throw new UnauthorizedAccessException("Ücretsiz paket birden fazla alınamaz");
+                if (package.Price <= 0.0)
+                {
+                    if (databases.FirstOrDefault(x => x.PackageId == package.PackageId) != null)
+                        throw new UnauthorizedAccessException("Ücretsiz paket birden fazla alınamaz");
+                    else
+                        if(dto.MonthCount>1)
+                            throw new UnauthorizedAccessException("Ücretsiz paket bir aydan fazla süre için alınamaz");
+                }
                 if (!(Convert.ToDouble(user.Balance) - package.Price * dto.MonthCount >= 0))
                     throw new Exception("Bakiye yetersiz.");
 

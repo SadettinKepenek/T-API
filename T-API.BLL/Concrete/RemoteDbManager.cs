@@ -88,7 +88,7 @@ namespace T_API.BLL.Concrete
             try
             {
 
-
+                var database = await _databaseRepository.Get(dbInformation.DatabaseName);
 
 
                 if (SqlCodeGeneratorFactory.CreateGenerator(table.Provider) is MySqlCodeGenerator mySqlCodeGenerator)

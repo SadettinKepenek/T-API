@@ -14,6 +14,7 @@ namespace T_API.DAL.Abstract
         Task<List<Database>> GetByUser(int userId);
         Task<List<Database>> GetByUser(string username);
         Task<Database> Get(int databaseId);
+        Task<Database> Get(string databaseName);
         Task<List<Database>> GetAll();
         Task SuspendDatabase(int databaseId);
         Task RecoverDatabase(int databaseId);

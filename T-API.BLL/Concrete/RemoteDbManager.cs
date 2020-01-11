@@ -30,12 +30,17 @@ namespace T_API.BLL.Concrete
     public class RemoteDbManager : IRemoteDbService
     {
         private IMapper _mapper;
+        private IPackageService _packageService;
+        private IDatabaseRepository _databaseRepository;
+        
 
         //Factory Design Pattern
 
-        public RemoteDbManager(IMapper mapper)
+        public RemoteDbManager(IMapper mapper, IPackageService packageService, IDatabaseRepository databaseRepository)
         {
             _mapper = mapper;
+            _packageService = packageService;
+            _databaseRepository = databaseRepository;
         }
 
         /// <summary>
@@ -82,6 +87,10 @@ namespace T_API.BLL.Concrete
         {
             try
             {
+
+
+
+
                 if (SqlCodeGeneratorFactory.CreateGenerator(table.Provider) is MySqlCodeGenerator mySqlCodeGenerator)
                 {
                     AddTableValidator validator = new AddTableValidator();

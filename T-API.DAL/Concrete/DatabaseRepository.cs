@@ -309,7 +309,7 @@ namespace T_API.DAL.Concrete
             return databaseEntity;
         }
 
-        public async Task<Database> GetById(int databaseId)
+        public async Task<Database> Get(int databaseId)
         {
             try
             {
@@ -350,6 +350,65 @@ namespace T_API.DAL.Concrete
                 using (cmd)
                 {
                     cmd.AddParameter("DatabaseId", databaseId);
+
+                    var sqlReader = cmd.ExecuteReader();
+
+
+                    DataTable dt = new DataTable();
+                    dt.Load(sqlReader);
+                    Database databaseEntity;
+                    var dataRow = dt.Rows[0];
+                    databaseEntity = ProcessDatabaseEntity(dataRow);
+                    return databaseEntity;
+                }
+            }
+            catch (Exception e)
+            {
+                throw ExceptionHandler.HandleException(e);
+            }
+
+        }
+        public async Task<Database> Get(string databaseName)
+        {
+            try
+            {
+                using var conn = DbConnectionFactory.CreateConnection(ConfigurationSettings.DbInformation);
+
+                string sql = "Select DatabaseId," +
+                             "UserId," +
+                             "Server," +
+                             "Username," +
+                             "Password," +
+                             "Port," +
+                             "Provider," +
+                             "StartDate," +
+                             "EndDate," +
+                             "`Database`," +
+                             "d.PackageId," +
+                             "IsActive," +
+                             "PackageName," +
+                             "IsApiSupport," +
+                             "IsAuthSupport," +
+                             "IsStorageSupport," +
+                             "IsViewSupport," +
+                             "IsStoredProcedureSupport," +
+                             "IsUserDefinedFunctionSupport," +
+                             "IsTriggerSupport," +
+                             "IsJobSupport," +
+                             "ApiRequestCount," +
+                             "MaxColumnPerTable," +
+                             "MaxTableCount," +
+                             "MaxStoredProcedureCount," +
+                             "MaxUserDefinedFunctionCount," +
+                             "MaxTriggerCount," +
+                             "MaxJobCount," +
+                             "MaxViewCount  from `databases` " +
+                             "INNER JOIN databasepackages d on `databases`.PackageId = d.PackageId WHERE `database`=@DatabaseName";
+
+                var cmd = conn.CreateCommand(sql);
+                using (cmd)
+                {
+                    cmd.AddParameter("DatabaseName", databaseName);
 
                     var sqlReader = cmd.ExecuteReader();
 

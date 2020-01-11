@@ -97,7 +97,7 @@ namespace T_API.UI.Controllers
             catch (Exception e)
             {
                 TempData["Message"] =
-                    e is DatabaseException ? e.Message : SystemMessages.DuringOperationExceptionMessage;
+                    e is DatabaseException || e is UnauthorizedAccessException ? e.Message : SystemMessages.DuringOperationExceptionMessage;
                 return RedirectToAction("Index", "Database");
             }
         }
@@ -126,7 +126,7 @@ namespace T_API.UI.Controllers
             catch (Exception e)
             {
                 TempData["Message"] =
-                    e is DatabaseException ? e.Message : SystemMessages.DuringOperationExceptionMessage;
+                    e is DatabaseException || e is UnauthorizedAccessException ? e.Message : SystemMessages.DuringOperationExceptionMessage;
                 return RedirectToAction("Index", "Database");
             }
         }

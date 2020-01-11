@@ -110,7 +110,7 @@ namespace T_API.BLL.Concrete
                 var mappedEntities = await _cache.GetOrCreateAsync(CacheKeys.DatabaseKeyById(databaseId), async x =>
                 {
                     x.SlidingExpiration = CacheKeys.SlidingExpirationCaching;
-                    var databases = await _databaseRepository.GetById(databaseId);
+                    var databases = await _databaseRepository.Get(databaseId);
                     var detailDatabaseDto = _mapper.Map<DetailDatabaseDto>(databases);
                     var dbInfo = _mapper.Map<DbInformation>(detailDatabaseDto);
 

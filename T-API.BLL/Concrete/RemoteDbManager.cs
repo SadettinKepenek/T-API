@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Reflection;
 using System.Threading.Tasks;
 using System.Transactions;
 using AutoMapper;
+using AutoMapper.QueryableExtensions;
 using T_API.BLL.Abstract;
 using T_API.BLL.Validators.Column;
 using T_API.BLL.Validators.Database;
@@ -30,12 +32,17 @@ namespace T_API.BLL.Concrete
     public class RemoteDbManager : IRemoteDbService
     {
         private IMapper _mapper;
+        private IPackageService _packageService;
+        private IDatabaseRepository _databaseRepository;
+
 
         //Factory Design Pattern
 
-        public RemoteDbManager(IMapper mapper)
+        public RemoteDbManager(IMapper mapper, IPackageService packageService, IDatabaseRepository databaseRepository)
         {
             _mapper = mapper;
+            _packageService = packageService;
+            _databaseRepository = databaseRepository;
         }
 
         /// <summary>
@@ -72,6 +79,8 @@ namespace T_API.BLL.Concrete
 
         }
 
+
+
         /// <summary>
         /// İstenilen veri tabanında tablo eklemek için kullanılan servis.
         /// </summary>
@@ -82,6 +91,15 @@ namespace T_API.BLL.Concrete
         {
             try
             {
+
+                var database = await _databaseRepository.Get(dbInformation.DatabaseName);
+                if (database.Tables.Count + 1 > database.Package.MaxTableCount)
+                {
+                    throw new DatabaseException($"{dbInformation.DatabaseName} için {database.Package.PackageName} paketinin sınırları aşıldı !");
+                }
+
+
+
                 if (SqlCodeGeneratorFactory.CreateGenerator(table.Provider) is MySqlCodeGenerator mySqlCodeGenerator)
                 {
                     AddTableValidator validator = new AddTableValidator();
@@ -137,6 +155,8 @@ namespace T_API.BLL.Concrete
         {
             try
             {
+
+
                 if (SqlCodeGeneratorFactory.CreateGenerator(key.Provider) is MySqlCodeGenerator codeGenerator)
                 {
                     AddKeyValidator validator = new AddKeyValidator();
@@ -172,6 +192,22 @@ namespace T_API.BLL.Concrete
         {
             try
             {
+                var database = await _databaseRepository.Get(dbInformation.DatabaseName);
+
+                var o = database.Tables.FirstOrDefault(x => x.TableName == column.TableName);
+                if (o != null)
+                {
+                    if (o.Columns.Count + 1 > database.Package.MaxColumnPerTable)
+                    {
+                        throw new DatabaseException(
+                            $"{dbInformation.DatabaseName} için {database.Package.PackageName} paketinin sınırları aşıldı !");
+                    }
+                }
+                else
+                {
+                    throw new DatabaseException($"{dbInformation.DatabaseName} için Tablo bulunamadı !");
+                }
+
                 if (SqlCodeGeneratorFactory.CreateGenerator(column.Provider) is MySqlCodeGenerator codeGenerator)
                 {
                     AddColumnValidator validator = new AddColumnValidator();
@@ -282,6 +318,8 @@ namespace T_API.BLL.Concrete
             try
             {
 
+
+               
                 if (SqlCodeGeneratorFactory.CreateGenerator(dbInformation.Provider) is MySqlCodeGenerator codeGenerator)
                 {
                     AddForeignKeyValidator validator = new AddForeignKeyValidator();
@@ -485,7 +523,7 @@ namespace T_API.BLL.Concrete
 
             try
             {
-                
+
                 if (RemoteDbRepositoryFactory.CreateRepository(dbInformation.Provider) is MySqlRemoteDbRepository remoteDbRepository)
                 {
                     var result = await remoteDbRepository.GetTable(tableName, dbInformation);

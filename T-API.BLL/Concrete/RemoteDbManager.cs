@@ -121,6 +121,8 @@ namespace T_API.BLL.Concrete
                         await ExecuteQueryOnRemote(command, dbInformation);
 
                     }
+
+
                     else
                     {
                         throw new ValidationException(validationResult.ToString());
@@ -555,6 +557,78 @@ namespace T_API.BLL.Concrete
             guidString = guidString.Substring(0, 5);
             guidString += $"U{userId}PW";
             return guidString;
+        }
+
+        public async Task AlterKeyOnRemote(UpdateKeyDto key, DbInformation dbInformation)
+        {
+            try
+            {
+
+                if (SqlCodeGeneratorFactory.CreateGenerator(dbInformation.Provider) is MySqlCodeGenerator codeGenerator)
+                {
+                    UpdateKeyValidator validator = new UpdateKeyValidator();
+                    var validationResult = validator.Validate(key);
+                    
+                    
+                    
+                    if (validationResult.IsValid)
+                    {
+                        var mappedNew = _mapper.Map<Key>(key);
+                        var mappedOld = _mapper.Map<Key>(key.OldKey);
+                        var dbTable = await GetTable(key.TableName, dbInformation);
+                        var table = _mapper.Map<Table>(dbTable);
+
+                        List<string> queries = new List<string>
+                        {
+                            codeGenerator.GenerateDropKeyQuery(mappedOld,table),
+                            codeGenerator.GenerateAddKeyQuery(mappedNew,table)
+                        };
+
+                        await ExecuteQueryOnRemote(queries, dbInformation);
+
+                    }
+                    else
+                    {
+                        throw new ValidationException(validationResult.ToString());
+                    }
+                }
+
+
+            }
+            catch (Exception e)
+            {
+                throw ExceptionHandler.HandleException(e);
+            }
+        }
+
+        public async Task DropKeyOnRemote(DeleteKeyDto key, DbInformation dbInformation)
+        {
+            try
+            {
+                if (SqlCodeGeneratorFactory.CreateGenerator(dbInformation.Provider) is MySqlCodeGenerator codeGenerator)
+                {
+                    DeleteKeyValidator validator = new DeleteKeyValidator();
+                    var validationResult = validator.Validate(key);
+                    if (validationResult.IsValid)
+                    {
+                        var databaseEntity = await GetTable(key.TableName, dbInformation);
+
+                        var mappedEntity = _mapper.Map<Key>(key);
+                        var table = _mapper.Map<Table>(databaseEntity);
+                        var command = codeGenerator.GenerateDropKeyQuery(mappedEntity, table);
+                        await ExecuteQueryOnRemote(command, dbInformation);
+                    }
+                    else
+                    {
+                        throw new ValidationException(validationResult.ToString());
+                    }
+                }
+
+            }
+            catch (Exception e)
+            {
+                throw ExceptionHandler.HandleException(e);
+            }
         }
     }
 }

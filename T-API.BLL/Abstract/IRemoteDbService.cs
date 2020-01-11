@@ -17,10 +17,11 @@ namespace T_API.BLL.Abstract
         Task CreateTableOnRemote(AddTableDto database, DbInformation dbInformation);
         Task DropTableOnRemote(DeleteTableDto table, DbInformation dbInformation);
         Task CreateKeyOnRemote(AddKeyDto key, DbInformation dbInformation);
+        Task AlterKeyOnRemote(UpdateKeyDto key, DbInformation dbInformation);
         Task CreateColumnOnRemote(AddColumnDto column,DbInformation dbInformation);
         Task AlterColumnOnRemote(UpdateColumnDto column, DbInformation dbInformation);
         Task DropColumnOnRemote(DeleteColumnDto column, DbInformation dbInformation);
-
+        Task DropKeyOnRemote(DeleteKeyDto key, DbInformation dbInformation);
         Task CreateForeignKeyOnRemote(AddForeignKeyDto foreignKey, DbInformation dbInformation);
         Task AlterForeignKeyOnRemote(UpdateForeignKeyDto foreignKey, DbInformation dbInformation);
         Task DropForeignKeyOnRemote(DeleteForeignKeyDto foreignKey, DbInformation dbInformation);

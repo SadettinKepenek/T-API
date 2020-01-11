@@ -258,6 +258,34 @@ namespace T_API.UI.Controllers
             }
 
         }
+
+        [HttpPost]
+        public async Task<IActionResult> UpdateKey([FromBody] UpdateKeyDto model)
+        {
+
+            try
+            {
+                var db = await _databaseService.GetById(model.DatabaseId);
+                if (db.UserId != HttpContext.GetNameIdentifier())
+                {
+                    return Unauthorized(SystemMessages.UnauthorizedOperationExceptionMessage);
+                }
+                var dbInformation = _mapper.Map<DbInformation>(db);
+                await _remoteDbService.AlterKeyOnRemote(model, dbInformation);
+                await _cacheService.RemoveCache(HttpContext.GetNameIdentifier());
+                return Ok(SystemMessages.SuccessMessage);
+            }
+            catch (Exception e)
+            {
+                if (e is ValidationException)
+                    return BadRequest(e.Message);
+                if (e is DatabaseException)
+                    return BadRequest(e.Message);
+                return BadRequest(SystemMessages.DuringOperationExceptionMessage);
+
+            }
+
+        }
         [HttpDelete]
         public async Task<IActionResult> DeleteColumn([FromBody] DeleteColumnDto model)
         {
@@ -288,7 +316,36 @@ namespace T_API.UI.Controllers
             }
 
         }
+        [HttpDelete]
+        public async Task<IActionResult> DeleteKey([FromBody] DeleteKeyDto model)
+        {
 
+            if (model == null)
+                return BadRequest("Gönderilen veri boş");
+            try
+            {
+                var db = await _databaseService.GetById(model.DatabaseId);
+                if (db.UserId != HttpContext.GetNameIdentifier())
+                {
+                    return Unauthorized(SystemMessages.UnauthorizedOperationExceptionMessage);
+                }
+                var dbInformation = _mapper.Map<DbInformation>(db);
+
+                await _remoteDbService.DropKeyOnRemote(model, dbInformation);
+                await _cacheService.RemoveCache(HttpContext.GetNameIdentifier());
+                return Ok(SystemMessages.SuccessMessage);
+            }
+            catch (Exception e)
+            {
+                if (e is ValidationException)
+                    return BadRequest(e.Message);
+                if (e is DatabaseException)
+                    return BadRequest(e.Message);
+
+                return BadRequest(SystemMessages.DuringOperationExceptionMessage);
+            }
+
+        }
         [HttpDelete]
         public async Task<IActionResult> DeleteTable([FromBody] DeleteTableDto model)
         {

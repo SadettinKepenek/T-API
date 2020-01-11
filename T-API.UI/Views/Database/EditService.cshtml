@@ -343,7 +343,57 @@
     </div>
 </div>
 
+<!--Update Key Modal-->
+<div class="modal fade" id="updateKeyModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="updateKeyModalTitle">Update Key</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="updateKeyForm">
 
+                    <h5>Provider Info</h5>
+                    <input id="updateKeyProviderInfo" placeholder="Provider Info" readonly="readonly" class="form-control" />
+                    <hr />
+
+
+                    <h5>Table Info</h5>
+                    <input id="updateKeyTableName" placeholder="Table Name" readonly="readonly" class="form-control" />
+                    <hr />
+
+                    <h5>Key Info</h5>
+                    <div class="form-group">
+                        <input id="updateKeyName" placeholder="Key Name" required="required" class="form-control" />
+
+                    </div>
+                    <div class="form-group">
+                        <select class="custom-select" required="required" id="updateKeyColumn">
+                            <option selected disabled="disabled">Key Column</option>
+                        </select>
+                    </div>
+
+                    <hr />
+                    <h5>Key Attributes</h5>
+                    <div class=" custom-control custom-checkbox">
+                        <input type="checkbox" class="custom-control-input form-control" id="updateKeyIsPrimary">
+                        <label class="custom-control-label" for="updateKeyIsPrimary">Is Primary</label>
+                    </div>
+
+
+                </form>
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" id="updateKeyModalSubmit">Save changes</button>
+            </div>
+        </div>
+    </div>
+</div>
 <!--Add Key Modal-->
 <div class="modal fade" id="addKeyModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered" role="document">

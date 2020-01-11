@@ -13,6 +13,7 @@ using Newtonsoft.Json.Linq;
 using T_API.BLL.Abstract;
 using T_API.Core.DAL.Concrete;
 using T_API.Core.Exception;
+using T_API.Core.Extensions;
 using T_API.DAL.Abstract;
 using T_API.DAL.Concrete;
 using T_API.Entity.Concrete;
@@ -176,6 +177,72 @@ namespace T_API.BLL.Concrete
                             stringBuilder.AppendLine(filter);
 
                             await realDbRepository.ExecuteQueryOnRemote(stringBuilder.ToString(), dbInformation);
+                            scope.Complete();
+                        }
+                        else
+                        {
+                            throw new DatabaseException(
+                                "Herhangi bir primary key bulunamadığı için default update methodu kullanılamaz.");
+                        }
+                    }
+                    else
+                    {
+                        throw new DatabaseException("Tablo bulunamadı");
+                    }
+                }
+                else
+                {
+                    throw new DatabaseException("Db Repository Referansına Ulaşlamadı");
+                }
+
+            }
+            catch (Exception e)
+            {
+                throw ExceptionHandler.HandleException(e);
+            }
+
+        }
+
+        public async Task Delete(string tableName, DbInformation dbInformation, JObject jObject)
+        {
+            try
+            {
+
+                if (RemoteDbRepositoryFactory.CreateRepository(dbInformation.Provider) is MySqlRemoteDbRepository realDbRepository)
+                {
+                    var table = await realDbRepository.GetTable(tableName, dbInformation);
+
+                    if (table != null)
+                    {
+                        using TransactionScope scope = new TransactionScope();
+
+                        StringBuilder stringBuilder = new StringBuilder();
+                        stringBuilder.AppendLine($"USE {dbInformation.DatabaseName};\n");
+                        stringBuilder.AppendLine($"DELETE FROM {tableName} \n");
+                        var pkColumn = table.Columns.FirstOrDefault(x => x.PrimaryKey);
+                        if (pkColumn != null)
+                        {
+
+                            stringBuilder.AppendLine(" WHERE ");
+
+
+                            foreach (Column column in table.Columns)
+                            {
+
+                                if (jObject[column.ColumnName] != null)
+                                {
+                                    stringBuilder.AppendLine(jObject[column.ColumnName].Type == JTokenType.String
+                                        ? $"\t{column.ColumnName}='{jObject[column.ColumnName]}' \n"
+                                        : $"\t{column.ColumnName}={jObject[column.ColumnName]} \n");
+                                    stringBuilder.Append(" AND ");
+                                }
+
+                            }
+
+                            var query = stringBuilder.EndsWith("AND ") ? stringBuilder.ToString(0, stringBuilder.Length-4) : stringBuilder.ToString();
+
+
+                            await realDbRepository.ExecuteQueryOnRemote(query, dbInformation);
                             scope.Complete();
                         }
                         else

@@ -19,19 +19,14 @@ namespace T_API.UI.Models.Database
         public int DatabaseId { get; set; }
         public string Server { get; set; }
         public string Username { get; set; }
-        public string Password { get; set; }
         public string DatabaseName { get; set; }
         public string Port { get; set; }
         public string Provider { get; set; }
 
-        public bool IsActive { get; set; }
-        public bool IsStorageSupport { get; set; }
-        public bool IsApiSupport { get; set; }
+
         public DateTime StartDate { get; set; }
         public DateTime EndDate { get; set; }
 
-        public ObservableCollection<DetailTableDto> Tables { get; set; }
 
-        public ObservableCollection<EndPointModel> EndPointModels { get; set; }
     }
 }

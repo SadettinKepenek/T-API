@@ -9,6 +9,7 @@ using T_API.BLL.Abstract;
 using T_API.BLL.Validators.Column;
 using T_API.BLL.Validators.Database;
 using T_API.BLL.Validators.ForeignKey;
+using T_API.BLL.Validators.Key;
 using T_API.BLL.Validators.Table;
 using T_API.Core.DAL.Concrete;
 using T_API.Core.DTO.Column;
@@ -125,6 +126,35 @@ namespace T_API.BLL.Concrete
                         throw new ValidationException(validationResult.ToString());
                     }
                 }
+            }
+            catch (Exception e)
+            {
+                throw ExceptionHandler.HandleException(e);
+            }
+        }
+
+        public async Task CreateKeyOnRemote(AddKeyDto key, DbInformation dbInformation)
+        {
+            try
+            {
+                if (SqlCodeGeneratorFactory.CreateGenerator(key.Provider) is MySqlCodeGenerator codeGenerator)
+                {
+                    AddKeyValidator validator = new AddKeyValidator();
+                    var validationResult = validator.Validate(key);
+                    if (validationResult.IsValid)
+                    {
+                        var entity = _mapper.Map<Key>(key);
+                        var dbTable = await GetTable(key.TableName, dbInformation);
+                        var table = _mapper.Map<Table>(dbTable);
+                        string command = codeGenerator.GenerateAddKeyQuery(entity, table);
+                        await ExecuteQueryOnRemote(command, dbInformation);
+                    }
+                    else
+                    {
+                        throw new ValidationException(validationResult.ToString());
+                    }
+                }
+
             }
             catch (Exception e)
             {

@@ -205,6 +205,33 @@ namespace T_API.UI.Controllers
         }
 
         [HttpPost]
+        public async Task<IActionResult> AddKey([FromBody] AddKeyDto model)
+        {
+            try
+            {
+                var db = await _databaseService.GetById(model.DatabaseId);
+                if (db.UserId != HttpContext.GetNameIdentifier())
+                {
+                    return Unauthorized(SystemMessages.UnauthorizedOperationExceptionMessage);
+                }
+                var dbInformation = _mapper.Map<DbInformation>(db);
+                await _remoteDbService.CreateKeyOnRemote(model, dbInformation);
+                await _cacheService.RemoveCache(HttpContext.GetNameIdentifier());
+                return Ok(SystemMessages.SuccessMessage);
+            }
+            catch (Exception e)
+            {
+                if (e is ValidationException)
+                    return BadRequest(e.Message);
+                if (e is DatabaseException)
+                    return BadRequest(e.Message);
+                return BadRequest(SystemMessages.DuringOperationExceptionMessage);
+            }
+
+        }
+
+
+        [HttpPost]
         public async Task<IActionResult> UpdateColumn([FromBody] UpdateColumnDto model)
         {
 

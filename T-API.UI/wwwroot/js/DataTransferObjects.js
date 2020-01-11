@@ -1,4 +1,18 @@
-﻿class AddColumnDto {
+﻿class AddKeyDto {
+    TableName = '';
+    KeyName = '';
+    KeyColumn = '';
+    IsPrimary = false;
+    DatabaseId = 0;
+    Provider = '';
+    constructor(databaseId, provider) {
+        this.DatabaseId = databaseId;
+        this.Provider = provider;
+    }
+}
+
+
+class AddColumnDto {
     TableName = '';
     ColumnName = '';
     DataType = '';

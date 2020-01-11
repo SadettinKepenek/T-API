@@ -16,6 +16,7 @@ namespace T_API.BLL.Abstract
         Task CreateDatabaseOnRemote(AddDatabaseDto database);
         Task CreateTableOnRemote(AddTableDto database, DbInformation dbInformation);
         Task DropTableOnRemote(DeleteTableDto table, DbInformation dbInformation);
+        Task CreateKeyOnRemote(AddKeyDto key, DbInformation dbInformation);
         Task CreateColumnOnRemote(AddColumnDto column,DbInformation dbInformation);
         Task AlterColumnOnRemote(UpdateColumnDto column, DbInformation dbInformation);
         Task DropColumnOnRemote(DeleteColumnDto column, DbInformation dbInformation);

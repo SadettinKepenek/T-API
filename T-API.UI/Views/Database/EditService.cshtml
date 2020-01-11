@@ -344,6 +344,57 @@
 </div>
 
 
+<!--Add Key Modal-->
+<div class="modal fade" id="addKeyModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="addKeyModalTitle">Add Key</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="addKeyForm">
+
+                    <h5>Provider Info</h5>
+                    <input id="addKeyProviderInfo" placeholder="Provider Info" readonly="readonly" class="form-control" />
+                    <hr />
+
+
+                    <h5>Table Info</h5>
+                    <input id="addKeyTableName" placeholder="Table Name" readonly="readonly" class="form-control" />
+                    <hr />
+
+                    <h5>Key Info</h5>
+                    <div class="form-group">
+                        <input id="addKeyName" placeholder="Key Name" required="required" class="form-control" />
+
+                    </div>
+                    <div class="form-group">
+                        <select class="custom-select" required="required" id="addKeyColumn">
+                            <option selected disabled="disabled">Key Column</option>
+                        </select>
+                    </div>
+
+                    <hr />
+                    <h5>Key Attributes</h5>
+                    <div class=" custom-control custom-checkbox">
+                        <input type="checkbox" class="custom-control-input form-control" id="addKeyIsPrimary">
+                        <label class="custom-control-label" for="addKeyIsPrimary">Is Primary</label>
+                    </div>
+
+
+                </form>
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" id="addKeyModalSubmit">Save changes</button>
+            </div>
+        </div>
+    </div>
+</div>
 
 
 <script type="text/javascript">

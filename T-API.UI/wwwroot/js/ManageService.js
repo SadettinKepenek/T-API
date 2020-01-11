@@ -101,7 +101,7 @@ var init = function init(databaseId, dbProvider) {
                 if (window.databaseTables === null || window.databaseTables === undefined)
                     showCriticalError('Hata',
                         'Veritabanı yüklenirken hata oluştu lütfen daha sonra tekrar deneyiniz..',
-                        baseUrl+"/Database/");
+                        baseUrl + "/Database/");
                 $('#updateColumnForm').trigger('reset');
                 $('#updateDataLength').fadeOut();
                 getDataTypes(window.dbProvider, 'updateDataType');
@@ -158,7 +158,7 @@ var init = function init(databaseId, dbProvider) {
             if (window.databaseTables === null || window.databaseTables === undefined)
                 showCriticalError('Hata',
                     'Veritabanı yüklenirken hata oluştu lütfen daha sonra tekrar deneyiniz..',
-                    baseUrl+"/Database/");
+                    baseUrl + "/Database/");
             $('#updateForeignKeyForm').trigger('reset');
 
             $('#updateForeignKeySourceColumn').find('option').not(':first').remove();
@@ -245,6 +245,57 @@ var init = function init(databaseId, dbProvider) {
 
         });
 
+
+        // add Key Shown Event
+
+        $('#addKeyModal').on('shown.bs.modal',
+            function (e) {
+                if (window.databaseTables === null || window.keys === null) {
+                    showCriticalError('Hata',
+                        'Veritabanı yüklenirken hata oluştu lütfen daha sonra tekrar deneyiniz..',
+                        baseUrl + "/Database/");
+                    return;
+                }
+
+
+                $('#addKeyForm').trigger('reset');
+                $('#addKeyColumn').find('option').not(':first').remove();
+
+
+
+
+
+                window.addKeyDto = new AddKeyDto(parseInt(window.databaseId), window.dbProvider);
+                var tableName = $(e.relatedTarget).data('id');
+                window.addKeyDto.TableName = tableName;
+                window.addKeyDto.Provider = window.dbProvider;
+
+                $('#addKeyTableName').val(tableName);
+                $('#addKeyProviderInfo').val(addKeyDto.Provider);
+                var table = window.databaseTables.find(x => x.tableName === tableName);
+                if (table === null || table === undefined)
+                    showCriticalError('Hata',
+                        'Veritabanı yüklenirken hata oluştu lütfen daha sonra tekrar deneyiniz..',
+                        baseUrl + "/Database/");
+                else {
+
+                    table.columns.forEach(function (column) {
+                        var key = table.keys.find(x => x.keyColumn === column.columnName);
+                        if (key === null || key === undefined) {
+                            $('#addKeyColumn').append($('<option>',
+                                {
+                                    value: column.columnName,
+                                    text: column.columnName
+                                }));
+                        }
+
+                        
+                    });
+                }
+
+            });
+
+
         //Loading barı kapatır.
         $('#loadingSpinner').fadeOut();
 
@@ -303,13 +354,19 @@ var parseDatabase = function parseDatabase(table) {
         tableContentString += '<h5 class="text-center">Columns</h5>';
         tableContentString += '<hr/>';
         tableContentString += '<div class="row">';
-        tableContentString += '<table class="table table-striped table-bordered" id="databaseTable_Columns_' + table.tableName + '"></table>';
+        tableContentString += '<table class="table table-striped  table-bordered" id="databaseTable_Columns_' + table.tableName + '"></table>';
         tableContentString += '</div>';
         // Add Foreign Key Section
         tableContentString += '<h5 class="text-center">Foreign Keys</h5>';
         tableContentString += '<hr/>';
         tableContentString += '<div class="row">';
         tableContentString += '<table class="table table-striped  table-bordered" id="databaseTable_Foreigns_' + table.tableName + '"></table>';
+        tableContentString += '</div>';
+        // Add Keys Section
+        tableContentString += '<h5 class="text-center">Keys</h5>';
+        tableContentString += '<hr/>';
+        tableContentString += '<div class="row">';
+        tableContentString += '<table class="table table-striped  table-bordered" id="databaseTable_Keys_' + table.tableName + '"></table>';
         tableContentString += '</div>';
         // Container bitiş
         tableContentString += '</div>';
@@ -318,6 +375,7 @@ var parseDatabase = function parseDatabase(table) {
         // Initialize Datatable for Columns
         initDataTableForColumns(table.tableName);
         initDataTableForForeigns(table.tableName);
+        initDataTableForKeys(table.tableName);
         window.tableCount++;
     });
 };
@@ -380,8 +438,83 @@ var initDataTableForForeigns = function initDataTableForForeigns(tableName) {
 
 };
 
-// Table için sütunların datatableını ayarlar.
+// Table için Indexlerin datatableini ayarlar.
 
+var initDataTableForKeys = function initDataTableForKeys(tableName) {
+
+    if (window.databaseTables === null || window.databaseTables === undefined) {
+        showCriticalError('Hata',
+            'Veritabanı yüklenirken hata oluştu lütfen daha sonra tekrar deneyiniz..',
+            baseUrl + "/Database/");
+    }
+
+    var data = window.databaseTables.find(x => x.tableName === tableName);
+    if (data) {
+        var buttonStr = '';
+        buttonStr += '<button type="button"' +
+            ' class="btn btn-info btn-sm"' +
+            ' style="margin-bottom: 5px;margin-left:10px;"' +
+            ' data-toggle="modal" ' +
+            ' data-id=' + tableName +
+            ' data-target="#addKeyModal">';
+        buttonStr += 'Add';
+        buttonStr += '</button>';
+
+        $('#databaseTable_Keys_' + tableName).DataTable({
+            processing: true,
+            data: data.keys,
+            destroy: true,
+            columns: [
+                { data: "keyName", title: "Key Name" },
+                { data: "keyColumn", title: "Key Column" },
+                { data: "isPrimary", title: "Is Primary" },
+                { data: "tableName", title: "Table Name" },
+                {
+                    data: null,
+                    render: function (data, type, row, meta) {
+                        return type === 'display' ? getKeyEditButtonString(data) : data;
+                    },
+                    title: buttonStr,
+                    className: "center"
+                }
+            ],
+            "paging": false,
+            "ordering": false,
+            "info": false,
+            "searching": false,
+
+        });
+    } else {
+        showCriticalError('Hata',
+            'Veritabanı yüklenirken hata oluştu lütfen daha sonra tekrar deneyiniz..',
+            baseUrl + "/Database/");
+    }
+
+
+};
+
+
+// Table için sütunların datatableını ayarlar.
+var getKeyEditButtonString = function getKeyEditButtonString(data) {
+    var buttonStr = '';
+    buttonStr += '<button type="button"' +
+        ' class="btn btn-info btn-sm"' +
+        ' style="margin-bottom: 5px;margin-left:10px;"' +
+        ' data-toggle="modal" ' +
+        ' data-keyName=' + data.keyName +
+        ' data-id=' +
+        data.tableName +
+        ' data-target="#updateKeyModal">';
+    buttonStr += 'Edit';
+    buttonStr += '</button>';
+    buttonStr += '<button type="button"' +
+        ' class="btn btn-danger btn-sm"' +
+        ' style="margin-bottom: 5px;margin-left:10px;"' +
+        ' onclick="deleteKey(\'' + data.keyName + '\',\'' + data.tableName + '\')">';
+    buttonStr += 'Delete';
+    buttonStr += '</button>';
+    return buttonStr;
+};
 var getColumnEditButtonString = function getColumnEditButtonString(data) {
     var buttonStr = '';
     buttonStr += '<button type="button"' +
@@ -481,7 +614,6 @@ var initDataTableForColumns = function initDataTableForColumns(tableName) {
 
 
 };
-
 // Tablo ismine göre tableın sütunlarını getirir.
 var getColumnsByTableName = function getColumns(tableName) {
     if (window.databaseTables) {
@@ -547,7 +679,7 @@ var getDatabase = function getDatabase(databaseId) {
     tableContent.empty();
 
     $.ajax({
-        url: baseUrl+'/Database/GetDatabase?databaseId=' + databaseId,
+        url: baseUrl + '/Database/GetDatabase?databaseId=' + databaseId,
         type: 'GET',
         success: function (data, textStatus, xhr) {
             window.databaseTables = data.tables;
@@ -564,7 +696,7 @@ var getDatabase = function getDatabase(databaseId) {
         $('#errorModalBodyText').text('Veritabanı yüklenirken hata oluştu lütfen daha sonra tekrar deneyiniz..!');
         $('#errorModal').modal('show');
         $('#errorModal').on('hidden.bs.modal', function (e) {
-            window.location.replace(baseUrl+"/Database/");
+            window.location.replace(baseUrl + "/Database/");
         });
     });
 };
@@ -572,7 +704,7 @@ var getDatabase = function getDatabase(databaseId) {
 // Tablo ismine ve providere göre tablo getirilir.
 var getTable = function getTable(tableName, provider) {
     $.ajax({
-        url: baseUrl+'/Database/GetTable?databaseId=' + window.databaseId
+        url: baseUrl + '/Database/GetTable?databaseId=' + window.databaseId
             + '&tableName=' + tableName + '&provider=' + provider,
         type: 'GET',
         success: function (data, textStatus, xhr) {
@@ -588,7 +720,7 @@ var getTable = function getTable(tableName, provider) {
         $('#errorModalBodyText').text('Veritabanı yüklenirken hata oluştu lütfen daha sonra tekrar deneyiniz..!');
         $('#errorModal').modal('show');
         $('#errorModal').on('hidden.bs.modal', function (e) {
-            window.location.replace(baseUrl+"/Database/");
+            window.location.replace(baseUrl + "/Database/");
         });
     });
 };
@@ -596,7 +728,7 @@ var getTable = function getTable(tableName, provider) {
 // Kullanılabilir veri tipi providere bağlı olarak getirilir.
 var getDataTypes = function getDataTypes(provider, selectId) {
     $.ajax({
-        url: baseUrl+'/Database/GetDataTypes?provider=' + provider,
+        url: baseUrl + '/Database/GetDataTypes?provider=' + provider,
         type: 'GET',
         success: function (data, textStatus, xhr) {
             $('#' + selectId).find('option').not(':first').remove();
@@ -617,7 +749,7 @@ var getDataTypes = function getDataTypes(provider, selectId) {
         $('#errorModalBodyText').text('Veri Tipleri yüklenirken hata oluştu lütfen daha sonra tekrar deneyiniz..!');
         $('#errorModal').modal('show');
         $('#errorModal').on('hidden.bs.modal', function (e) {
-            window.location.replace(baseUrl+"/Database/");
+            window.location.replace(baseUrl + "/Database/");
         });
     });
 
@@ -823,7 +955,6 @@ var prepareInputChangeEvents = function prepareInputChangeEvents() {
     $('#updateForeignKeyName').on('change', function (e) {
         window.updateForeignKeyDto.ForeignKeyName = this.value;
     });
-
     $('#updateForeignKeySubmit').click(function (e) {
         e.preventDefault();
         if (window.updateForeignKeyDto === null) {
@@ -834,6 +965,36 @@ var prepareInputChangeEvents = function prepareInputChangeEvents() {
         updateForeignKey(window.updateForeignKeyDto);
     });
 
+    // Add Key Modal
+
+    $('#addKeyModalSubmit').click(function (e) {
+        e.preventDefault();
+        if (window.addColumnDto === null) {
+            $('#errorModalTitle').text('Hata!');
+            $('#errorModalBodyText').text('Herhangi bir veri gönderilmedi..!');
+            $('#errorModal').modal('show');
+        }
+        addKey(window.addKeyDto);
+    });
+    $('#addKeyName').on('input', function(e) {
+        if (this.value.search(' ') >= 0) {
+            alert('Lütfen Key isimlerinde boşluk bırakmayınız');
+
+            $('#addKeyName').val(this.value.replace(/\s/g, ''));
+            window.addKeyDto.KeyName = $('#addKeyName').val();
+        } else {
+            window.addKeyDto.KeyName = $('#addKeyName').val();
+        }
+    });
+
+    $('#addKeyColumn').on('change', function(e) {
+        window.addKeyDto.KeyColumn = this.value;
+    });
+    $('#addKeyIsPrimary').on('change', function () {
+        window.addKeyDto.IsPrimary = this.checked;
+    });
+
+
 };
 
 // Sütun ekleme (Server-Side) 
@@ -843,7 +1004,7 @@ var addColumn = function addColumn(columnObj) {
         beforeSend: function (request) {
             request.setRequestHeader("Content-Type", "application/json");
         },
-        url: baseUrl+'/Database/AddColumn',
+        url: baseUrl + '/Database/AddColumn',
         data: JSON.stringify(columnObj),
         contentType: "application/json",
         success: function (data) {
@@ -860,6 +1021,33 @@ var addColumn = function addColumn(columnObj) {
     });
 };
 
+
+// Key Ekleme (Server-side)
+var addKey = function addKey(keyObj) {
+    $.ajax({
+        type: 'POST',
+        beforeSend: function (request) {
+            request.setRequestHeader("Content-Type", "application/json");
+        },
+        url: baseUrl + '/Database/AddKey',
+        data: JSON.stringify(keyObj),
+        contentType: "application/json",
+        success: function (data) {
+            getDatabase(keyObj.DatabaseId);
+            $('#addKeyModal').modal('toggle');
+        },
+        error: function (XMLHttpRequest, textStatus, errorThrown) {
+            $('#errorModalTitle').text('Hata!');
+            $('#errorModalBodyText').text(XMLHttpRequest.responseText);
+            $('#errorModal').modal('show');
+        },
+        done: function (data) {
+        }
+    });
+};
+
+
+
 // Relationship ekleme (Server-Side)
 var addForeignKey = function addForeignKey(foreignKey) {
     $.ajax({
@@ -867,7 +1055,7 @@ var addForeignKey = function addForeignKey(foreignKey) {
         beforeSend: function (request) {
             request.setRequestHeader("Content-Type", "application/json");
         },
-        url: baseUrl+'/Database/AddForeignKey',
+        url: baseUrl + '/Database/AddForeignKey',
         data: JSON.stringify(foreignKey),
         contentType: "application/json",
         success: function (data) {
@@ -891,7 +1079,7 @@ var updateColumn = function updateColumn(columnObj) {
         beforeSend: function (request) {
             request.setRequestHeader("Content-Type", "application/json");
         },
-        url: baseUrl+'/Database/UpdateColumn',
+        url: baseUrl + '/Database/UpdateColumn',
         data: JSON.stringify(columnObj),
         contentType: "application/json",
         success: function (data) {
@@ -899,7 +1087,7 @@ var updateColumn = function updateColumn(columnObj) {
             $('#updateColumnModal').modal('toggle');
         },
         error: function (XMLHttpRequest, textStatus, errorThrown) {
-            showCriticalError('Hata', 'Veritabanı yüklenirken hata oluştu lütfen daha sonra tekrar deneyiniz..', baseUrl+"/Database/")
+            showCriticalError('Hata', 'Veritabanı yüklenirken hata oluştu lütfen daha sonra tekrar deneyiniz..', baseUrl + "/Database/")
         },
         done: function (data) {
 
@@ -928,7 +1116,7 @@ var deleteColumn = function deleteColumn(columnName, tableName) {
         beforeSend: function (request) {
             request.setRequestHeader("Content-Type", "application/json");
         },
-        url: baseUrl+'/Database/DeleteColumn',
+        url: baseUrl + '/Database/DeleteColumn',
         data: JSON.stringify(data),
         contentType: "application/json",
         success: function (data) {
@@ -954,7 +1142,7 @@ var updateForeignKey = function updateForeignKey(foreignKey) {
         beforeSend: function (request) {
             request.setRequestHeader("Content-Type", "application/json");
         },
-        url: baseUrl+'/Database/UpdateForeignKey',
+        url: baseUrl + '/Database/UpdateForeignKey',
         data: JSON.stringify(foreignKey),
         contentType: "application/json",
         success: function (data) {
@@ -990,7 +1178,7 @@ var deleteForeignKey = function deleteForeignKey(foreignKey, tableName) {
         beforeSend: function (request) {
             request.setRequestHeader("Content-Type", "application/json");
         },
-        url: baseUrl+'/Database/DeleteForeignKey',
+        url: baseUrl + '/Database/DeleteForeignKey',
         data: JSON.stringify(data),
         contentType: "application/json",
         success: function (data) {
@@ -1031,7 +1219,7 @@ var dropTableRequest = function dropTableRequest(tableName) {
         beforeSend: function (request) {
             request.setRequestHeader("Content-Type", "application/json");
         },
-        url: baseUrl+'/Database/DeleteTable',
+        url: baseUrl + '/Database/DeleteTable',
         data: JSON.stringify(dto),
         contentType: "application/json",
         success: function (data) {

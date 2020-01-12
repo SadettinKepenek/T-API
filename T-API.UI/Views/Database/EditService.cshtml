@@ -25,6 +25,8 @@
 
 
 <div class="container-fluid">
+    <span class="text-danger">@TempData["Message"]</span>
+
     <div class="form-group">
         <label asp-for="DatabaseName">Database Name</label>
         <input type="text" class="form-control" placeholder="" asp-for="DatabaseName" readonly="readonly">

@@ -97,7 +97,8 @@ namespace T_API.UI.Controllers
             }
             catch (Exception e)
             {
-                return BadRequest(e.Message);
+                if (e is DatabaseException) return BadRequest(e.Message);
+                return BadRequest(SystemMessages.DuringOperationExceptionMessage);
             }
         }
         [HttpPost("Add/{serviceNumber}/{tableName}")]
@@ -121,7 +122,8 @@ namespace T_API.UI.Controllers
             }
             catch (Exception e)
             {
-                return BadRequest(e.Message);
+                if (e is DatabaseException) return BadRequest(e.Message);
+                return BadRequest(SystemMessages.DuringOperationExceptionMessage);
             }
         }
 
@@ -144,7 +146,36 @@ namespace T_API.UI.Controllers
             }
             catch (Exception e)
             {
-                return BadRequest(e.Message);
+                if (e is DatabaseException) return BadRequest(e.Message);
+
+                return BadRequest(SystemMessages.DuringOperationExceptionMessage);
+
+            }
+
+        }
+
+        [HttpDelete("Delete/{serviceNumber}/{tableName}")]
+        public async Task<IActionResult> Delete(int serviceNumber, string tableName)
+        {
+
+            try
+            {
+                int userId = HttpContext.GetNameIdentifier();
+                var db = await _databaseService.GetById(serviceNumber);
+                if (db.UserId == userId)
+                {
+                    JObject obj = await Request.ConvertRequestBody();
+                    var dbInfo = _mapper.Map<DbInformation>(db);
+                    await _dataService.Delete(tableName, dbInfo, obj);
+                    return Ok();
+                }
+                return Unauthorized(SystemMessages.UnauthorizedOperationExceptionMessage);
+            }
+            catch (Exception e)
+            {
+                if (e is DatabaseException) return BadRequest(e.Message);
+
+                return BadRequest(SystemMessages.DuringOperationExceptionMessage);
 
             }
 

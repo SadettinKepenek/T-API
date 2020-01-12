@@ -13,6 +13,7 @@ using Newtonsoft.Json.Linq;
 using T_API.BLL.Abstract;
 using T_API.Core.DAL.Concrete;
 using T_API.Core.Exception;
+using T_API.Core.Extensions;
 using T_API.DAL.Abstract;
 using T_API.DAL.Concrete;
 using T_API.Entity.Concrete;
@@ -72,29 +73,45 @@ namespace T_API.BLL.Concrete
                         StringBuilder stringBuilder = new StringBuilder();
                         stringBuilder.AppendLine($"USE {dbInformation.DatabaseName};\n");
                         stringBuilder.AppendLine($"INSERT INTO {tableName} ");
-                        string valuesString = "VALUES (";
+                        string valuesString = " VALUES (";
                         stringBuilder.Append($"(");
                         var columns = table.Columns.Where(x => x.PrimaryKey == false).ToList();
                         foreach (Column column in columns)
                         {
-                            stringBuilder.Append($"{column.ColumnName}");
-
-                            if (jObject[column.ColumnName].Type == JTokenType.String)
-                                valuesString += $"'{jObject[column.ColumnName]}'";
-                            else
-                                valuesString += jObject[column.ColumnName];
-
-                            if (columns.IndexOf(column) != columns.Count - 1)
+                            if (!column.AutoInc && !column.PrimaryKey)
                             {
-                                valuesString += ",";
-                                stringBuilder.Append(",");
+                                if (jObject[column.ColumnName] != null)
+                                {
+                                    stringBuilder.Append($"{column.ColumnName}");
+
+                                    if (jObject[column.ColumnName].Type == JTokenType.String)
+                                        valuesString += $"'{jObject[column.ColumnName]}'";
+                                    else
+                                        valuesString += jObject[column.ColumnName];
+
+                                    if (columns.IndexOf(column) != columns.Count - 1)
+                                    {
+                                        valuesString += ",";
+                                        stringBuilder.Append(",");
+                                    }
+                                }
+                                else
+                                {
+                                    if(column.NotNull)
+                                        throw new DatabaseException($"{column.ColumnName} boş geçilemez");
+                                }
+
+
                             }
+
                         }
 
-                        stringBuilder.Append($")");
+                        valuesString=valuesString.TrimEnd(',');
                         valuesString += ")";
-                        stringBuilder.AppendLine(valuesString);
-                        await realDbRepository.ExecuteQueryOnRemote(stringBuilder.ToString(), dbInformation);
+                        string s = stringBuilder.ToString().TrimEnd(',');
+                        s += ") \n";
+                        s += valuesString;
+                        await realDbRepository.ExecuteQueryOnRemote(s, dbInformation);
                         scope.Complete();
                     }
                     else
@@ -134,10 +151,13 @@ namespace T_API.BLL.Concrete
                         if (pkColumn != null)
                         {
                             if (jObject[pkColumn.ColumnName] == null)
-                                throw new NullReferenceException(
+                                throw new DatabaseException(
                                     "Herhangi bir primary key bulunamadığı için default update methodu kullanılamaz.");
+
+
                             foreach (Column column in table.Columns.Where(x => x.PrimaryKey == false))
                             {
+
                                 if (jObject[column.ColumnName] != null)
                                 {
                                     stringBuilder.AppendLine(jObject[column.ColumnName].Type == JTokenType.String
@@ -145,7 +165,7 @@ namespace T_API.BLL.Concrete
                                         : $"\t{column.ColumnName}={jObject[column.ColumnName]} \n");
                                     stringBuilder.Append(",");
                                 }
-                                
+
                             }
 
                             stringBuilder[^1] = stringBuilder[^1] == ',' ? ' ' : stringBuilder[^1];
@@ -161,18 +181,84 @@ namespace T_API.BLL.Concrete
                         }
                         else
                         {
-                            throw new NullReferenceException(
+                            throw new DatabaseException(
                                 "Herhangi bir primary key bulunamadığı için default update methodu kullanılamaz.");
                         }
                     }
                     else
                     {
-                        throw new NullReferenceException("Tablo bulunamadı");
+                        throw new DatabaseException("Tablo bulunamadı");
                     }
                 }
                 else
                 {
-                    throw new NullReferenceException("Db Repository Referansına Ulaşlamadı");
+                    throw new DatabaseException("Db Repository Referansına Ulaşlamadı");
+                }
+
+            }
+            catch (Exception e)
+            {
+                throw ExceptionHandler.HandleException(e);
+            }
+
+        }
+
+        public async Task Delete(string tableName, DbInformation dbInformation, JObject jObject)
+        {
+            try
+            {
+
+                if (RemoteDbRepositoryFactory.CreateRepository(dbInformation.Provider) is MySqlRemoteDbRepository realDbRepository)
+                {
+                    var table = await realDbRepository.GetTable(tableName, dbInformation);
+
+                    if (table != null)
+                    {
+                        using TransactionScope scope = new TransactionScope();
+
+                        StringBuilder stringBuilder = new StringBuilder();
+                        stringBuilder.AppendLine($"USE {dbInformation.DatabaseName};\n");
+                        stringBuilder.AppendLine($"DELETE FROM {tableName} \n");
+                        var pkColumn = table.Columns.FirstOrDefault(x => x.PrimaryKey);
+                        if (pkColumn != null)
+                        {
+
+                            stringBuilder.AppendLine(" WHERE ");
+
+
+                            foreach (Column column in table.Columns)
+                            {
+
+                                if (jObject[column.ColumnName] != null)
+                                {
+                                    stringBuilder.AppendLine(jObject[column.ColumnName].Type == JTokenType.String
+                                        ? $"\t{column.ColumnName}='{jObject[column.ColumnName]}' \n"
+                                        : $"\t{column.ColumnName}={jObject[column.ColumnName]} \n");
+                                    stringBuilder.Append(" AND ");
+                                }
+
+                            }
+
+                            var query = stringBuilder.EndsWith("AND ") ? stringBuilder.ToString(0, stringBuilder.Length-4) : stringBuilder.ToString();
+
+
+                            await realDbRepository.ExecuteQueryOnRemote(query, dbInformation);
+                            scope.Complete();
+                        }
+                        else
+                        {
+                            throw new DatabaseException(
+                                "Herhangi bir primary key bulunamadığı için default update methodu kullanılamaz.");
+                        }
+                    }
+                    else
+                    {
+                        throw new DatabaseException("Tablo bulunamadı");
+                    }
+                }
+                else
+                {
+                    throw new DatabaseException("Db Repository Referansına Ulaşlamadı");
                 }
 
             }

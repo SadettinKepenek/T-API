@@ -11,5 +11,6 @@ namespace T_API.BLL.Abstract
         Task<string> Get(string tableName, DbInformation dbInformation);
         Task Add(string tableName, DbInformation dbInformation, JObject jObject);
         Task Update(string tableName, DbInformation dbInformation, JObject jObject);
+        Task Delete(string tableName, DbInformation dbInformation, JObject jObject);
     }
 }
